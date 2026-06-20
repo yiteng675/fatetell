@@ -1335,7 +1335,28 @@ function acRender() {
   if (ct) ct.textContent = acUsed;
 }
 
-function acSend() {
+// ── AnythingLLM 接入配置 ──
+const AI_BASE = 'http://43.131.226.115:6889';
+const AI_WORKSPACE = 'fatetell';
+const AI_KEY = 'ft-28d35439bef90eefd615dcbed914457837243779b8716eee';
+const AI_SESSION = 'user-' + Math.random().toString(36).slice(2, 9);
+
+async function acCallAI(userMsg) {
+  const res = await fetch(`${AI_BASE}/api/v1/workspace/${AI_WORKSPACE}/chat`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${AI_KEY}`
+    },
+    body: JSON.stringify({ message: userMsg, mode: 'chat', sessionId: AI_SESSION })
+  });
+  if (!res.ok) throw new Error('API error ' + res.status);
+  const data = await res.json();
+  const raw = data.textResponse || '暂时无法解读，请稍后再试。';
+  return raw.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+}
+
+async function acSend() {
   const inp = document.getElementById('ac-input');
   if (!inp) return;
   const text = inp.value.trim();
@@ -1343,29 +1364,40 @@ function acSend() {
   if (acUsed >= AC_LIMIT) { alert('今日解读次数已用完，明日再来'); return; }
   inp.value = '';
   acMessages.push({ role: 'user', text });
+  acMessages.push({ role: 'ai', text: '卜算中，请稍候…', showAvatar: true, loading: true });
   acRender();
-  setTimeout(() => {
+  try {
+    const reply = await acCallAI(text);
     acUsed++;
-    acMessages.push({ role: 'ai', text: acMockReply(text), showAvatar: true });
-    acRender();
-  }, 1200);
+    acMessages[acMessages.length - 1] = { role: 'ai', text: reply, showAvatar: true };
+  } catch (e) {
+    acMessages[acMessages.length - 1] = { role: 'ai', text: '连接失败，请检查网络后重试。', showAvatar: true };
+  }
+  acRender();
+  acSaveCount();
 }
 
-function acMockReply(q) {
-  return `简单来说，关于你所问的内容：\n\n从卦象来看，当前的局势需要你内观自省，以柔克刚才是上策。\n\n你内心有动力，但可能习惯独自硬扛，这反而会消耗你。主要的障碍是担心付出得不到公平回报，或者机遇不稳定。\n\n你最大的资源不是蛮力，而是内心的韧劲和以柔克刚的沟通能力。用好这个，你最终能摆脱需要"耍小聪明"才能立足的状态，建立起自己稳固、自主的方向。\n\n核心就是：务实深耕，打开心扉接纳支持，用内在的坚定去赢得公平和自主。`;
-}
-
-function openAiChat(initMsg) {
+async function openAiChat(initMsg) {
   if (acMessages.length === 0) {
     acMessages = [{ role: 'ai', text: AC_WELCOME, showAvatar: true }];
   }
   if (initMsg) {
     acMessages.push({ role: 'user', text: initMsg });
-    acUsed++;
-    acMessages.push({ role: 'ai', text: acMockReply(initMsg), showAvatar: true });
+    acMessages.push({ role: 'ai', text: '卜算中，请稍候…', showAvatar: true, loading: true });
   }
   go(7);
   setTimeout(acRender, 50);
+  if (initMsg) {
+    try {
+      const reply = await acCallAI(initMsg);
+      acUsed++;
+      acMessages[acMessages.length - 1] = { role: 'ai', text: reply, showAvatar: true };
+    } catch (e) {
+      acMessages[acMessages.length - 1] = { role: 'ai', text: '连接失败，请检查网络后重试。', showAvatar: true };
+    }
+    acRender();
+    acSaveCount();
+  }
 }
 
 // ══════════════════════════════════════
