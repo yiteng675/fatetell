@@ -591,10 +591,10 @@ body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;m
 
     <!-- 问卦 button -->
     <div style="display:flex;justify-content:center;padding:4px 0 10px;">
-      <div onclick="startDivination()" style="cursor:pointer;position:relative;width:110px;height:110px;display:flex;align-items:center;justify-content:center;">
-        <img src="btn/btn-wengua2.svg" style="position:absolute;width:110px;height:110px;animation:wengua-breathe 2.2s ease-in-out infinite;" />
-        <img src="btn/btn-wengua1.svg" style="position:absolute;width:82px;height:82px;" />
-        <span style="position:relative;z-index:1;color:#fff;font-size:16px;font-weight:600;font-family:'Noto Serif SC';letter-spacing:2px;">问卦</span>
+      <div onclick="startDivination()" style="cursor:pointer;position:relative;width:110px;height:110px;">
+        <img src="btn/btn-wengua2.svg" style="position:absolute;top:0;left:0;width:110px;height:110px;transform-origin:center center;animation:wengua-breathe 2.2s ease-in-out infinite;z-index:0;" />
+        <img src="btn/btn-wengua1.svg" style="position:absolute;top:14px;left:14px;width:82px;height:82px;z-index:1;" />
+        <span style="position:absolute;top:0;left:0;width:110px;height:110px;display:flex;align-items:center;justify-content:center;z-index:2;color:#fff;font-size:16px;font-weight:600;font-family:'Noto Serif SC';letter-spacing:2px;">问卦</span>
       </div>
     </div>
 
