@@ -1,0 +1,7 @@
+.claude/
+biao/
+__pycache__/
+*.py
+figma_*.json
+tmp_script_*.js
+test_url.txt

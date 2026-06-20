@@ -1,0 +1,3428 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<title>FateTell · 命理</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600&family=Noto+Sans+SC:wght@300;400;500&family=Saira+Stencil+One&family=Salsa&family=Zen+Dots&family=Signika+SC:wght@400&display=swap"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;min-height:100vh;font-family:'Noto Sans SC',sans-serif}
+.phone{width:390px;height:844px;background:#fff;border-radius:50px;overflow:hidden;position:relative;box-shadow:0 40px 100px rgba(0,0,0,.8);display:flex;flex-direction:column}
+.status-bar{height:44px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 22px;z-index:20}
+.slider{flex:1;overflow:hidden;display:flex}
+.slider-inner{display:flex;height:100%;transition:transform .4s cubic-bezier(.4,0,.2,1)}
+.screen{width:390px;flex-shrink:0;height:100%;display:flex;flex-direction:column;overflow:hidden;background:#fff}
+.scroll{overflow-y:auto;-webkit-overflow-scrolling:touch}
+.scroll::-webkit-scrollbar{display:none}
+
+/* NAV */
+.nav{height:80px;flex-shrink:0;background:#fff;border-top:1px solid rgba(0,0,0,.06);display:flex;align-items:flex-start;padding-top:8px;padding-bottom:0}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;color:#111;padding:0 2px;position:relative}
+.nb.on{color:#b10000}
+.nb>svg{width:24px;height:24px;}
+.nb img[alt="首页"]{filter:brightness(0)}
+.nb.on img[alt="首页"]{filter:none}
+.nb.on img[alt="易经"]{filter:invert(10%) sepia(100%) saturate(4000%) hue-rotate(350deg) brightness(80%) contrast(110%)}
+.nb span{font-size:10px;letter-spacing:.02em}
+.nb-ai{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;padding:0 2px;margin-top:-6px}
+.ai-bubble{width:44px;height:44px;display:flex;align-items:center;justify-content:center;margin-top:4px}
+.nb-ai.on .ai-bubble img{filter:invert(10%) sepia(100%) saturate(4000%) hue-rotate(350deg) brightness(80%) contrast(110%)}
+
+/* 问卦入口页 */
+.wg-sphere{width:88px;height:88px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#5a5a5a,#1e1e1e);box-shadow:0 10px 40px rgba(0,0,0,.28),inset 0 -6px 16px rgba(0,0,0,.4);animation:wg-breathe 3.5s ease-in-out infinite;margin-top:10px;flex-shrink:0}
+@keyframes wg-breathe{0%,100%{transform:scale(1);box-shadow:0 10px 40px rgba(0,0,0,.28),inset 0 -6px 16px rgba(0,0,0,.4)}50%{transform:scale(1.07);box-shadow:0 18px 58px rgba(0,0,0,.34),inset 0 -6px 16px rgba(0,0,0,.4)}}
+.wg-chip{background:#fff;border-radius:20px;padding:7px 15px;font-size:12.5px;color:#555;cursor:pointer;border:1px solid rgba(0,0,0,.07);font-family:'Noto Serif SC',serif;user-select:none}
+.wg-chip:active{background:#f2f2f2}
+.wg-btn-r{background:#b31a1a;color:#fff;text-align:center;padding:10px 16px;border-radius:30px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Noto Serif SC',serif;user-select:none;letter-spacing:.06em}
+.wg-btn-r:active{opacity:.88}
+.wg-btn-d{background:#333;color:#fff;text-align:center;padding:10px 16px;border-radius:30px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Noto Serif SC',serif;user-select:none;letter-spacing:.06em}
+.wg-btn-d:active{opacity:.82}
+
+/* ── 摇卦页 动画 ── */
+/* 摇卦旋转由 SVG animateTransform 驱动，无需 CSS 覆盖 */
+@keyframes zb-guike-shake {
+  0%,100%{ transform:rotate(0) translateY(0); }
+  12%{ transform:rotate(-16deg) translateY(-8px); }
+  28%{ transform:rotate(15deg) translateY(-5px); }
+  44%{ transform:rotate(-12deg) translateY(-10px); }
+  60%{ transform:rotate(10deg) translateY(-4px); }
+  76%{ transform:rotate(-6deg) translateY(-2px); }
+  90%{ transform:rotate(3deg) translateY(0); }
+}
+.zb-shaking { animation: zb-guike-shake 0.7s ease-in-out; }
+@keyframes zb-coin-pop {
+  0%   { opacity:0; transform:translateY(-32px) scale(.6); }
+  60%  { transform:translateY(5px) scale(1.06); }
+  100% { opacity:1; transform:translateY(0) scale(1); }
+}
+.zb-coin-anim { animation: zb-coin-pop 0.45s ease-out both; }
+
+/* CARDS */
+.date-card{background:#fff;border-radius:16px;box-shadow:0 2px 16px rgba(0,0,0,.08);padding:14px 16px;margin:0 16px}
+.fortune-card{background:linear-gradient(135deg,#fff5f0,#fff);border:1.5px solid rgba(232,78,15,.15);border-radius:16px;padding:14px 16px;margin:0 16px}
+
+/* BAGUA WHEEL */
+@keyframes wheel-slow{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes fade-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes coin-spin{0%{transform:rotateY(0)}50%{transform:rotateY(900deg) scale(1.2)}100%{transform:rotateY(1440deg)}}
+.coin-anim{animation:coin-spin 1.2s ease-out forwards}
+
+/* DIVINATION COIN */
+.coin{width:70px;height:70px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;cursor:default;position:relative}
+.coin.yang{background:radial-gradient(circle at 35% 32%,#f5df8a,#d4973a 60%,#9a6018);box-shadow:0 4px 16px rgba(200,150,48,.6);color:#6a3810}
+.coin.yin{background:radial-gradient(circle at 35% 32%,#ddd,#999 60%,#555);box-shadow:0 4px 12px rgba(0,0,0,.3);color:#333}
+.yao-row{display:flex;align-items:center;gap:8px;padding:2px 0;animation:fade-in .3s ease}
+.yao-yang{height:3px;background:#1a1a1a;width:100%;border-radius:2px}
+.yao-yin-l{height:3px;background:#1a1a1a;width:44%;border-radius:2px}
+.yao-yin-r{height:3px;background:#1a1a1a;width:44%;border-radius:2px;margin-left:auto}
+.yao-row.changing .yao-yang,.yao-row.changing .yao-yin-l,.yao-row.changing .yao-yin-r{background:#E84E0F}
+.hex-line{display:flex;align-items:center;gap:6px;margin:3px 0}
+.hex-yang{height:4px;border-radius:2px;flex:1}
+.hex-yin-l{height:4px;border-radius:2px;width:44%}
+.hex-yin-r{height:4px;border-radius:2px;width:44%;margin-left:auto}
+.fbar{height:4px;background:#f0ede8;border-radius:2px;overflow:hidden}
+.fbar-fill{height:100%;background:linear-gradient(to right,#E84E0F,#ff8c52);border-radius:2px}
+.btn-red{width:100%;padding:15px;background:linear-gradient(135deg,#E84E0F,#c53a0a);border:none;border-radius:16px;color:#fff;font-size:15px;font-family:'Noto Serif SC';cursor:pointer;letter-spacing:.1em;box-shadow:0 8px 24px rgba(232,78,15,.4)}
+.card-white{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:16px}
+
+/* 64卦 GRID CARDS */
+.hex-grid{display:grid;grid-template-columns:repeat(3,calc((100% - 64px)*5/18));justify-content:center;column-gap:20px;row-gap:14px;padding:12px 12px 28px;}
+/* padding-top hack 保证卡片高度跨浏览器稳定 */
+.gk-wrap{position:relative;border-radius:6px;overflow:hidden;box-shadow:0 2px 5px rgba(0,0,0,.25);cursor:pointer;}
+.gk-wrap::before{content:'';display:block;padding-top:163.7%;}/* 103/63 */
+.gk-inner-abs{position:absolute;top:0;left:0;right:0;bottom:0;}
+.gk-bg{width:100%;height:100%;object-fit:fill;display:block;}
+.gk-num{position:absolute;top:3.5%;left:0;right:0;text-align:center;font-size:12px;font-weight:400;color:#fff;font-family:'Noto Sans SC';line-height:1;}
+.gk-lines{position:absolute;top:23%;left:23.3%;width:54.4%;display:flex;flex-direction:column;gap:4px;}
+.gk-heng{width:66.7%;height:auto;display:block;margin:0 auto;}
+.gk-sep{display:none;}
+.gk-fullname{position:absolute;top:70.9%;left:11.1%;width:78.9%;text-align:center;font-size:10px;font-weight:600;color:#fdfdfd;font-family:'Noto Serif SC';line-height:1;}
+.gk-name{position:absolute;top:85.1%;left:11.1%;width:78.9%;text-align:center;font-size:13px;font-weight:600;color:#fdfdfd;font-family:'Noto Serif SC';line-height:1;}
+
+/* === BAZI OVERLAY === */
+.bz-ov{position:absolute;top:0;left:0;width:100%;height:100%;background:#f5f3ef;z-index:200;display:none;}
+.bz-ov.bz-show{display:block;}
+.bz-page{position:absolute;top:0;left:0;width:100%;height:100%;display:none;flex-direction:column;}
+.bz-page.bz-active{display:flex;}
+.bz-hd{height:52px;flex-shrink:0;background:#fff;display:flex;align-items:center;padding:0 16px;border-bottom:1px solid #f0ede8;}
+.bz-hd-back{width:32px;height:32px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.bz-hd-title{flex:1;text-align:center;font-size:17px;font-weight:600;color:#1a1a1a;font-family:'Noto Serif SC';}
+.bz-sc{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.bz-sc::-webkit-scrollbar{display:none;}
+.bz-pcard{background:#fff;border-radius:14px;margin:12px 14px 0;padding:16px;display:flex;align-items:center;gap:14px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.bz-form-row{display:flex;align-items:center;padding:15px 16px;border-bottom:1px solid #f0ede8;background:#fff;}
+.bz-form-label{width:75px;font-size:14px;color:#333;flex-shrink:0;}
+.bz-form-val{flex:1;font-size:14px;color:#1a1a1a;}
+.bz-form-ph{color:#bbb;}
+.bz-gender-btn{flex:1;padding:10px 0;border:1.5px solid #e8e8e8;border-radius:24px;text-align:center;font-size:14px;cursor:pointer;}
+.bz-gender-btn.bz-sel{border-color:#E84E0F;color:#E84E0F;background:#fff8f6;}
+.bz-picker-mask{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.4);z-index:400;display:none;flex-direction:column;justify-content:flex-end;}
+.bz-picker-mask.bz-show{display:flex;}
+.bz-picker-body{background:#fff;border-radius:20px 20px 0 0;}
+.bz-picker-bar{display:flex;justify-content:space-between;align-items:center;padding:14px 20px 10px;border-bottom:1px solid #f5f5f5;}
+.bz-picker-cols{display:flex;height:232px;position:relative;}
+.bz-picker-hl{position:absolute;top:50%;transform:translateY(-50%);left:0;right:0;height:44px;background:#f5f5f5;border-radius:8px;pointer-events:none;z-index:0;margin:0 6px;}
+.bz-picker-cols::before,.bz-picker-cols::after{content:"";position:absolute;left:0;right:0;height:90px;z-index:3;pointer-events:none;}
+.bz-picker-cols::before{top:0;background:linear-gradient(#fff,transparent);}
+.bz-picker-cols::after{bottom:0;background:linear-gradient(transparent,#fff);}
+.bz-col{flex:1;overflow-y:scroll;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:relative;z-index:1;}
+.bz-col::-webkit-scrollbar{display:none;}
+.bz-col-item{height:44px;scroll-snap-align:center;display:flex;align-items:center;justify-content:center;font-size:16px;color:#1a1a1a;font-family:"Noto Serif SC";}
+.bz-col-pad{height:94px;}
+.bz-picker-tabs{display:flex;gap:24px;align-items:center;}
+.bz-tab{font-size:15px;color:#aaa;cursor:pointer;padding-bottom:3px;border-bottom:2px solid transparent;}
+.bz-tab.bz-tab-sel{color:#1a1a1a;font-weight:600;border-bottom-color:#c47a2a;}
+.bz-mp-card{background:#fff;border-radius:16px;margin:12px 14px 0;overflow:hidden;box-shadow:0 1px 10px rgba(0,0,0,.07);}
+.bz-gz-circle{width:38px;height:38px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:17px;font-weight:600;color:#fff;font-family:"Noto Serif SC";}
+.bz-c-mu{background:#5a9e7a;}.bz-c-huo{background:#b03030;}.bz-c-tu{background:#c47a2a;}.bz-c-jin{background:#8a9ca8;}.bz-c-shui{background:#2c7a7b;}
+.bz-dy-row{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;}
+.bz-dy-row::-webkit-scrollbar{display:none;}
+.bz-dy-item{flex-shrink:0;width:68px;border-radius:10px;padding:8px 4px;text-align:center;border:1.5px solid #f0ede8;cursor:pointer;background:#fff;}
+.bz-dy-item.bz-cur{border-color:#c47a2a;background:#fdf8f0;}
+.bz-ln-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;}
+.bz-ln-row::-webkit-scrollbar{display:none;}
+.bz-ln-item{flex-shrink:0;width:52px;border-radius:8px;padding:5px 2px;text-align:center;border:1px solid #f0ede8;background:#fff;}
+.bz-ln-item.bz-this-yr{border-color:#c47a2a;background:#fdf8f0;}
+.bz-hscroll{overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;}
+.bz-hscroll::-webkit-scrollbar{display:none;}
+.bz-loc-mask{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:500;display:none;flex-direction:column;justify-content:flex-end;}
+.bz-loc-mask.bz-show{display:flex;}
+.bz-loc-body{background:#fff;border-radius:20px 20px 0 0;display:flex;flex-direction:column;}
+.bz-loc-actions{display:flex;justify-content:center;gap:12px;padding:10px 16px;border-bottom:1px solid #f5f5f5;}
+.bz-loc-action-btn{display:flex;align-items:center;gap:5px;font-size:13px;color:#555;cursor:pointer;padding:7px 14px;border-radius:20px;background:#f5f5f5;}
+.bz-loc-hint{font-size:11px;color:#888;padding:7px 14px 8px;border-bottom:1px solid #f5f5f5;background:#fffdf9;}
+#bzLocColP .bz-col-item,#bzLocColC .bz-col-item,#bzLocColD .bz-col-item{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 6px;}
+
+/* ── AI 对话页 ── */
+.ac-user{display:flex;justify-content:flex-end;margin:6px 0;}
+.ac-user-bubble{background:#e8e8e8;border-radius:18px 18px 4px 18px;padding:10px 15px;max-width:72%;font-size:14.5px;color:#1a1a1a;line-height:1.65;word-break:break-all;}
+.ac-ai-block{margin:14px 0 6px;}
+.ac-ai-hd{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.ac-ai-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#f5c8a0,#d4784a);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;font-family:'Noto Serif SC';}
+.ac-ai-nm{font-size:13px;color:#888;}
+.ac-ai-text{font-size:14.5px;color:#1a1a1a;line-height:1.9;white-space:pre-wrap;}
+.ac-ai-cont{font-size:14.5px;color:#1a1a1a;line-height:1.9;}
+.ac-share-btn{display:flex;align-items:center;justify-content:center;gap:8px;background:#f2f2f2;border-radius:28px;padding:14px;margin:14px 0;cursor:pointer;font-size:14px;color:#555;font-weight:500;}
+.ac-share-btn:active{background:#e6e6e6;}
+.ac-count-badge{background:#f5b8a0;border-radius:20px;padding:5px 14px;font-size:13px;color:#5a2a1a;font-weight:500;}
+
+/* ── 卦象详情页 ── */
+.hd-section{background:#fff;border-radius:14px;padding:16px;margin-bottom:10px;}
+.hd-sec-hd{font-size:14px;font-weight:600;font-family:'Noto Serif SC';color:#1a1a1a;display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.hd-sec-hd::before{content:'';width:3px;height:15px;background:#b31a1a;border-radius:2px;flex-shrink:0;}
+.hd-yao-row{padding:10px 0;border-bottom:1px solid #f0f0f0;}
+.hd-yao-row:last-child{border-bottom:none;}
+.hd-yao-nm{font-size:13px;font-weight:700;font-family:'Noto Serif SC';color:#1a1a1a;}
+.hd-yao-ci{font-size:13px;color:#555;line-height:1.85;margin-top:5px;font-family:'Noto Serif SC';}
+.hd-rel-wrap{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;}
+.hd-rel-wrap:active{opacity:.75;}
+.hd-rel-circle{width:56px;height:56px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;}
+
+</style>
+</head>
+<body>
+<div class="phone" id="app">
+
+<!-- STATUS BAR -->
+<div class="status-bar" id="sb" style="background:#fff;">
+  <span id="clock" style="font-size:13px;font-weight:600;color:#1a1a1a;">9:41</span>
+  <div style="display:flex;gap:5px;align-items:center;">
+    <svg width="14" height="11" viewBox="0 0 14 11"><rect x="0" y="5" width="2.5" height="6" rx=".8" fill="#1a1a1a"/><rect x="3.5" y="3.5" width="2.5" height="7.5" rx=".8" fill="#1a1a1a"/><rect x="7" y="2" width="2.5" height="9" rx=".8" fill="#1a1a1a"/><rect x="10.5" y="0" width="3" height="11" rx=".8" fill="#1a1a1a" opacity=".3"/></svg>
+    <svg width="15" height="11" viewBox="0 0 20 15"><path d="M10 11a2.5 2.5 0 100 5 2.5 2.5 0 000-5z" fill="#1a1a1a"/><path d="M5 8C6.8 6.3 8.3 5.5 10 5.5S13.2 6.3 15 8" stroke="#1a1a1a" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M1 4C3.8 1.5 6.7 0 10 0s6.2 1.5 9 4" stroke="#1a1a1a" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>
+    <svg width="22" height="11" viewBox="0 0 22 11"><rect x=".5" y=".5" width="17" height="10" rx="3" stroke="#1a1a1a" stroke-opacity=".35"/><rect x="1.5" y="1.5" width="13" height="8" rx="2" fill="#1a1a1a"/><path d="M18.5 3.5v4a2 2 0 000-4z" fill="#1a1a1a" opacity=".4"/></svg>
+  </div>
+</div>
+
+<div class="slider"><div class="slider-inner" id="slider">
+
+<!-- ═══ SCREEN 0: 首页 HOME ═══ -->
+<div class="screen" id="homeScreen">
+  <!-- Header: logo + greeting + zodiac avatar -->
+  <div style="padding:4px 16px 8px;display:flex;justify-content:space-between;align-items:center;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <!-- Yin-yang product logo (Figma asset) -->
+      <img src="yijing_logo.png" style="display:block;height:30px;width:auto;" alt="logo"/>
+      <div style="font-size:15px;font-weight:500;color:#1a1a1a;" id="greetText">早上好，王一腾</div>
+    </div>
+    <!-- Zodiac (生肖) avatar (Figma asset) -->
+    <img src="horse_avatar.png" onclick="openBz()" width="42" height="42" style="border-radius:50%;cursor:pointer;display:block;" alt="八字排盘"/>
+  </div>
+
+  <div class="scroll" style="flex:1;">
+    <!-- Unified card: Figma-accurate layout -->
+    <div style="margin:0 16px 10px;border-radius:18px;overflow:hidden;box-shadow:0 2px 18px rgba(0,0,0,.09);background:#f6f6f6;position:relative;">
+      <!-- Soft radial gradient blob on right (matches Figma bg 1: 201×198 circle at right) -->
+      <div style="position:absolute;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(230,160,80,.55) 0%,rgba(245,210,160,.4) 40%,transparent 70%);right:-30px;top:-30px;pointer-events:none;"></div>
+      <!-- Top: date + large number (left) | 宜忌 (right) -->
+      <div style="display:flex;min-height:110px;position:relative;">
+        <div style="flex:1;padding:14px 14px 8px;background:transparent;">
+          <div style="display:flex;align-items:center;gap:4px;margin-bottom:4px;">
+            <span style="font-size:11px;color:#8f8f8f;font-family:'Salsa',cursive;" id="fullDate">2026年4月5日 星期日</span>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          </div>
+          <div style="font-size:80px;color:#c4c4c4;font-family:'Saira Stencil One',sans-serif;line-height:.95;margin-top:2px;" id="dayNum">4</div>
+        </div>
+        <div style="padding:14px 16px 8px 10px;width:160px;flex-shrink:0;">
+          <div style="display:flex;gap:20px;">
+            <div>
+              <div style="font-size:8px;color:rgba(140,80,30,.65);font-family:'Salsa',cursive;letter-spacing:.04em;">yi</div>
+              <div style="font-size:18px;color:#8e8e8e;font-family:'Salsa',cursive;margin:3px 0 6px;">宜</div>
+              <div style="font-size:9.5px;color:#7b7b7b;font-family:'Salsa',cursive;line-height:2.1;">自强不息<br/>承担责任</div>
+            </div>
+            <div>
+              <div style="font-size:8px;color:rgba(100,60,30,.6);font-family:'Salsa',cursive;letter-spacing:.04em;">ji</div>
+              <div style="font-size:18px;color:#8e8e8e;font-family:'Salsa',cursive;margin:3px 0 6px;">忌</div>
+              <div style="font-size:9.5px;color:#7b7b7b;font-family:'Salsa',cursive;line-height:2.1;">固执己见<br/>自暴自弃</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Bottom: 乾/QIANGUA + daily quote (white strip) -->
+      <div style="padding:12px 16px 14px;background:#fff;display:flex;align-items:center;gap:12px;position:relative;">
+        <div style="flex-shrink:0;">
+          <div style="display:flex;align-items:center;gap:5px;">
+            <span style="font-size:30px;color:#e2782c;font-family:'Zen Dots',sans-serif;line-height:1;">乾</span>
+            <!-- 乾卦 六爻: 6×阳爻, 高度与汉字一致 -->
+            <svg viewBox="0 0 17 33" width="13" height="30" style="display:block;">
+              <defs>
+                <filter id="yao-orange" color-interpolation-filters="sRGB" x="0" y="0" width="1" height="1">
+                  <feFlood flood-color="#e2782c" result="clr"/>
+                  <feComposite in="clr" in2="SourceAlpha" operator="in"/>
+                </filter>
+              </defs>
+              <!-- 上爻→初爻 (视觉从上往下排) -->
+              <image href="baguatu2/yao-da-yang.svg" x="0" y="0"  width="17" height="3" filter="url(#yao-orange)"/>
+              <image href="baguatu2/yao-da-yang.svg" x="0" y="6"  width="17" height="3" filter="url(#yao-orange)"/>
+              <image href="baguatu2/yao-da-yang.svg" x="0" y="12" width="17" height="3" filter="url(#yao-orange)"/>
+              <image href="baguatu2/yao-da-yang.svg" x="0" y="18" width="17" height="3" filter="url(#yao-orange)"/>
+              <image href="baguatu2/yao-da-yang.svg" x="0" y="24" width="17" height="3" filter="url(#yao-orange)"/>
+              <image href="baguatu2/yao-da-yang.svg" x="0" y="30" width="17" height="3" filter="url(#yao-orange)"/>
+            </svg>
+          </div>
+          <div style="font-size:8.5px;color:#e2782c;font-family:'Signika SC','Signika',sans-serif;letter-spacing:.1em;margin-top:2px;">QIANGUA</div>
+        </div>
+        <div style="flex:1;font-size:18px;color:#626262;font-family:'Salsa',cursive;line-height:1.5;">天行健<br/>君子以自强不息</div>
+      </div>
+    </div>
+
+    <!-- ===== 八卦图: 分层SVG (可动画/可转小程序) ===== -->
+    <div style="text-align:center;font-size:9px;color:#bbb;letter-spacing:.08em;margin-bottom:4px;font-family:'Salsa',cursive;">点击八卦图获取每日引导</div>
+    <div style="display:flex;justify-content:center;">
+    <svg id="bagua-wheel" width="316" height="316" viewBox="0 0 316 316" style="cursor:pointer;display:block;" onclick="startDivination()">
+      <defs>
+        <!-- 后天八卦 圆球渐变 -->
+        <radialGradient id="bw-grad-outer" cx="35%" cy="35%" r="65%">
+          <stop offset="0%" stop-color="#DCDCDC"/>
+          <stop offset="100%" stop-color="#888"/>
+        </radialGradient>
+        <!-- 先天八卦 圆球渐变 -->
+        <radialGradient id="bw-grad-inner" cx="35%" cy="35%" r="65%">
+          <stop offset="0%" stop-color="#EBEBEB"/>
+          <stop offset="100%" stop-color="#AAAAAA"/>
+        </radialGradient>
+      </defs>
+
+      <!-- ── 第1层: bg1 最外圈白底圆 (316px) ── -->
+      <g id="bw-bg1">
+        <image href="baguatu2/bagua-bg1.svg" x="0" y="0" width="316" height="316"/>
+      </g>
+
+      <!-- ── 第2层: 24节气 文字环 ── -->
+      <g id="bw-jieqi" font-family="'Noto Serif SC',serif"></g>
+
+      <!-- ── 第3层: bg2 灰圆 (272px) ── -->
+      <g id="bw-bg2">
+        <image href="baguatu2/bagua-bg2.svg" x="22" y="22" width="272" height="272"/>
+      </g>
+
+      <!-- ── 第4层: 24山 文字环 ── -->
+      <g id="bw-shan" font-family="'Noto Serif SC',serif"></g>
+
+      <!-- ── 第5层: bg3 内白圆+投影 (230px) ── -->
+      <g id="bw-bg3">
+        <image href="baguatu2/bagua-bg3.svg" x="43" y="43" width="230" height="230"/>
+      </g>
+
+      <!-- ── 第6层: 后天八卦 圆圈 (baguadi-yuan1 + 爻横杠) ── -->
+      <g id="bw-houtian-circles"></g>
+
+      <!-- ── 第7层: 后天八卦 卦名+属性 文字 ── -->
+      <g id="bw-houtian-labels" font-family="'Noto Serif SC',serif"></g>
+
+      <!-- ── 第8层: 八方向 文字 (北东南西…) ── -->
+      <g id="bw-dirs" font-family="'Noto Serif SC',serif"></g>
+
+      <!-- ── 第9层: bg4 内圈装饰路径 (108px) ── -->
+      <g id="bw-bg4">
+        <image href="baguatu2/bagua-bg4.svg" x="104" y="104" width="108" height="108"/>
+      </g>
+
+      <!-- ── 第10层: bg5 八边形 (114px) ── -->
+      <g id="bw-bg5">
+        <image href="baguatu2/bagua-bg5.svg" x="101" y="101" width="114" height="114"/>
+      </g>
+
+      <!-- ── 第11层: 先天八卦 圆圈 (baguadi-yuan2 + 爻横杠) ── -->
+      <g id="bw-xiantian-circles"></g>
+
+      <!-- ── 第12层: bg6 阴阳鱼 中心 顺时针旋转 (40px) ── -->
+      <g id="bw-bg6">
+        <animateTransform attributeName="transform" type="rotate"
+          from="0 158 158" to="360 158 158" dur="10s" repeatCount="indefinite"/>
+        <image href="baguatu2/bagua-bg6.svg" x="138" y="138" width="40" height="40"/>
+      </g>
+    </svg>
+    </div>
+
+    <script>
+    (function buildBaguaWheel() {
+      var NS = 'http://www.w3.org/2000/svg';
+      var CX = 158, CY = 158;
+
+      function toRad(deg) { return deg * Math.PI / 180; }
+
+      /* 罗盘角度→坐标: angle=0 为北, 顺时针 */
+      function pos(r, angle) {
+        return {
+          x: CX + r * Math.sin(toRad(angle)),
+          y: CY - r * Math.cos(toRad(angle))
+        };
+      }
+
+      function el(tag, attrs, parent) {
+        var e = document.createElementNS(NS, tag);
+        for (var k in attrs) e.setAttribute(k, attrs[k]);
+        if (parent) parent.appendChild(e);
+        return e;
+      }
+
+      /* 旋转文字: 朝外 */
+      function rotText(parent, angle, r, txt, size, color) {
+        var t = el('text', {
+          transform: 'rotate(' + angle + ',' + CX + ',' + CY + ')',
+          x: CX, y: CY - r,
+          'text-anchor': 'middle',
+          'dominant-baseline': 'central',
+          fill: color,
+          'font-size': size
+        }, parent);
+        t.textContent = txt;
+      }
+
+      /* 画单个爻横杠 (阳=实, 阴=断) */
+      function drawBar(parent, x, y, w, h, isYang, yinGap) {
+        if (isYang) {
+          el('rect', {x:x, y:y, width:w, height:h, fill:'white'}, parent);
+        } else {
+          var hw = (w - yinGap) / 2;
+          el('rect', {x:x, y:y, width:hw, height:h, fill:'white'}, parent);
+          el('rect', {x:x+hw+yinGap, y:y, width:hw, height:h, fill:'white'}, parent);
+        }
+      }
+
+      /* 画卦圆 + 三爻横杠
+         yao=[初爻,中爻,上爻] 1=阳 0=阴
+         barW/barH=横杠尺寸, yinGap=阴爻缺口, gradId=渐变id */
+      function drawGua(parent, p, rc, yao, barW, barH, barGap, yinGap, gradId) {
+        var g = el('g', {transform:'translate('+(p.x-rc)+','+(p.y-rc)+')'}, parent);
+        el('circle', {cx:rc, cy:rc, r:rc, fill:'url(#'+gradId+')'}, g);
+        var totalH = barH*3 + barGap*2;
+        var sy = (rc*2 - totalH) / 2;
+        var sx = (rc*2 - barW) / 2;
+        for (var li = 0; li < 3; li++) {
+          /* li=0=视觉顶=上爻(idx2), li=2=视觉底=初爻(idx0) */
+          drawBar(g, sx, sy + li*(barH+barGap), barW, barH, yao[2-li]===1, yinGap);
+        }
+      }
+
+      /* ============ 数据 (南=顶, 顺时针) ============ */
+
+      /* 24节气: 从南(顶)顺时针, 芒种居首(-7.5°) */
+      var jieqi24 = ['芒种','夏至','小暑','大暑','立秋','处暑','白露','秋分',
+                     '寒露','霜降','立冬','小雪','大雪','冬至','小寒','大寒',
+                     '立春','雨水','惊蛰','春分','清明','谷雨','立夏','小满'];
+
+      /* 24山: 从南(顶)顺时针, 丙居首(-7.5°) */
+      var shan24 = ['丙','午','丁','未','坤','申','庚','酉','辛','戌','乾','亥',
+                    '壬','子','癸','丑','艮','寅','甲','卯','乙','辰','巽','巳'];
+
+      /* 后天八卦 (文王/洛书), 南=顶(0°), 顺时针: 离坤兑乾坎艮震巽 */
+      var houtian8 = [
+        {a:0,   c:'离', attr:'火', y:[1,0,1]},  // 南
+        {a:45,  c:'坤', attr:'地', y:[0,0,0]},  // 西南
+        {a:90,  c:'兑', attr:'泽', y:[1,1,0]},  // 西
+        {a:135, c:'乾', attr:'天', y:[1,1,1]},  // 西北
+        {a:180, c:'坎', attr:'水', y:[0,1,0]},  // 北
+        {a:225, c:'艮', attr:'山', y:[0,0,1]},  // 东北
+        {a:270, c:'震', attr:'雷', y:[1,0,0]},  // 东
+        {a:315, c:'巽', attr:'风', y:[0,1,1]}   // 东南
+      ];
+
+      /* 先天八卦 (伏羲), 南=顶(0°), 顺时针: 乾巽坎艮坤震离兑 */
+      var xiantian8 = [
+        {a:0,   c:'乾', y:[1,1,1]},  // 南
+        {a:45,  c:'巽', y:[0,1,1]},  // 西南
+        {a:90,  c:'坎', y:[0,1,0]},  // 西
+        {a:135, c:'艮', y:[0,0,1]},  // 西北
+        {a:180, c:'坤', y:[0,0,0]},  // 北
+        {a:225, c:'震', y:[1,0,0]},  // 东北
+        {a:270, c:'离', y:[1,0,1]},  // 东
+        {a:315, c:'兑', y:[1,1,0]}   // 东南
+      ];
+
+      /* 八方向, 南=顶 */
+      var dirs8 = [
+        {a:0,   l:'南'},  {a:45,  l:'西南'},
+        {a:90,  l:'西'},  {a:135, l:'西北'},
+        {a:180, l:'北'},  {a:225, l:'东北'},
+        {a:270, l:'东'},  {a:315, l:'东南'}
+      ];
+
+      /* ============ 渲染 ============ */
+
+      /* 24节气 r=150, 字号+4=9.5; 夏至正对南(0°), 偏移-15° */
+      var jqG = document.getElementById('bw-jieqi');
+      jieqi24.forEach(function(term, i) {
+        rotText(jqG, -15 + i*15, 150, term, 9.5,
+                term === '芒种' ? '#e04040' : '#aaa');
+      });
+
+      /* 24山 r=125, 字号+4=10; 午正对南(0°), 偏移-15° */
+      var shanG = document.getElementById('bw-shan');
+      shan24.forEach(function(ch, i) {
+        rotText(shanG, -15 + i*15, 125, ch, 10, '#666');
+      });
+
+      /* 后天八卦 圆 r=99, 卦名 r=76 (整体内移不重叠), 属性 r=67, 方向 r=59 */
+      var htCG = document.getElementById('bw-houtian-circles');
+      var htLG = document.getElementById('bw-houtian-labels');
+      houtian8.forEach(function(g) {
+        drawGua(htCG, pos(99, g.a), 15, g.y, 17, 3, 3, 3, 'bw-grad-outer');
+        rotText(htLG, g.a, 76, g.c, 9, '#333');
+        rotText(htLG, g.a, 67, g.attr, 6, '#888');
+      });
+
+      /* 八方向 r=59 */
+      var dirG = document.getElementById('bw-dirs');
+      dirs8.forEach(function(d) {
+        rotText(dirG, d.a, 59, d.l, 6.5, '#555');
+      });
+
+      /* 先天八卦 圆 r=40 */
+      var xtCG = document.getElementById('bw-xiantian-circles');
+      xiantian8.forEach(function(g) {
+        drawGua(xtCG, pos(40, g.a), 9.5, g.y, 10, 2, 2, 2, 'bw-grad-inner');
+      });
+    })();
+    </script>
+
+        <svg width="260" height="260" viewBox="0 0 260 260" style="display:none">
+          <!-- Background circles -->
+          <circle cx="130" cy="130" r="126" fill="#f5f2ee" stroke="#e8e0d8" stroke-width="1"/>
+          <circle cx="130" cy="130" r="95" fill="#eeebe6" stroke="#e0d8ce" stroke-width="1"/>
+          <circle cx="130" cy="130" r="65" fill="#e8e4de" stroke="#d8d0c6" stroke-width="1"/>
+
+          <!-- 8 outer hexagram icons as gray circles -->
+          <!-- Top: 乾 ☰ -->
+          <circle cx="130" cy="18" r="16" fill="#d8d4ce" stroke="none"/>
+          <g transform="translate(122,11)">
+            <rect x="0" y="0" width="16" height="2.5" rx="1" fill="#888"/>
+            <rect x="0" y="5" width="16" height="2.5" rx="1" fill="#888"/>
+            <rect x="0" y="10" width="16" height="2.5" rx="1" fill="#888"/>
+          </g>
+          <text x="130" y="43" text-anchor="middle" font-size="9" fill="#666" font-family="Noto Serif SC">乾</text>
+
+          <!-- Top-right: 巽 -->
+          <circle cx="219" cy="41" r="16" fill="#d8d4ce" stroke="none"/>
+          <g transform="translate(211,34)">
+            <rect x="0" y="0" width="16" height="2.5" rx="1" fill="#888"/>
+            <rect x="0" y="5" width="16" height="2.5" rx="1" fill="#888"/>
+            <rect x="0" y="10" width="6" height="2.5" rx="1" fill="#888"/>
+            <rect x="10" y="10" width="6" height="2.5" rx="1" fill="#888"/>
+          </g>
+          <text x="219" y="64" text-anchor="middle" font-size="9" fill="#666" font-family="Noto Serif SC">巽</text>
+
+          <!-- Right: 离 -->
+          <circle cx="242" cy="130" r="16" fill="#d8d4ce" stroke="none"/>
+          <g transform="translate(234,123)">
+            <rect x="0" y="0" width="16" height="2.5" rx="1" fill="#888"/>
+            <rect x="0" y="5" width="6" height="2.5" rx="1" fill="#888"/>
+            <rect x="10" y="5" width="6" height="2.5" rx="1" fill="#888"/>
+            <rect x="0" y="10" width="16" height="2.5" rx="1" fill="#888"/>
+          </g>
+          <text x="242" y="153" text-anchor="middle" font-size="9" fill="#666" font-family="Noto Serif SC">离</text>
+
+          <!-- Bottom-right: 兑 -->
+          <circle cx="219" cy="219" r="16" fill="#d8d4ce" stroke="none"/>
+          <g transform="translate(211,212)">
+            <rect x="0" y="0" width="6" height="2.5" rx="1" fill="#888"/>
+            <rect x="10" y="0" width="6" height="2.5" rx="1" fill="#888"/>
+            <rect x="0" y="5" width="16" height="2.5" rx="1" fill="#888"/>
+            <rect x="0" y="10" width="16" height="2.5" rx="1" fill="#888"/>
+          </g>
+          <text x="219" y="242" text-anchor="middle" font-size="9" fill="#666" font-family="Noto Serif SC">兑</text>
+
+          <!-- Bottom: 坤 -->
+          <circle cx="130" cy="242" r="16" fill="#d8d4ce" stroke="none"/>
+          <g transform="translate(122,235)">
+            <rect x="0" y="0" width="6" height="2.5" rx="1" fill="#888"/>
+            <rect x="10" y="0" width="6" height="2.5" rx="1" fill="#888"/>
+            <rect x="0" y="5" width="6" height="2.5" rx="1" fill="#888"/>
+            <rect x="10" y="5" width="6" height="2.5" rx="1" fill="#888"/>
+            <rect x="0" y="10" width="6" height="2.5" rx="1" fill="#888"/>
+            <rect x="10" y="10" width="6" height="2.5" rx="1" fill="#888"/>
+          </g>
+          <text x="130" y="217" text-anchor="middle" font-size="9" fill="#666" font-family="Noto Serif SC">坤</text>
+
+          <!-- Bottom-left: 震 -->
+          <circle cx="41" cy="219" r="16" fill="#d8d4ce" stroke="none"/>
+          <g transform="translate(33,212)">
+            <rect x="0" y="0" width="6" height="2.5" rx="1" fill="#888"/>
+            <rect x="10" y="0" width="6" height="2.5" rx="1" fill="#888"/>
+            <rect x="0" y="5" width="6" height="2.5" rx="1" fill="#888"/>
+            <rect x="10" y="5" width="6" height="2.5" rx="1" fill="#888"/>
+            <rect x="0" y="10" width="16" height="2.5" rx="1" fill="#888"/>
+          </g>
+          <text x="41" y="242" text-anchor="middle" font-size="9" fill="#666" font-family="Noto Serif SC">震</text>
+
+          <!-- Left: 坎 -->
+          <circle cx="18" cy="130" r="16" fill="#d8d4ce" stroke="none"/>
+          <g transform="translate(10,123)">
+            <rect x="0" y="0" width="6" height="2.5" rx="1" fill="#888"/>
+            <rect x="10" y="0" width="6" height="2.5" rx="1" fill="#888"/>
+            <rect x="0" y="5" width="16" height="2.5" rx="1" fill="#888"/>
+            <rect x="0" y="10" width="6" height="2.5" rx="1" fill="#888"/>
+            <rect x="10" y="10" width="6" height="2.5" rx="1" fill="#888"/>
+          </g>
+          <text x="18" y="153" text-anchor="middle" font-size="9" fill="#666" font-family="Noto Serif SC">坎</text>
+
+          <!-- Top-left: 艮 -->
+          <circle cx="41" cy="41" r="16" fill="#d8d4ce" stroke="none"/>
+          <g transform="translate(33,34)">
+            <rect x="0" y="0" width="16" height="2.5" rx="1" fill="#888"/>
+            <rect x="0" y="5" width="6" height="2.5" rx="1" fill="#888"/>
+            <rect x="10" y="5" width="6" height="2.5" rx="1" fill="#888"/>
+            <rect x="0" y="10" width="6" height="2.5" rx="1" fill="#888"/>
+            <rect x="10" y="10" width="6" height="2.5" rx="1" fill="#888"/>
+          </g>
+          <text x="41" y="64" text-anchor="middle" font-size="9" fill="#666" font-family="Noto Serif SC">艮</text>
+
+          <!-- Middle ring trigram names -->
+          <text x="130" y="75" text-anchor="middle" font-size="10" fill="#555" font-family="Noto Serif SC">乾</text>
+          <text x="185" y="88" text-anchor="middle" font-size="10" fill="#555" font-family="Noto Serif SC">巽</text>
+          <text x="205" y="134" text-anchor="middle" font-size="10" fill="#555" font-family="Noto Serif SC">离</text>
+          <text x="185" y="180" text-anchor="middle" font-size="10" fill="#555" font-family="Noto Serif SC">兑</text>
+          <text x="130" y="195" text-anchor="middle" font-size="10" fill="#555" font-family="Noto Serif SC">坤</text>
+          <text x="75" y="180" text-anchor="middle" font-size="10" fill="#555" font-family="Noto Serif SC">震</text>
+          <text x="55" y="134" text-anchor="middle" font-size="10" fill="#555" font-family="Noto Serif SC">坎</text>
+          <text x="75" y="88" text-anchor="middle" font-size="10" fill="#555" font-family="Noto Serif SC">艮</text>
+
+          <!-- Yin-yang center -->
+          <circle cx="130" cy="130" r="38" fill="white" stroke="#d0c8be" stroke-width="1"/>
+          <path d="M130 92 A38 38 0 0 1 130 168 A19 19 0 0 1 130 130 A19 19 0 0 0 130 92 Z" fill="#1a1a1a"/>
+          <circle cx="130" cy="111" r="9.5" fill="#1a1a1a"/>
+          <circle cx="130" cy="149" r="9.5" fill="white"/>
+          <circle cx="130" cy="111" r="3.5" fill="white"/>
+          <circle cx="130" cy="149" r="3.5" fill="#1a1a1a"/>
+        </svg>
+
+    <!-- 问卦 button: Figma PNG -->
+    <div style="display:flex;justify-content:center;padding:4px 0 10px;">
+      <img src="wengua_btn.png" width="100" height="100" onclick="startDivination()" style="cursor:pointer;display:block;" alt="问卦"/>
+    </div>
+
+    <div style="height:4px;"></div>
+  </div>
+
+  <!-- Nav: 首页/64卦/AI/易经/我的 -->
+  <div class="nav">
+    <div class="nb" onclick="go(0)"><img src="bagua.svg" style="display:block;width:24px;height:24px;" alt="首页"/><span>首页</span></div>
+    <div class="nb" onclick="go(3)"><svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><rect x="6" y="7.5" width="12" height="2" rx="1" fill="white"/><rect x="6" y="11" width="5" height="2" rx="1" fill="white"/><rect x="13" y="11" width="5" height="2" rx="1" fill="white"/><rect x="6" y="14.5" width="5" height="2" rx="1" fill="white"/><rect x="13" y="14.5" width="5" height="2" rx="1" fill="white"/></svg><span>64卦</span></div>
+    <div class="nb-ai" onclick="openAiChat()"><div class="ai-bubble"><img src="qipaoAI.svg" style="display:block;width:42px;height:auto;" alt="AI"/></div></div>
+    <div class="nb" onclick="go(3)"><img src="yijingtubiao.svg" style="display:block;width:18px;height:20px;" alt="易经"/><span>易经</span></div>
+    <div class="nb" onclick="go(4)"><svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><circle cx="12" cy="9" r="3.5" fill="white"/><path d="M5.5 20.5c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5" fill="white"/></svg><span>我的</span></div>
+  </div>
+</div>
+
+<!-- ═══ SCREEN 1: 六爻摇卦 ═══ -->
+<div class="screen" id="divScreen" style="background:#fff;">
+
+  <!-- Header -->
+  <div style="height:50px;padding:0 16px;display:flex;align-items:center;flex-shrink:0;">
+    <div onclick="go(5)" style="cursor:pointer;width:32px;height:32px;border-radius:50%;background:#f2f2f2;display:flex;align-items:center;justify-content:center;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </div>
+    <div style="flex:1;text-align:center;font-size:17px;font-weight:500;color:#1a1a1a;font-family:'Noto Serif SC';">占卜</div>
+    <div style="width:32px;height:32px;border-radius:50%;background:#f2f2f2;display:flex;align-items:center;justify-content:center;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+    </div>
+  </div>
+
+  <!-- Bagua Wheel SVG 270×270, center=(135,135) -->
+  <div style="flex-shrink:0;display:flex;justify-content:center;padding:10px 0 0;">
+    <svg id="zb-wheel" width="270" height="270" viewBox="0 0 270 270" style="display:block;">
+      <!-- 背景圆层 -->
+      <image href="zhanbuyemian/zhanbu-bg1.svg"  x="10"   y="10"   width="250" height="250"/>
+      <image href="zhanbuyemian/zhanbu-bg2.svg"  x="17"   y="17"   width="236" height="236"/>
+      <image href="zhanbuyemian/zhanbu-bg3.svg"  x="39"   y="39"   width="191" height="191"/>
+      <!-- 八边形 (在内外圈之下) -->
+      <image href="zhanbuyemian/zhanbu-bg4-babian2.svg" x="80" y="80" width="110" height="110"/>
+      <image href="zhanbuyemian/zhanbu-bg4-babian.svg"  x="83" y="83" width="104" height="104"/>
+      <!-- 外圈8卦 (顺时针旋转, JS填充, 层级在八边形之上) -->
+      <g id="zb-outer-ring">
+        <animateTransform attributeName="transform" type="rotate"
+          from="0 135 135" to="360 135 135" dur="22s" repeatCount="indefinite"/>
+      </g>
+      <!-- 内圈8卦 (逆时针旋转, JS填充, 层级在外圈之上) -->
+      <g id="zb-inner-ring">
+        <animateTransform attributeName="transform" type="rotate"
+          from="0 135 135" to="-360 135 135" dur="16s" repeatCount="indefinite"/>
+      </g>
+      <!-- 阴阳鱼 顺时针旋转 (最上层) -->
+      <g id="zb-yy-g">
+        <animateTransform attributeName="transform" type="rotate"
+          from="0 135 135" to="360 135 135" dur="9s" repeatCount="indefinite"/>
+        <image href="zhanbuyemian/yinyangyu.svg" x="115" y="115" width="40" height="40"/>
+      </g>
+    </svg>
+  </div>
+
+  <!-- 6爻 指示条 (上爻→初爻, 竖排) -->
+  <div id="zb-yao-bar" style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:5px;padding:8px 20px 4px;"></div>
+
+  <!-- 底部: 铜钱 + 龟壳 + 提示 -->
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:32px;">
+    <!-- 铜钱行 (默认隐藏) -->
+    <div id="zb-coins" style="display:none;flex-direction:row;align-items:center;gap:16px;margin-bottom:20px;">
+      <img id="zb-c0" src="zhanbuyemian/qianbi1.svg" width="48" height="48"/>
+      <img id="zb-c1" src="zhanbuyemian/qianbi1.svg" width="48" height="48"/>
+      <img id="zb-c2" src="zhanbuyemian/qianbi1.svg" width="48" height="48"/>
+    </div>
+    <!-- 龟壳 -->
+    <div onclick="zbThrow()" style="cursor:pointer;display:flex;justify-content:center;user-select:none;">
+      <img id="zb-guike" src="zhanbuyemian/guike.svg" width="71" height="85" style="display:block;"/>
+    </div>
+    <!-- 提示文字 -->
+    <div id="zb-hint" style="font-size:12px;color:#aaa;text-align:center;margin-top:16px;font-family:'Noto Serif SC',serif;letter-spacing:.04em;padding:0 32px;">
+      点击龟壳投扔硬币六次进行六爻问卜
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ SCREEN 2: RESULT ═══ -->
+<div class="screen" style="background:#0d0d1a;" id="resultScreen">
+  <div style="padding:8px 16px 0;display:flex;align-items:center;gap:12px;background:#0d0d1a;">
+    <div onclick="go(1)" style="cursor:pointer;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </div>
+    <div style="font-size:17px;font-weight:600;color:#e8dfc8;font-family:'Noto Serif SC';flex:1;text-align:center;">卦象解析</div>
+    <div style="width:32px;"></div>
+  </div>
+  <div class="scroll" style="flex:1;background:#0d0d1a;padding:16px;" id="resultContent"></div>
+</div>
+
+<!-- ═══ SCREEN 3: 64卦 ═══ -->
+<div class="screen" id="hexScreen">
+  <div style="padding:10px 16px 6px;display:flex;align-items:center;gap:8px;">
+    <img src="yijing_logo.png" style="height:24px;width:auto;display:block;" alt="logo"/>
+    <div style="font-size:16px;font-weight:400;color:#8f8f8f;font-family:'Noto Serif SC';">64卦</div>
+  </div>
+  <div class="scroll" style="flex:1;background:#f5f5f5;">
+    <div class="hex-grid" id="hexGrid"></div>
+  </div>
+  <div class="nav">
+    <div class="nb" onclick="go(0)"><img src="bagua.svg" style="display:block;width:24px;height:24px;" alt="首页"/><span>首页</span></div>
+    <div class="nb" onclick="go(3)"><svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><rect x="6" y="7.5" width="12" height="2" rx="1" fill="white"/><rect x="6" y="11" width="5" height="2" rx="1" fill="white"/><rect x="13" y="11" width="5" height="2" rx="1" fill="white"/><rect x="6" y="14.5" width="5" height="2" rx="1" fill="white"/><rect x="13" y="14.5" width="5" height="2" rx="1" fill="white"/></svg><span>64卦</span></div>
+    <div class="nb-ai" onclick="openAiChat()"><div class="ai-bubble"><img src="qipaoAI.svg" style="display:block;width:42px;height:auto;" alt="AI"/></div></div>
+    <div class="nb" onclick="go(3)"><img src="yijingtubiao.svg" style="display:block;width:18px;height:20px;" alt="易经"/><span>易经</span></div>
+    <div class="nb" onclick="go(4)"><svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><circle cx="12" cy="9" r="3.5" fill="white"/><path d="M5.5 20.5c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5" fill="white"/></svg><span>我的</span></div>
+  </div>
+</div>
+
+<!-- ═══ SCREEN 4: 我 PROFILE ═══ -->
+<div class="screen">
+  <div style="padding:8px 16px 12px;display:flex;justify-content:space-between;align-items:center;">
+    <div style="font-size:18px;font-weight:600;color:#1a1a1a;font-family:'Noto Serif SC';">我的</div>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+  </div>
+  <div class="scroll" style="flex:1;padding:0 16px;">
+    <div style="background:linear-gradient(135deg,#E84E0F,#c53a0a);border-radius:20px;padding:22px;margin-bottom:16px;display:flex;align-items:center;gap:16px;">
+      <div style="width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:28px;border:2px solid rgba(255,255,255,.3);">🐴</div>
+      <div><div style="font-size:17px;font-weight:600;color:#fff;font-family:'Noto Serif SC';">王一腾</div><div style="font-size:12px;color:rgba(255,255,255,.7);margin-top:3px;" id="divinCount">已占卜 0 次</div><span style="margin-top:8px;display:inline-block;font-size:11px;background:rgba(255,255,255,.2);color:#fff;padding:2px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.3);">普通会员</span></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;">
+      <div class="card-white" style="padding:14px;text-align:center;border-radius:14px;"><div style="font-size:22px;font-weight:600;color:#E84E0F;font-family:'Noto Serif SC';" id="statCount">0</div><div style="font-size:11px;color:#bbb;margin-top:4px;">总占卜</div></div>
+      <div class="card-white" style="padding:14px;text-align:center;border-radius:14px;"><div style="font-size:22px;font-weight:600;color:#E84E0F;font-family:'Noto Serif SC';">7</div><div style="font-size:11px;color:#bbb;margin-top:4px;">连续天数</div></div>
+      <div class="card-white" style="padding:14px;text-align:center;border-radius:14px;"><div style="font-size:22px;font-weight:600;color:#E84E0F;font-family:'Noto Serif SC';" id="statSaved">0</div><div style="font-size:11px;color:#bbb;margin-top:4px;">已收藏</div></div>
+    </div>
+    <div class="card-white" style="overflow:hidden;margin-bottom:10px;border-radius:14px;">
+      <div style="padding:15px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;border-bottom:1px solid rgba(0,0,0,.05);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E84E0F" stroke-width="1.8"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg><span style="flex:1;font-size:14px;color:#1a1a1a;">占卜记录</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ddd" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div style="padding:15px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E84E0F" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span style="flex:1;font-size:14px;color:#1a1a1a;">收藏的卦象</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ddd" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
+    </div>
+    <div class="card-white" style="overflow:hidden;margin-bottom:20px;border-radius:14px;">
+      <div style="padding:15px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E84E0F" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg><span style="flex:1;font-size:14px;color:#1a1a1a;">升级会员</span><span style="font-size:11px;color:#E84E0F;background:#fff2ee;padding:2px 10px;border-radius:10px;border:1px solid rgba(232,78,15,.2);">解锁更多</span></div>
+    </div>
+  </div>
+  <div class="nav">
+    <div class="nb" onclick="go(0)"><img src="bagua.svg" style="display:block;width:24px;height:24px;" alt="首页"/><span>首页</span></div>
+    <div class="nb" onclick="go(3)"><svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><rect x="6" y="7.5" width="12" height="2" rx="1" fill="white"/><rect x="6" y="11" width="5" height="2" rx="1" fill="white"/><rect x="13" y="11" width="5" height="2" rx="1" fill="white"/><rect x="6" y="14.5" width="5" height="2" rx="1" fill="white"/><rect x="13" y="14.5" width="5" height="2" rx="1" fill="white"/></svg><span>64卦</span></div>
+    <div class="nb-ai" onclick="openAiChat()"><div class="ai-bubble"><img src="qipaoAI.svg" style="display:block;width:42px;height:auto;" alt="AI"/></div></div>
+    <div class="nb" onclick="go(3)"><img src="yijingtubiao.svg" style="display:block;width:18px;height:20px;" alt="易经"/><span>易经</span></div>
+    <div class="nb" onclick="go(4)"><svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><circle cx="12" cy="9" r="3.5" fill="white"/><path d="M5.5 20.5c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5" fill="white"/></svg><span>我的</span></div>
+  </div>
+</div>
+
+
+<!-- ═══ SCREEN 5: 问卦入口 ═══ -->
+<div class="screen" id="wenguaScreen" style="background:#ededed;">
+
+  <!-- ── Header (固定高度 50px) ── -->
+  <div style="height:50px;padding:0 16px;display:flex;align-items:center;flex-shrink:0;">
+    <div onclick="go(0)" style="cursor:pointer;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.75);display:flex;align-items:center;justify-content:center;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </div>
+  </div>
+
+  <!-- ── Body (flex:1, 不可滚动, 内容分三段) ── -->
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:0 22px 28px;box-sizing:border-box;overflow:hidden;">
+
+    <!-- 段1: 球 + 文字 (固定高度, 不撑开) -->
+    <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 0 14px;">
+      <div class="wg-sphere"></div>
+      <div style="text-align:center;margin-top:18px;color:#888;font-size:16px;line-height:1.8;font-family:'Noto Serif SC',serif;">
+        深呼吸<br>写下你的问题
+      </div>
+    </div>
+
+    <!-- 段2: 输入框 + 快捷问题 (固定高度, flex-shrink:0) -->
+    <div style="width:100%;flex-shrink:0;">
+      <!-- 输入框 -->
+      <div id="wenguaBox" style="background:#fff;border-radius:18px;border:1.5px solid #cddaed;padding:14px 14px 8px;box-sizing:border-box;transition:border-color .25s;">
+        <textarea id="wenguaQ" placeholder="请输入至少4个字" rows="3" oninput="wenguaInputChange()"
+          style="width:100%;border:none;outline:none;resize:none;font-size:15px;color:#333;background:transparent;font-family:'Noto Serif SC',serif;line-height:1.65;box-sizing:border-box;display:block;"></textarea>
+        <div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;padding-top:4px;">
+          <div style="width:34px;height:34px;border-radius:50%;background:#f2f2f2;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3M9 22h6"/></svg>
+          </div>
+          <div id="wenguaSendBtn" onclick="wenguaSubmit('liuyao')"
+            style="width:34px;height:34px;border-radius:50%;background:#ccc;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.8"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+          </div>
+        </div>
+      </div>
+      <!-- 快捷问题 chip -->
+      <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;">
+        <div onclick="setWenguaQ('这个工作机会值得把握吗？')" class="wg-chip">这个工作机会值得把握吗？</div>
+        <div onclick="setWenguaQ('我应该搬家吗？')" class="wg-chip">我应该搬家吗？</div>
+        <div onclick="setWenguaQ('我的健康状况需要注意什么？')" class="wg-chip">我的健康状况需要注意什么？</div>
+      </div>
+    </div>
+
+    <!-- 段3: 三个按钮 (固定高度, flex-shrink:0, margin-top:auto 贴底) -->
+    <div style="width:100%;flex-shrink:0;margin-top:20px;display:flex;flex-direction:column;gap:10px;">
+      <div onclick="wenguaSubmit('liuyao')" class="wg-btn-r">六爻占卜</div>
+      <div onclick="wenguaSubmit('qian')"   class="wg-btn-d">抽签问卜</div>
+      <div onclick="wenguaSubmit('zitian')" class="wg-btn-d">自填挂画</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ SCREEN 6: 卦象详情 ═══ -->
+<div class="screen" id="hexDetailScreen" style="background:#f2f0ec;">
+
+  <!-- Header -->
+  <div style="height:50px;padding:0 16px;display:flex;align-items:center;flex-shrink:0;background:#fff;border-bottom:1px solid #f0ede8;">
+    <div onclick="go(3)" style="cursor:pointer;width:32px;height:32px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </div>
+    <div id="hd-title" style="flex:1;text-align:center;font-size:17px;font-weight:500;color:#1a1a1a;font-family:'Noto Serif SC';">乾</div>
+    <div id="hd-bm-btn" onclick="hdToggleBookmark()" style="width:32px;height:32px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+      <svg id="hd-bm-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+    </div>
+  </div>
+
+  <!-- Scrollable body -->
+  <div class="scroll" style="flex:1;">
+
+    <!-- 卡牌区 (API 接口预留, 后续接入64张牌图) -->
+    <div style="background:#fff;display:flex;justify-content:center;padding:20px 0 18px;">
+      <div id="hd-card" style="width:150px;height:215px;border-radius:14px;background:linear-gradient(158deg,#f7f1e3,#ede2c4);box-shadow:0 8px 28px rgba(0,0,0,.14);border:1.5px solid rgba(200,170,100,.25);display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:14px 12px;">
+        <div id="hd-card-top" style="font-size:11px;color:#c47a2a;font-family:'Noto Serif SC';letter-spacing:.08em;"></div>
+        <div id="hd-card-svg" style="display:flex;align-items:center;justify-content:center;"></div>
+        <div id="hd-card-name" style="font-size:28px;font-family:'Noto Serif SC';color:#2a1a0a;font-weight:600;line-height:1;"></div>
+        <div id="hd-card-full" style="font-size:11px;color:#8a7060;font-family:'Noto Serif SC';"></div>
+      </div>
+    </div>
+
+    <!-- 互卦 错卦 综卦 -->
+    <div style="background:#fff;display:flex;justify-content:space-around;align-items:flex-start;padding:14px 20px 18px;border-top:1px solid #f0ede8;">
+      <div id="hd-hu-wrap" class="hd-rel-wrap">
+        <div class="hd-rel-circle"><div id="hd-hu-svg"></div></div>
+        <div id="hd-hu-name" style="font-size:13px;color:#333;font-family:'Noto Serif SC';font-weight:500;"></div>
+        <div style="font-size:10px;color:#aaa;">互卦</div>
+      </div>
+      <div id="hd-cuo-wrap" class="hd-rel-wrap">
+        <div class="hd-rel-circle"><div id="hd-cuo-svg"></div></div>
+        <div id="hd-cuo-name" style="font-size:13px;color:#333;font-family:'Noto Serif SC';font-weight:500;"></div>
+        <div style="font-size:10px;color:#aaa;">错卦</div>
+      </div>
+      <div id="hd-zong-wrap" class="hd-rel-wrap">
+        <div class="hd-rel-circle"><div id="hd-zong-svg"></div></div>
+        <div id="hd-zong-name" style="font-size:13px;color:#333;font-family:'Noto Serif SC';font-weight:500;"></div>
+        <div style="font-size:10px;color:#aaa;">综卦</div>
+      </div>
+    </div>
+
+    <!-- Info bar -->
+    <div style="background:#fff;border-top:1px solid #f0ede8;padding:14px 20px 12px;">
+      <div id="hd-info-bar" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"></div>
+    </div>
+
+    <!-- Content sections -->
+    <div style="padding:10px 14px 24px;" id="hd-content"></div>
+
+  </div>
+
+  <!-- Bottom AI bar -->
+  <div style="flex-shrink:0;background:#fff;border-top:1px solid #f0ede8;padding:10px 14px;display:flex;align-items:center;gap:10px;">
+    <div style="flex:1;background:#f5f5f5;border-radius:24px;display:flex;align-items:center;gap:8px;padding:9px 14px;">
+      <img src="qipaoAI.svg" style="width:20px;height:20px;" alt="AI"/>
+      <input type="text" id="hd-ask-input" placeholder="再详细说说…" style="flex:1;border:none;background:transparent;font-size:14px;color:#333;outline:none;font-family:'Noto Sans SC';" onkeydown="if(event.key==='Enter')hdSendAsk()"/>
+    </div>
+    <div onclick="hdSendAsk()" id="hd-send-btn" style="width:38px;height:38px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.2"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/></svg>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ SCREEN 7: AI 对话 ═══ -->
+<div class="screen" id="aiChatScreen" style="background:#fff;">
+
+  <!-- Header -->
+  <div style="height:50px;padding:0 14px;display:flex;align-items:center;gap:10px;flex-shrink:0;background:#fff;border-bottom:1px solid #f0ede8;">
+    <div onclick="go(0)" style="cursor:pointer;width:32px;height:32px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </div>
+    <div class="ac-count-badge">解读次数：<span id="ac-used">0</span>/2</div>
+    <div style="flex:1;"></div>
+    <div style="width:36px;height:36px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+      <svg width="18" height="4" viewBox="0 0 18 4"><circle cx="2" cy="2" r="2" fill="#888"/><circle cx="9" cy="2" r="2" fill="#888"/><circle cx="16" cy="2" r="2" fill="#888"/></svg>
+    </div>
+    <div style="width:36px;height:36px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+    </div>
+  </div>
+
+  <!-- Chat messages -->
+  <div class="scroll" style="flex:1;padding:16px 16px 8px;" id="ac-body"></div>
+
+  <!-- Bottom input -->
+  <div style="flex-shrink:0;background:#fff;border-top:1px solid #f0ede8;padding:10px 14px 14px;display:flex;align-items:center;gap:10px;">
+    <div style="flex:1;background:#f2f2f2;border-radius:24px;padding:12px 18px;display:flex;align-items:center;gap:8px;">
+      <input type="text" id="ac-input" placeholder="请进一步描述背景信息或详细情况" style="flex:1;border:none;background:transparent;font-size:14px;color:#333;outline:none;font-family:'Noto Sans SC';" onkeydown="if(event.key==='Enter')acSend()"/>
+    </div>
+    <div onclick="acSend()" style="width:40px;height:40px;border-radius:50%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/></svg>
+    </div>
+  </div>
+
+</div>
+
+</div></div><!-- /slider -->
+
+<!-- BAZI OVERLAY -->
+<div class="bz-ov" id="bzOv">
+
+  <!-- HOME (empty state only) -->
+  <div class="bz-page" id="bzPgHome">
+    <div class="bz-hd">
+      <div class="bz-hd-back" onclick="closeBz()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></div>
+      <div class="bz-hd-title">命盘</div>
+      <div style="width:32px;"></div>
+    </div>
+    <div class="bz-sc">
+      <div id="bzEmpty" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 32px;text-align:center;">
+        <div style="width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,#f0e6d0,#d4b896);display:flex;align-items:center;justify-content:center;margin-bottom:22px;font-size:40px;">&#9775;</div>
+        <div style="font-size:18px;font-weight:600;color:#1a1a1a;font-family:'Noto Serif SC';margin-bottom:10px;">开始你的命盘之旅</div>
+        <div style="font-size:13px;color:#999;line-height:1.7;margin-bottom:28px;">输入出生信息，探索八字命盘、大运流年</div>
+        <button onclick="bzGoForm(null)" style="background:linear-gradient(135deg,#c47a2a,#a05a1a);color:#fff;border:none;border-radius:26px;padding:13px 40px;font-size:15px;font-family:'Noto Serif SC';cursor:pointer;box-shadow:0 6px 20px rgba(196,122,42,.35);">创建我的命盘</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIST (profile switcher) -->
+  <div class="bz-page" id="bzPgList">
+    <div class="bz-hd">
+      <div class="bz-hd-back" onclick="bzBackToDetail()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></div>
+      <div class="bz-hd-title">切换命盘</div>
+      <div onclick="bzGoForm(null)" style="width:32px;height:32px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;cursor:pointer;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg></div>
+    </div>
+    <div class="bz-sc">
+      <div id="bzListItems" style="padding-bottom:20px;"></div>
+    </div>
+  </div>
+
+  <!-- FORM -->
+  <div class="bz-page" id="bzPgForm">
+    <div class="bz-hd">
+      <div class="bz-hd-back" onclick="bzFormBack()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></div>
+      <div class="bz-hd-title">添加档案</div>
+      <div style="width:32px;"></div>
+    </div>
+    <div class="bz-sc">
+      <div style="background:#fff;margin:12px 0 0;">
+        <div class="bz-form-row">
+          <span class="bz-form-label">昵称</span>
+          <input id="bzFName" type="text" placeholder="请输入昵称（1-6个字）" maxlength="6" style="flex:1;border:none;font-size:14px;color:#1a1a1a;background:transparent;outline:none;"/>
+        </div>
+        <div class="bz-form-row">
+          <span class="bz-form-label">关系</span>
+          <span class="bz-form-val">本人</span>
+        </div>
+        <div class="bz-form-row">
+          <span class="bz-form-label">性别</span>
+          <div style="display:flex;gap:12px;flex:1;">
+            <div class="bz-gender-btn bz-sel" id="bzGF" onclick="bzSelGender('female')">&#9792; 女生</div>
+            <div class="bz-gender-btn" id="bzGM" onclick="bzSelGender('male')">&#9794; 男生</div>
+          </div>
+        </div>
+        <div class="bz-form-row" onclick="bzOpenPicker()" style="cursor:pointer;">
+          <span class="bz-form-label">出生时间</span>
+          <span class="bz-form-val bz-form-ph" id="bzFTimeDisp">请选择</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="bz-form-row" onclick="bzOpenLocationPicker()" style="cursor:pointer;">
+          <span class="bz-form-label">出生地点</span>
+          <span class="bz-form-val bz-form-ph" id="bzFLocDisp">请选择</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="bz-form-row" style="border-bottom:none;">
+          <div style="flex-shrink:0;"><div style="font-size:14px;color:#333;">时区</div><div style="font-size:11px;color:#aaa;">(出生地)</div></div>
+          <span class="bz-form-val" id="bzFTzDisp" style="font-size:12px;color:#666;margin-left:16px;text-align:right;line-height:1.4;">【东8】中国标准时间</span>
+        </div>
+      </div>
+      <div style="padding:28px 16px 20px;">
+        <button onclick="bzSaveProfile()" style="width:100%;padding:15px;background:linear-gradient(135deg,#c47a2a,#a05a1a);border:none;border-radius:30px;color:#fff;font-size:16px;font-family:'Noto Serif SC';cursor:pointer;box-shadow:0 6px 20px rgba(196,122,42,.35);">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DETAIL -->
+  <div class="bz-page" id="bzPgDetail">
+    <div class="bz-hd" style="background:#f5f3ef;border-bottom:1px solid #ede8e0;">
+      <div class="bz-hd-back" onclick="closeBz()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></div>
+      <div class="bz-hd-title" style="font-family:'Noto Serif SC';"></div>
+      <div style="display:flex;align-items:center;gap:2px;">
+        <div onclick="bzShowList()" title="切换命盘" style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/><path d="M16 11l2 2 4-4"/></svg></div>
+        <div onclick="bzGoForm(null)" title="添加命盘" style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg></div>
+      </div>
+    </div>
+    <div class="bz-sc" id="bzDetailSc"></div>
+  </div>
+
+  <!-- PICKER -->
+  <div class="bz-picker-mask" id="bzPickerMask">
+    <div class="bz-picker-body">
+      <div class="bz-picker-bar">
+        <span style="color:#888;font-size:14px;cursor:pointer;" onclick="bzClosePicker()">取消</span>
+        <div class="bz-picker-tabs">
+          <span id="bzTabSolar" class="bz-tab bz-tab-sel" onclick="bzSwitchPickerMode('solar')">公历</span>
+          <span id="bzTabLunar" class="bz-tab" onclick="bzSwitchPickerMode('lunar')">农历</span>
+        </div>
+        <span style="color:#c47a2a;font-size:14px;cursor:pointer;font-weight:600;" onclick="bzConfirmTime()">完成</span>
+      </div>
+      <div style="text-align:center;padding:5px 16px 4px;font-size:11px;color:#bbb;">若出生时间不详，可选默认12:00，会对结果有一定影响</div>
+      <!-- 公历列 -->
+      <div id="bzSolarCols" class="bz-picker-cols">
+        <div class="bz-picker-hl"></div>
+        <div class="bz-col" id="bzColY" style="flex:1.1;"></div>
+        <div style="flex-shrink:0;width:1px;background:#f0f0f0;margin:20px 0;"></div>
+        <div class="bz-col" id="bzColM" style="flex:.75;"></div>
+        <div style="flex-shrink:0;width:1px;background:#f0f0f0;margin:20px 0;"></div>
+        <div class="bz-col" id="bzColD" style="flex:.75;"></div>
+        <div style="flex-shrink:0;width:1px;background:#f0f0f0;margin:20px 0;"></div>
+        <div class="bz-col" id="bzColH" style="flex:.65;"></div>
+        <div style="flex-shrink:0;width:1px;background:#f0f0f0;margin:20px 0;"></div>
+        <div class="bz-col" id="bzColMin" style="flex:.65;"></div>
+      </div>
+      <!-- 农历列 -->
+      <div id="bzLunarCols" class="bz-picker-cols" style="display:none;">
+        <div class="bz-picker-hl"></div>
+        <div class="bz-col" id="bzColLY" style="flex:1.3;" onscroll="bzLOnScrollY()"></div>
+        <div style="flex-shrink:0;width:1px;background:#f0f0f0;margin:20px 0;"></div>
+        <div class="bz-col" id="bzColLM" style="flex:.8;" onscroll="bzLOnScrollM()"></div>
+        <div style="flex-shrink:0;width:1px;background:#f0f0f0;margin:20px 0;"></div>
+        <div class="bz-col" id="bzColLD" style="flex:.85;"></div>
+        <div style="flex-shrink:0;width:1px;background:#f0f0f0;margin:20px 0;"></div>
+        <div class="bz-col" id="bzColLH" style="flex:.65;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOCATION PICKER -->
+  <div class="bz-loc-mask" id="bzLocMask">
+    <div class="bz-loc-body" onclick="event.stopPropagation()">
+      <div class="bz-picker-bar">
+        <span style="color:#888;font-size:14px;cursor:pointer;" onclick="bzCloseLocationPicker()">取消</span>
+        <span style="font-size:15px;font-weight:600;color:#1a1a1a;">出生地点</span>
+        <span style="color:#c47a2a;font-size:14px;cursor:pointer;font-weight:600;" onclick="bzConfirmLocation()">完成</span>
+      </div>
+      <div class="bz-loc-actions">
+        <div id="bzLocGpsBtn" class="bz-loc-action-btn" onclick="bzLocGPS()">📍 获取定位</div>
+      </div>
+      <div class="bz-loc-hint">ℹ 若出生地点不详，可选择默认北京市，会对结果有一定影响</div>
+      <div class="bz-picker-cols" style="height:220px;">
+        <div class="bz-picker-hl"></div>
+        <div class="bz-col" id="bzLocColP" style="flex:1.1;" onscroll="bzLocOnScrollP()"></div>
+        <div style="flex-shrink:0;width:1px;background:#f0f0f0;margin:20px 0;"></div>
+        <div class="bz-col" id="bzLocColC" style="flex:1.1;" onscroll="bzLocOnScrollC()"></div>
+        <div style="flex-shrink:0;width:1px;background:#f0f0f0;margin:20px 0;"></div>
+        <div class="bz-col" id="bzLocColD" style="flex:1.4;" onscroll="bzLocOnScrollD()"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</div><!-- /phone -->
+
+<script src="hex_detail.js"></script>
+<script src="lib/lunar.js"></script>
+<script>
+// ══════════════════════════════════════
+// 64卦数据: [名, 卦辞, 运势0-4, 描述, 建议, 事业%, 财运%, 感情%, 健康%]
+// ══════════════════════════════════════
+const HD = [null,
+['乾','元亨利贞',4,'天行健，君子自强不息。诸事顺遂，贵人相助，大展鸿图之时。','积极进取，把握机遇，勇于担当',95,80,70,85],
+['坤','元亨，利牝马之贞',3,'地势坤，君子厚德载物。顺势而为，以柔克刚，宜低调行事。','顺势而行，厚积薄发，以柔为主',70,75,80,80],
+['屯','元亨利贞，勿用有攸往',2,'初创维艰，如草木破土而出。坚持不懈，方见光明。','坚持初心，徐图进展，切勿急躁',55,50,50,60],
+['蒙','匪我求童蒙，童蒙求我',2,'蒙昧待启，虚心求教。宜学习积累，不宜冒进贪功。','虚心求教，蓄积能量，戒骄戒躁',50,55,55,65],
+['需','有孚光亨，贞吉',3,'等待时机，如雨前积云。耐心守候，时机成熟则水到渠成。','静心等待，蓄势待发，不可急进',65,70,60,75],
+['讼','有孚窒，惕，中吉，终凶',1,'争讼不利，需防小人。和为贵，宜退让妥协，避免正面冲突。','息争求和，谨防口舌，远离是非',35,40,35,55],
+['师','贞，丈人，吉无咎',2,'统帅领兵，纪律为先。团队配合，方能成事。','整合资源，有序推进，注重纪律',60,55,50,60],
+['比','吉，原筮元永贞，无咎',3,'亲比合作，众志成城。团结他人，共同前进，吉祥如意。','广结善缘，借助外力，和衷共济',75,70,75,70],
+['小畜','亨，密云不雨，自我西郊',2,'蓄积待发，时机未成熟。稳步积累，等待转机。','积累实力，等待时机，勿操之过急',60,60,55,65],
+['履','履虎尾，不咥人，亨',3,'如履薄冰，谨慎前行。小心处事，终能化险为夷。','谨言慎行，稳步推进，礼节周全',70,60,60,70],
+['泰','小往大来，吉亨',4,'天地交泰，万物欣荣。运势亨通，诸事顺利，大吉大利。','乘势而上，大展宏图，不可懈怠',95,90,85,90],
+['否','否之匪人，不利君子贞',1,'天地不交，万物不通。运势受阻，宜守成待变，忍耐蛰伏。','守成待变，韬光养晦，切忌冒进',30,35,35,50],
+['同人','同人于野，亨，利涉大川',3,'同心协力，志同道合。团结众人，共谋大事，吉祥顺遂。','广结同仁，协力共进，以诚待人',80,70,75,75],
+['大有','元亨',4,'火在天上，光照四方。财富丰盛，事业辉煌，大吉大利。','把握良机，大展宏图，勿忘初心',90,95,75,85],
+['谦','亨，君子有终',3,'山在地下，谦逊为怀。谦虚处世，终能获得成功和尊重。','谦逊处世，稳扎稳打，以退为进',75,70,80,80],
+['豫','利建侯行师',2,'雷出地奋，欢乐雀跃。宜提前筹谋，顺势而动。','预为筹谋，顺势而动，防止懈怠',60,65,65,65],
+['随','元亨利贞，无咎',3,'泽中有雷，随机应变。顺应时势，随机而动，吉祥无咎。','顺势而为，随机应变，不固执己见',75,75,70,70],
+['蛊','元亨，利涉大川',2,'山下有风，腐败待整。需要改革整顿，革故鼎新。','大胆改革，革故鼎新，清除积弊',55,55,50,60],
+['临','元亨利贞',3,'泽上有地，居高临下。临事审慎，把握时机，前途光明。','积极临事，把握时机，审慎决策',75,70,70,75],
+['观','盥而不荐，有孚顒若',2,'风行地上，遍观四方。静观其变，审时度势，不宜轻动。','静观其变，审慎行事，韬光待时',55,55,55,65],
+['噬嗑','亨，利用狱',2,'雷电交加，明决果断。遇到阻碍需果断处置，不可拖延。','果断决策，清除障碍，明辨是非',60,55,45,55],
+['贲','亨，小利有攸往',3,'山下有火，文采焕然。注重形象修饰，以文化人，美好吉祥。','注重形象，文化修养，内外兼修',65,70,75,70],
+['剥','不利有攸往',1,'山附于地，剥落衰退。当前形势不利，宜守旧待时，切勿冒进。','守成待时，切勿冒进，保存实力',35,35,35,40],
+['复','亨，出入无疾，朋来无咎',3,'雷在地中，一阳来复。否极泰来，新的开始，吉祥如意。','否极泰来，重新出发，把握新机',70,70,70,75],
+['无妄','元亨利贞，其匪正有眚',2,'天下有雷，顺天无妄。顺应自然，不可妄为，踏实行事。','顺天应人，不妄行动，脚踏实地',60,60,55,65],
+['大畜','利贞，不家食，吉，利涉大川',3,'山中有天，积蓄厚重。积累能量，蓄势待发，前途光明。','积蓄实力，厚积薄发，等待时机',75,75,65,75],
+['颐','贞吉，观颐，自求口实',2,'山下有雷，养正固本。注重修身养性，合理养生，方能长久。','注重养生，修身固本，均衡饮食',55,55,55,80],
+['大过','栋桡，利有攸往，亨',1,'泽中有木，大为过甚。当前局势非常，需谨慎应对，防止过激。','谨慎应对，防止过激，量力而行',40,40,35,40],
+['坎','有孚，维心亨，行有尚',1,'水流不息，险象环生。困境之中，坚守信念，终能化险为夷。','坚守信念，险中求生，守正待时',35,35,35,45],
+['离','利贞，亨，畜牝牛吉',3,'明两作，离。光明附丽，前途光明，宜把握时机展现才华。','展现才华，光明前行，明智抉择',75,75,70,70],
+['咸','亨，利贞，取女吉',3,'泽上有山，感应相通。感情和谐，心心相印，婚姻大吉。','以诚感人，情感顺遂，珍惜缘分',65,65,90,75],
+['恒','亨，无咎，利贞，利有攸往',2,'雷风相与，恒久不变。坚持不懈，持之以恒，方能成功。','恒心坚守，持之以恒，戒急求成',60,60,65,70],
+['遁','亨，小利贞',2,'天下有山，适时退隐。当前宜退守保全，待时而动。','适时退让，以退为进，韬光养晦',55,55,50,65],
+['大壮','利贞',3,'雷在天上，大壮刚健。阳气壮盛，行事宜正，切勿刚愎自用。','刚健正行，防止过刚，以德服人',75,70,60,75],
+['晋','康侯用锡马蕃庶，昼日三接',3,'火在地上，晋升光明。事业上升，贵人相助，前途一片光明。','把握机遇，积极进取，借助贵人',80,75,65,75],
+['明夷','利艰贞',1,'明入地中，光明受损。困境之中，韬光养晦，待机而动。','韬光养晦，忍辱负重，守正不移',35,40,45,55],
+['家人','利女贞',3,'风自火出，家道和睦。家庭和谐，内部整合，吉祥如意。','和睦家庭，内外兼顾，以身作则',65,65,85,75],
+['睽','小事吉',2,'火上泽下，背离乖违。意见不合，宜求同存异，小事可成。','求同存异，化解分歧，以和为贵',55,55,40,60],
+['蹇','利西南，不利东北，利见大人',1,'水在山上，举步维艰。前进困难重重，宜寻求贵人帮助。','寻求助力，迂回前进，静待时机',35,35,40,50],
+['解','利西南，无所往，其来复吉',3,'雷雨交作，解除困难。困境得解，拨云见日，吉祥如意。','把握时机，解困前行，果断行动',70,70,65,70],
+['损','有孚，元吉，无咎，可贞',2,'山下有泽，损益相因。适当牺牲，以损求益，长远有利。','量力而行，损小益大，取舍有度',60,55,60,65],
+['益','利有攸往，利涉大川',3,'风雷相益，增益获利。利益增加，事业发展，吉祥如意。','抓住机遇，增益扩展，积极进取',80,85,70,75],
+['夬','扬于王庭，孚号，有厉',2,'泽水决口，果断决行。当断则断，果敢决策，但需防小人。','果断决策，防范小人，公正处事',65,60,55,65],
+['姤','女壮，勿用取女',1,'天下有风，邂逅相遇。防范意外邂逅带来的风险，谨慎交友。','谨慎交友，防范风险，洁身自好',40,40,35,55],
+['萃','亨，王假有庙，利见大人',3,'泽上有地，聚合凝聚。人才汇聚，众志成城，诸事顺利。','凝聚力量，团结合作，共谋大事',75,75,70,70],
+['升','元亨，用见大人，勿恤，南征吉',3,'地中生木，升进晋升。循序渐进，稳步上升，前途光明。','循序渐进，稳步晋升，积累口碑',75,70,65,70],
+['困','亨，贞，大人吉，无咎，有言不信',1,'泽无水，困顿挫折。身陷困境，宜坚守正道，等待转机。','坚守正道，等待转机，沉默是金',35,35,35,50],
+['井','改邑不改井，无丧无得，往来井井',2,'木上有水，井然有序。源源不断，稳定供给，踏实积累。','踏实积累，稳健推进，坚守本分',60,60,55,65],
+['革','己日乃孚，元亨利贞，悔亡',3,'泽中有火，变革创新。顺应时代，大胆变革，前途光明。','顺势变革，创新求进，破旧立新',80,75,65,70],
+['鼎','元吉，亨',4,'火上有木，鼎新革故。功成名就，大吉大利，事业辉煌。','革故鼎新，成就功名，稳健运营',90,90,75,85],
+['震','亨，震来虩虩，笑言哑哑，震惊百里',2,'雷上雷下，震动惊醒。遇到突发事件，保持镇定，以静制动。','保持镇定，沉着应对，防患未然',55,55,50,60],
+['艮','艮其背，不获其身，行其庭，不见其人，无咎',2,'山上有山，静止不动。适时停止，审时度势，动静有节。','审时度势，适时而止，不可固执',55,55,55,65],
+['渐','女归吉，利贞',3,'山上有木，渐进有序。循序渐进，按部就班，终能成功。','循序渐进，稳步推进，持之以恒',70,70,75,70],
+['归妹','征凶，无攸利',1,'雷上有泽，从属依附。当前形势不宜主动出击，宜守分待时。','守分待时，切勿冒进，忍耐为上',30,35,35,45],
+['丰','亨，王假之，勿忧，宜日中',3,'雷上有火，丰盛旺盛。事业旺盛，财运丰隆，把握当下。','珍惜当下，把握鼎盛，防骄戒躁',80,85,70,75],
+['旅','小亨，旅贞吉',2,'火上有山，旅途处世。漂泊在外，谨慎处事，小心应对。','谨慎处世，灵活应变，低调行事',55,55,50,55],
+['巽','小亨，利有攸往，利见大人',2,'风上有风，柔顺入微。以柔克刚，顺势而为，宜求贵人。','柔顺处世，借助贵人，以柔制刚',60,60,60,65],
+['兑','亨，利贞',3,'泽上有泽，喜悦欢乐。心情愉快，人际和谐，诸事顺心。','保持愉悦，和谐处世，广结人缘',65,70,80,75],
+['涣','亨，王假有庙，利涉大川，利贞',3,'风行水上，涣散解除。困难消散，问题得解，前途明朗。','积极疏解，化解阻碍，重组整合',70,70,65,70],
+['节','亨，苦节不可贞',2,'泽上有水，节制有度。适度节制，有节有度，方能长久。','适度节制，量力而行，过犹不及',60,60,60,70],
+['中孚','豚鱼吉，利涉大川，利贞',3,'风上有泽，诚信中正。以诚感人，信守承诺，吉祥如意。','诚信为本，信守承诺，以心换心',75,70,80,75],
+['小过','亨，利贞，可小事，不可大事',2,'雷上有山，小心谨慎。宜小心谨慎，做小事可成，大事需慎重。','谨小慎微，不可轻进，稳中求胜',55,55,55,60],
+['既济','亨，小利贞，初吉终乱',2,'水上有火，既成守正。事已成功，谨防骄傲自满，守成不懈。','谨守既成，防止松懈，居安思危',65,65,65,70],
+['未济','亨，小狐汔济，濡其尾，无攸利',2,'火上有水，尚未完成。目标尚未实现，继续努力，终有成功之日。','坚持努力，终达彼岸，不可放弃',60,55,55,60],
+];
+
+const LOOKUP = Array.from({length:8},()=>Array(8).fill(0));
+[[7,7,1],[0,0,2],[1,2,3],[2,4,4],[7,2,5],[2,7,6],[2,0,7],[0,2,8],
+ [7,6,9],[3,7,10],[7,0,11],[0,7,12],[5,7,13],[7,5,14],[4,0,15],[0,1,16],
+ [1,3,17],[6,4,18],[3,0,19],[0,6,20],[1,5,21],[5,4,22],[0,4,23],[1,0,24],
+ [1,7,25],[7,4,26],[1,4,27],[6,3,28],[2,2,29],[5,5,30],[4,3,31],[6,1,32],
+ [4,7,33],[7,1,34],[0,5,35],[5,0,36],[5,6,37],[3,5,38],[4,2,39],[2,1,40],
+ [3,4,41],[1,6,42],[7,3,43],[6,7,44],[0,3,45],[6,0,46],[2,3,47],[6,2,48],
+ [5,3,49],[6,5,50],[1,1,51],[4,4,52],[4,6,53],[3,1,54],[5,1,55],[4,5,56],
+ [6,6,57],[3,3,58],[2,6,59],[3,2,60],[3,6,61],[4,1,62],[5,2,63],[2,5,64]
+].forEach(([l,u,n])=>LOOKUP[l][u]=n);
+
+const TRIGRAM_NAMES = ['坤','震','坎','兑','艮','离','巽','乾'];
+const TRIGRAM_ELEM = ['地','雷','水','泽','山','火','风','天'];
+
+// 64卦爻线 [初爻..上爻], 1=阳, 0=阴
+const HEXLINES = [null,
+  [1,1,1,1,1,1],[0,0,0,0,0,0],[1,0,0,0,1,0],[0,1,0,0,0,1],[1,1,1,0,1,0],
+  [0,1,0,1,1,1],[0,1,0,0,0,0],[0,0,0,0,1,0],[1,1,1,0,1,1],[1,1,0,1,1,1],
+  [1,1,1,0,0,0],[0,0,0,1,1,1],[1,0,1,1,1,1],[1,1,1,1,0,1],[0,0,1,0,0,0],
+  [0,0,0,1,0,0],[1,0,0,1,1,0],[0,1,1,0,0,1],[1,1,0,0,0,0],[0,0,0,0,1,1],
+  [1,0,0,1,0,1],[1,0,1,0,0,1],[0,0,0,0,0,1],[1,0,0,0,0,0],[1,0,0,1,1,1],
+  [1,1,1,0,0,1],[1,0,0,0,0,1],[0,1,1,1,1,0],[0,1,0,0,1,0],[1,0,1,1,0,1],
+  [0,0,1,1,1,0],[0,1,1,1,0,0],[0,0,1,1,1,1],[1,1,1,1,0,0],[0,0,0,1,0,1],
+  [1,0,1,0,0,0],[1,0,1,0,1,1],[1,1,0,1,0,1],[0,0,1,0,1,0],[0,1,0,1,0,0],
+  [1,1,0,0,0,1],[1,0,0,0,1,1],[1,1,1,1,1,0],[0,1,1,1,1,1],[0,0,0,1,1,0],
+  [0,1,1,0,0,0],[0,1,0,1,1,0],[0,1,1,0,1,0],[1,0,1,1,1,0],[0,1,1,1,0,1],
+  [1,0,0,1,0,0],[0,0,1,0,0,1],[0,0,1,0,1,1],[1,1,0,1,0,0],[1,0,1,1,0,0],
+  [0,0,1,1,0,1],[0,1,1,0,1,1],[1,1,0,1,1,0],[0,1,0,0,1,1],[1,1,0,0,1,0],
+  [1,1,0,0,1,1],[0,0,1,1,0,0],[1,0,1,0,1,0],[0,1,0,1,0,1],
+];
+
+// 反查[l,u]索引用于取得full name
+const HEX_LU = [null];
+[[7,7,1],[0,0,2],[1,2,3],[2,4,4],[7,2,5],[2,7,6],[2,0,7],[0,2,8],
+ [7,6,9],[3,7,10],[7,0,11],[0,7,12],[5,7,13],[7,5,14],[4,0,15],[0,1,16],
+ [1,3,17],[6,4,18],[3,0,19],[0,6,20],[1,5,21],[5,4,22],[0,4,23],[1,0,24],
+ [1,7,25],[7,4,26],[1,4,27],[6,3,28],[2,2,29],[5,5,30],[4,3,31],[6,1,32],
+ [4,7,33],[7,1,34],[0,5,35],[5,0,36],[5,6,37],[3,5,38],[4,2,39],[2,1,40],
+ [3,4,41],[1,6,42],[7,3,43],[6,7,44],[0,3,45],[6,0,46],[2,3,47],[6,2,48],
+ [5,3,49],[6,5,50],[1,1,51],[4,4,52],[4,6,53],[3,1,54],[5,1,55],[4,5,56],
+ [6,6,57],[3,3,58],[2,6,59],[3,2,60],[3,6,61],[4,1,62],[5,2,63],[2,5,64],
+].forEach(([l,u,n])=>{ HEX_LU[n]=[l,u]; });
+
+function renderHexGrid() {
+  const grid = document.getElementById('hexGrid');
+  if (!grid) return;
+  let html = '';
+  for (let n = 1; n <= 64; n++) {
+    const name = HD[n][0];
+    const [l, u] = HEX_LU[n];
+    const fullName = TRIGRAM_ELEM[u] + TRIGRAM_ELEM[l] + name;
+    const lines = HEXLINES[n]; // [初爻..上爻], render top to bottom = reverse
+    let linesHtml = '';
+    for (let i = 5; i >= 0; i--) {
+      if (i === 2) linesHtml += '<div class="gk-sep"></div>';
+      linesHtml += `<img src="heng${lines[i] ? '1' : '2'}.svg" class="gk-heng" alt="">`;
+    }
+    html += `<div class="gk-wrap" onclick="openHexDetail(${n})" style="cursor:pointer;">
+      <div class="gk-inner-abs">
+        <img class="gk-bg" src="gua-bg.png" alt=""/>
+        <div class="gk-num">${n}</div>
+        <div class="gk-lines">${linesHtml}</div>
+        <div class="gk-fullname">${fullName}</div>
+        <div class="gk-name">${name}</div>
+      </div>
+    </div>`;
+  }
+  grid.innerHTML = html;
+}
+// ══════════════════════════════════════
+// AI 对话页
+// ══════════════════════════════════════
+let acMessages = [];
+let acUsed = 0;
+const AC_LIMIT = 2;
+const AC_NAME = 'Phoebe';
+const AC_WELCOME = `你好，我是${AC_NAME}，你的易经AI解读师。\n\n你可以向我提问关于卦象的深层含义、生活建议，或直接描述你的困惑，我会结合卦象为你解读。`;
+
+function acRender() {
+  const body = document.getElementById('ac-body');
+  if (!body) return;
+  let html = '';
+  acMessages.forEach((msg, idx) => {
+    if (msg.role === 'user') {
+      html += `<div class="ac-user"><div class="ac-user-bubble">${msg.text}</div></div>`;
+    } else {
+      const showShare = idx > 0 && acMessages[idx-1] && acMessages[idx-1].role === 'user';
+      if (showShare) {
+        html += `<div class="ac-share-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>导出分享卡片</div>`;
+      }
+      html += `<div class="ac-ai-block">`;
+      if (msg.showAvatar !== false) {
+        html += `<div class="ac-ai-hd"><div class="ac-ai-avatar">福</div><span class="ac-ai-nm">${AC_NAME}</span></div>`;
+      }
+      const formatted = msg.text.replace(/\n\n/g,'</p><p style="margin-bottom:12px;">').replace(/\n/g,'<br>');
+      html += `<div class="ac-ai-cont"><p style="margin-bottom:12px;">${formatted}</p></div>`;
+      html += `</div>`;
+    }
+  });
+  body.innerHTML = html;
+  body.scrollTop = body.scrollHeight;
+  const ct = document.getElementById('ac-used');
+  if (ct) ct.textContent = acUsed;
+}
+
+function acSend() {
+  const inp = document.getElementById('ac-input');
+  if (!inp) return;
+  const text = inp.value.trim();
+  if (!text) return;
+  if (acUsed >= AC_LIMIT) { alert('今日解读次数已用完，明日再来'); return; }
+  inp.value = '';
+  acMessages.push({ role: 'user', text });
+  acRender();
+  setTimeout(() => {
+    acUsed++;
+    acMessages.push({ role: 'ai', text: acMockReply(text), showAvatar: true });
+    acRender();
+  }, 1200);
+}
+
+function acMockReply(q) {
+  return `简单来说，关于你所问的内容：\n\n从卦象来看，当前的局势需要你内观自省，以柔克刚才是上策。\n\n你内心有动力，但可能习惯独自硬扛，这反而会消耗你。主要的障碍是担心付出得不到公平回报，或者机遇不稳定。\n\n你最大的资源不是蛮力，而是内心的韧劲和以柔克刚的沟通能力。用好这个，你最终能摆脱需要"耍小聪明"才能立足的状态，建立起自己稳固、自主的方向。\n\n核心就是：务实深耕，打开心扉接纳支持，用内在的坚定去赢得公平和自主。`;
+}
+
+function openAiChat(initMsg) {
+  if (acMessages.length === 0) {
+    acMessages = [{ role: 'ai', text: AC_WELCOME, showAvatar: true }];
+  }
+  if (initMsg) {
+    acMessages.push({ role: 'user', text: initMsg });
+    acUsed++;
+    acMessages.push({ role: 'ai', text: acMockReply(initMsg), showAvatar: true });
+  }
+  go(7);
+  setTimeout(acRender, 50);
+}
+
+// ══════════════════════════════════════
+// 卦象详情页
+// ══════════════════════════════════════
+let hdCurrentN = 0;
+let hdBookmarked = false;
+
+function hdTriIdx(L, o) { return L[o] + L[o+1]*2 + L[o+2]*4; }
+function hdGetHuGua(n) {
+  const L = HEXLINES[n];
+  return LOOKUP[hdTriIdx(L,1)][hdTriIdx(L,2)];
+}
+function hdGetCuoGua(n) {
+  const L = HEXLINES[n].map(x => 1-x);
+  return LOOKUP[hdTriIdx(L,0)][hdTriIdx(L,3)];
+}
+function hdGetZongGua(n) {
+  const L = [...HEXLINES[n]].reverse();
+  return LOOKUP[hdTriIdx(L,0)][hdTriIdx(L,3)];
+}
+
+function hdMiniSVG(n, w, h) {
+  const L = HEXLINES[n];
+  const barH = 3, gap = (h - 6*barH) / 7;
+  let s = `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">`;
+  for (let i = 5; i >= 0; i--) {
+    const vi = 5 - i;
+    const y = +(gap + vi*(barH+gap)).toFixed(2);
+    if (L[i] === 1) {
+      s += `<rect x="2" y="${y}" width="${w-4}" height="${barH}" rx="1.2" fill="#1a1a1a"/>`;
+    } else {
+      const hw = +((w-4-4)/2).toFixed(1);
+      s += `<rect x="2" y="${y}" width="${hw}" height="${barH}" rx="1" fill="#1a1a1a"/>`;
+      s += `<rect x="${+(w-2-hw).toFixed(1)}" y="${y}" width="${hw}" height="${barH}" rx="1" fill="#1a1a1a"/>`;
+    }
+  }
+  return s + '</svg>';
+}
+
+function hdYaoName(n, pos) {
+  const isYang = HEXLINES[n][pos] === 1;
+  const q = isYang ? '九' : '六';
+  const pfx = ['初','二','三','四','五','上'];
+  if (pos === 0) return isYang ? '初九' : '初六';
+  if (pos === 5) return isYang ? '上九' : '上六';
+  return q + pfx[pos];
+}
+
+function hdToggleBookmark() {
+  hdBookmarked = !hdBookmarked;
+  const icon = document.getElementById('hd-bm-icon');
+  if (!icon) return;
+  icon.setAttribute('fill', hdBookmarked ? '#e84e0f' : 'none');
+  icon.setAttribute('stroke', hdBookmarked ? '#e84e0f' : '#aaa');
+}
+
+function hdToggleBaihuo(el) {
+  const div = el.closest('.hd-section').querySelector('.hd-baihuo');
+  if (div) div.style.display = div.style.display === 'none' ? 'block' : 'none';
+}
+
+function hdSendAsk() {
+  const input = document.getElementById('hd-ask-input');
+  if (!input || !input.value.trim()) return;
+  alert('AI解读功能即将上线，敬请期待');
+  input.value = '';
+}
+
+function openHexDetail(n) {
+  if (!n || n < 1 || n > 64) return;
+  hdCurrentN = n;
+  hdBookmarked = false;
+  const bmi = document.getElementById('hd-bm-icon');
+  if (bmi) { bmi.setAttribute('fill','none'); bmi.setAttribute('stroke','#aaa'); }
+
+  const d = HD[n];
+  const [lo, up] = HEX_LU[n];
+  const L = HEXLINES[n];
+  const name = d[0];
+  const fullName = TRIGRAM_ELEM[up] + TRIGRAM_ELEM[lo] + name;
+
+  // header title
+  document.getElementById('hd-title').textContent = name;
+
+  // card
+  document.getElementById('hd-card-top').textContent = `第 ${n} 卦`;
+  document.getElementById('hd-card-svg').innerHTML = hdMiniSVG(n, 68, 100);
+  document.getElementById('hd-card-name').textContent = name;
+  document.getElementById('hd-card-full').textContent = fullName;
+
+  // related hexagrams
+  const huN = hdGetHuGua(n);
+  const cuoN = hdGetCuoGua(n);
+  const zongN = hdGetZongGua(n);
+  [['hu',huN],['cuo',cuoN],['zong',zongN]].forEach(([type,rn]) => {
+    document.getElementById(`hd-${type}-svg`).innerHTML = hdMiniSVG(rn, 28, 42);
+    document.getElementById(`hd-${type}-name`).textContent = HD[rn][0];
+    document.getElementById(`hd-${type}-wrap`).onclick = () => openHexDetail(rn);
+  });
+
+  // info bar
+  document.getElementById('hd-info-bar').innerHTML =
+    `<span style="font-size:15px;color:#aaa;font-weight:400;">${n}.</span>
+     ${hdMiniSVG(n, 22, 32)}
+     <strong style="font-size:18px;font-family:'Noto Serif SC';">${name}</strong>
+     <span style="font-size:14px;color:#555;font-family:'Noto Serif SC';">${fullName}</span>
+     <span style="font-size:12px;color:#aaa;font-family:'Noto Serif SC';">${TRIGRAM_NAMES[up]}上${TRIGRAM_NAMES[lo]}下</span>`;
+
+  // 从 HEX_DETAIL 取富文本数据（如未加载则降级）
+  const dd = (typeof HEX_DETAIL !== 'undefined' && HEX_DETAIL[n]) ? HEX_DETAIL[n] : null;
+  const fmt = t => t ? t.replace(/\n/g,'<br>') : '';
+
+  // 卡片副标题：卦语
+  const guayu = dd ? dd.guayu : '';
+  document.getElementById('hd-card-full').innerHTML =
+    guayu ? `<span style="font-size:11px;color:#8a7060;font-family:'Noto Serif SC';">${guayu}</span>` : fullName;
+
+  // content
+  let html = '';
+
+  // 卦辞
+  const guaci    = dd ? dd.guaci    : d[1];
+  const guaci_bh = dd ? dd.guaci_bh : d[3];
+  html += `<div class="hd-section">
+    <div class="hd-sec-hd">卦辞
+      <span onclick="hdToggleBaihuo(this)" style="font-size:11.5px;color:#c47a2a;font-weight:400;margin-left:auto;cursor:pointer;text-decoration:underline dotted;">(点击显示白话译文)</span>
+    </div>
+    <div style="font-family:'Noto Serif SC';font-size:14px;color:#2a1a0a;line-height:2.1;letter-spacing:.04em;">${fmt(guaci)}</div>
+    <div class="hd-baihuo" style="display:none;margin-top:10px;font-size:13px;color:#555;line-height:1.9;background:#fdf8f0;border-radius:8px;padding:10px 12px;">${fmt(guaci_bh)}</div>
+  </div>`;
+
+  // 图解（象辞）
+  const tujie = dd ? dd.tujie : '';
+  if (tujie) {
+    html += `<div class="hd-section">
+      <div class="hd-sec-hd">图解</div>
+      <div style="font-family:'Noto Serif SC';font-size:13.5px;color:#444;line-height:2;">${fmt(tujie)}</div>
+    </div>`;
+  }
+
+  // 六爻爻辞
+  html += `<div class="hd-section"><div class="hd-sec-hd">六爻爻辞</div>`;
+  for (let i = 0; i < 6; i++) {
+    const yn = hdYaoName(n, i);
+    const isYang = L[i] === 1;
+    const bc = '#1a1a1a';
+    const barSVG = isYang
+      ? `<svg width="34" height="8"><rect x="0" y="2" width="34" height="4" rx="2" fill="${bc}"/></svg>`
+      : `<svg width="34" height="8"><rect x="0" y="2" width="13" height="4" rx="1.5" fill="${bc}"/><rect x="21" y="2" width="13" height="4" rx="1.5" fill="${bc}"/></svg>`;
+    const yaoCi = dd ? dd.yao[i].ci : '';
+    const yaoBh = dd ? dd.yao[i].bh : '';
+    html += `<div class="hd-yao-row">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+        ${barSVG}
+        <span class="hd-yao-nm">${yn}</span>
+        <span style="font-size:11px;color:#bbb;font-family:'Noto Serif SC';">${YAO_NAMES[i]}</span>
+      </div>
+      <div class="hd-yao-ci">${fmt(yaoCi)}</div>
+      ${yaoBh ? `<div onclick="this.nextSibling&&(this.nextSibling.style.display=this.nextSibling.style.display==='none'?'block':'none')" style="font-size:11.5px;color:#c47a2a;cursor:pointer;margin-top:5px;">(点击显示白话译文)</div>
+      <div style="display:none;margin-top:6px;font-size:12.5px;color:#555;line-height:1.85;background:#fdf8f0;border-radius:8px;padding:9px 11px;">${fmt(yaoBh)}</div>` : ''}
+    </div>`;
+  }
+
+  // 用九（仅乾卦等全阳卦）
+  if (dd && dd.yongjiu) {
+    html += `<div class="hd-yao-row">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+        <span class="hd-yao-nm">用九</span>
+      </div>
+      <div class="hd-yao-ci">${fmt(dd.yongjiu)}</div>
+      ${dd.yongjiu_bh ? `<div onclick="this.nextSibling&&(this.nextSibling.style.display=this.nextSibling.style.display==='none'?'block':'none')" style="font-size:11.5px;color:#c47a2a;cursor:pointer;margin-top:5px;">(点击显示白话译文)</div>
+      <div style="display:none;margin-top:6px;font-size:12.5px;color:#555;line-height:1.85;background:#fdf8f0;border-radius:8px;padding:9px 11px;">${fmt(dd.yongjiu_bh)}</div>` : ''}
+    </div>`;
+  }
+  html += `</div>`;
+
+  // 运势
+  html += `<div class="hd-section">
+    <div class="hd-sec-hd">各方运势</div>
+    ${['事业','财运','感情','健康'].map((lb,i) => `
+      <div style="margin-bottom:13px;">
+        <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#666;margin-bottom:5px;">
+          <span>${lb}</span><span style="color:#c47a2a;font-weight:600;">${d[5+i]}%</span>
+        </div>
+        <div class="fbar"><div class="fbar-fill" style="width:${d[5+i]}%"></div></div>
+      </div>`).join('')}
+    <div style="margin-top:4px;padding:10px 12px;background:#fdf8f0;border-radius:8px;font-size:12.5px;color:#666;line-height:1.85;font-family:'Noto Serif SC';">
+      <strong style="color:#c47a2a;">建议：</strong>${d[4]}
+    </div>
+  </div>`;
+
+  document.getElementById('hd-content').innerHTML = html;
+  const sc = document.getElementById('hexDetailScreen').querySelector('.scroll');
+  if (sc) sc.scrollTop = 0;
+  go(6);
+}
+
+const FORTUNE_LABELS = ['大凶','凶','平','吉','大吉'];
+const FORTUNE_COLORS = ['#e74c3c','#e67e22','#95a5a6','#27ae60','#E84E0F'];
+const YAO_NAMES = ['初爻','二爻','三爻','四爻','五爻','上爻'];
+
+let curScreen = 0;
+let divStep = 0;
+let question = '';
+let yaos = [];
+let throwing = false;
+let savedCount = 0;
+let totalCount = 0;
+
+// ══════════════════════════════════════
+// CANVAS: Bagua Wheel + Hexagram Icon
+// ══════════════════════════════════════
+function pt(cx,cy,deg,r){
+  const rad=deg*Math.PI/180;
+  return [cx+r*Math.sin(rad), cy-r*Math.cos(rad)];
+}
+
+function drawYinYang(ctx,cx,cy,r){
+  // white base
+  ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fillStyle='white';ctx.fill();
+  ctx.strokeStyle='#d0c8be';ctx.lineWidth=1;ctx.stroke();
+  // black half (S-curve)
+  ctx.beginPath();
+  ctx.arc(cx,cy,r,Math.PI*1.5,Math.PI*0.5,false);
+  ctx.arc(cx,cy+r/2,r/2,Math.PI*0.5,Math.PI*1.5,false);
+  ctx.arc(cx,cy-r/2,r/2,Math.PI*0.5,Math.PI*1.5,true);
+  ctx.closePath();ctx.fillStyle='#1a1a1a';ctx.fill();
+  // white dot in black
+  ctx.beginPath();ctx.arc(cx,cy-r/2,r/5.5,0,Math.PI*2);ctx.fillStyle='white';ctx.fill();
+  // black dot in white
+  ctx.beginPath();ctx.arc(cx,cy+r/2,r/5.5,0,Math.PI*2);ctx.fillStyle='#1a1a1a';ctx.fill();
+}
+
+function drawTrigramLines(ctx,cx,cy,w,lines,color){
+  // lines=[top,mid,bot], 1=yang solid, 0=yin broken
+  const h=2.5,gap=4.5,total=3*h+2*gap;
+  const sy=cy-total/2;
+  lines.forEach((isYang,i)=>{
+    const y=sy+i*(h+gap);
+    ctx.fillStyle=color||'rgba(255,255,255,0.9)';
+    if(isYang){
+      ctx.fillRect(cx-w/2,y,w,h);
+    } else {
+      const half=(w-3)/2;
+      ctx.fillRect(cx-w/2,y,half,h);
+      ctx.fillRect(cx+w/2-half,y,half,h);
+    }
+  });
+}
+
+function drawBaguaWheel(){
+  const canvas=document.getElementById('baguaCanvas');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  // Canvas 290×290 — matches Figma 278px wheel scaled to 290px (375→390px screen)
+  const S=290,cx=145,cy=145;
+  ctx.clearRect(0,0,S,S);
+
+  // White bg + 2 very subtle gray rings (Figma: rgba(217,217,217,0.10))
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,S,S);
+  [[139,'rgba(210,206,202,0.22)'],[104,'rgba(210,206,202,0.16)']].forEach(([r,c])=>{
+    ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fillStyle=c;ctx.fill();
+  });
+
+  // 后天八卦 (King Wen / Later Heaven)
+  const TG=[
+    {n:'离',l:[1,0,1],d:'南',a:0},
+    {n:'坤',l:[0,0,0],d:'',  a:45},
+    {n:'兑',l:[0,1,1],d:'西',a:90},
+    {n:'乾',l:[1,1,1],d:'',  a:135},
+    {n:'坎',l:[0,1,0],d:'北',a:180},
+    {n:'艮',l:[1,0,0],d:'',  a:225},
+    {n:'震',l:[0,0,1],d:'东',a:270},
+    {n:'巽',l:[1,1,0],d:'',  a:315},
+  ];
+
+  // OUTER circles r=92, radius=20 (后天八卦)
+  TG.forEach(t=>{
+    const [x,y]=pt(cx,cy,t.a,92);
+    ctx.beginPath();ctx.arc(x,y,20,0,Math.PI*2);
+    ctx.fillStyle='rgba(175,171,165,0.95)';ctx.fill();
+    drawTrigramLines(ctx,x,y,14,t.l);
+  });
+
+  // Trigram name (inside outer circle near inner edge)
+  TG.forEach(t=>{
+    const [x,y]=pt(cx,cy,t.a,78);
+    ctx.font='7.5px Noto Serif SC,serif';
+    ctx.fillStyle='#868686';
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(t.n,x,y);
+  });
+
+  // Direction labels 南/北/东/西 between inner and outer circles
+  TG.forEach(t=>{
+    if(!t.d)return;
+    const [x,y]=pt(cx,cy,t.a,60);
+    ctx.font='bold 8px Noto Serif SC,serif';
+    ctx.fillStyle=t.d==='南'?'#dd5a5a':'#888888';
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(t.d,x,y);
+  });
+
+  // INNER circles r=38, radius=11 (先天八卦 / Fuxi)
+  const TG_XIAN=[
+    {l:[1,1,1],a:0},  // 乾(S)
+    {l:[0,1,1],a:45}, // 兑
+    {l:[1,0,1],a:90}, // 离(W)
+    {l:[0,0,1],a:135},// 震
+    {l:[1,1,0],a:180},// 巽(N)
+    {l:[0,1,0],a:225},// 坎
+    {l:[1,0,0],a:270},// 艮(E)
+    {l:[0,0,0],a:315},// 坤
+  ];
+  TG_XIAN.forEach(t=>{
+    const [x,y]=pt(cx,cy,t.a,38);
+    ctx.beginPath();ctx.arc(x,y,11,0,Math.PI*2);
+    ctx.fillStyle='rgba(175,171,165,0.80)';ctx.fill();
+    drawTrigramLines(ctx,x,y,8,t.l);
+  });
+
+  // Yin-yang center r=21 (Figma: 40px dia on 278px frame → scaled)
+  drawYinYang(ctx,cx,cy,21);
+
+  // 24山 single chars at r=124 — 午 at 0°(South/top), 丙 at 345°
+  const SHAN=['午','丁','未','坤','申','庚','酉','辛','戌','乾','亥','壬','子','癸','丑','艮','寅','甲','卯','乙','辰','巽','己','丙'];
+  SHAN.forEach((s,i)=>{
+    const [x,y]=pt(cx,cy,i*15,124);
+    ctx.font='6px Noto Serif SC,serif';
+    ctx.fillStyle='#d4d4d4';
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(s,x,y);
+  });
+
+  // 24节气 at r=136 — 夏至 at 0°(top), 芒种 at 345°(current, red)
+  const TERMS=['夏至','小暑','大暑','立秋','处暑','白露','秋分','寒露','霜降','立冬','小雪','大雪','冬至','小寒','大寒','立春','雨水','惊蛰','春分','清明','谷雨','立夏','小满','芒种'];
+  const CURRENT='芒种';
+  TERMS.forEach((term,i)=>{
+    const angle=i*15;
+    const [x,y]=pt(cx,cy,angle,136);
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(angle*Math.PI/180);
+    ctx.font=(term===CURRENT?'bold ':'')+'5.5px Noto Serif SC,serif';
+    ctx.fillStyle=term===CURRENT?'#ff4935':'#c9c9c9';
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(term,0,0);
+    ctx.restore();
+  });
+}
+
+function drawHexIcon(){
+  const c=document.getElementById('hexIcon');
+  if(!c)return;
+  const ctx=c.getContext('2d');
+  const w=46,h=50,cx=w/2;
+  ctx.clearRect(0,0,w,h);
+  // orange 乾 character
+  ctx.font='bold 34px Noto Serif SC,serif';
+  ctx.fillStyle='#E84E0F';
+  ctx.textAlign='center';ctx.textBaseline='top';
+  ctx.fillText('乾',cx,0);
+  // three yang lines below
+  const lw=30,lh=2.5,gap=4,sy=38;
+  ctx.fillStyle='#E84E0F';
+  [0,1,2].forEach(i=>{ctx.fillRect(cx-lw/2,sy+i*(lh+gap),lw,lh);});
+}
+
+window.addEventListener('load',()=>{
+  drawBaguaWheel();
+  drawHexIcon();
+  renderHexGrid();
+  buildZbWheel();
+});
+
+// Clock + date init
+(function(){
+  const now = new Date();
+  const h = now.getHours(), m = now.getMinutes();
+  document.getElementById('clock').textContent = `${h}:${m<10?'0'+m:m}`;
+  const days = ['日','一','二','三','四','五','六'];
+  const ds = `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日 星期${days[now.getDay()]}`;
+  document.getElementById('fullDate').textContent = ds;
+  document.getElementById('dayNum').textContent = now.getDate();
+  const hName = h<6?'凌晨好':h<9?'早上好':h<12?'上午好':h<14?'中午好':h<18?'下午好':'晚上好';
+  document.getElementById('greetText').textContent = `${hName}，王一腾`;
+  const dateEl = document.getElementById('dateText'); if (dateEl) dateEl.textContent = ds;
+})();
+
+// Init active tab on first load
+setTimeout(() => go(0), 0);
+
+function go(n) {
+  curScreen = n;
+  document.getElementById('slider').style.transform = `translateX(-${n*390}px)`;
+  const dark = n === 2;
+  document.getElementById('sb').style.background = dark ? '#0d0d1a' : '#fff';
+  document.getElementById('clock').style.color = dark ? '#e8dfc8' : '#1a1a1a';
+  // .nb order: 0=首页, 1=64卦, 2=易经, 3=我的  (.nb-ai is separate)
+  const tabMap = [0, -1, -1, 1, 3, -1, 1, -1]; // screen index → .nb index; -1=none
+  const activeTab = tabMap[n] ?? -1;
+  const aiActive = (n === 7);
+  document.querySelectorAll('.nav').forEach(nav => {
+    nav.querySelectorAll('.nb').forEach((nb, i) => nb.classList.toggle('on', i === activeTab));
+    const ai = nav.querySelector('.nb-ai');
+    if (ai) ai.classList.toggle('on', aiActive);
+  });
+}
+
+function startDivination() {
+  // 先进问卦入口页，让用户输入问题
+  var ta = document.getElementById('wenguaQ');
+  if (ta) { ta.value = ''; }
+  wenguaInputChange();
+  go(5);
+}
+
+function setWenguaQ(text) {
+  var ta = document.getElementById('wenguaQ');
+  ta.value = text;
+  wenguaInputChange();
+}
+
+function wenguaInputChange() {
+  var q = (document.getElementById('wenguaQ').value || '').trim();
+  document.getElementById('wenguaSendBtn').style.background = q.length >= 4 ? '#b31a1a' : '#ccc';
+}
+
+function wenguaSubmit(type) {
+  var q = (document.getElementById('wenguaQ').value || '').trim();
+  if (q.length < 4) {
+    // 边框闪红提示
+    var box = document.getElementById('wenguaBox');
+    box.style.borderColor = '#d93025';
+    setTimeout(function () { box.style.borderColor = '#cddaed'; }, 1400);
+    return;
+  }
+  question = q;
+  if (type === 'liuyao') {
+    zbInit();
+    go(1);
+  } else {
+    alert('敬请期待');
+  }
+}
+
+function throwOneCoin() { return Math.random() < 0.5 ? 2 : 3; }
+
+/* ══════════════════════════════════════
+   摇卦页 (SCREEN 1) 逻辑
+   ══════════════════════════════════════ */
+
+// 后天八卦 南=顶 顺时针 (outer ring)
+const ZB_HT = [
+  {a:0,   y:[1,0,1]}, // 离(南)
+  {a:45,  y:[0,0,0]}, // 坤
+  {a:90,  y:[1,1,0]}, // 兑
+  {a:135, y:[1,1,1]}, // 乾
+  {a:180, y:[0,1,0]}, // 坎
+  {a:225, y:[0,0,1]}, // 艮
+  {a:270, y:[1,0,0]}, // 震
+  {a:315, y:[0,1,1]}, // 巽
+];
+// 先天八卦 南=顶 顺时针 (inner ring)
+const ZB_XT = [
+  {a:0,   y:[1,1,1]},
+  {a:45,  y:[0,1,1]},
+  {a:90,  y:[0,1,0]},
+  {a:135, y:[0,0,1]},
+  {a:180, y:[0,0,0]},
+  {a:225, y:[1,0,0]},
+  {a:270, y:[1,0,1]},
+  {a:315, y:[1,1,0]},
+];
+
+function buildZbWheel() {
+  const NS = 'http://www.w3.org/2000/svg';
+  const CX = 135, CY = 135;
+
+  function zbPos(r, angleDeg) {
+    const rad = angleDeg * Math.PI / 180;
+    return { x: CX + r * Math.sin(rad), y: CY - r * Math.cos(rad) };
+  }
+
+  // counterDeg: 反旋转角度(-360=顺转圈逆转图标, +360=逆转圈顺转图标), counterDur: 秒
+  function drawGua(parentG, p, circleSize, yao, barW, barH, barGap, counterDeg, counterDur) {
+    const half = circleSize / 2;
+    // 外层定位组
+    const posG = document.createElementNS(NS, 'g');
+    posG.setAttribute('transform', `translate(${p.x - half},${p.y - half})`);
+
+    // 内层反旋转组，抵消父圈旋转，保持图标方向固定
+    const g = document.createElementNS(NS, 'g');
+    const at = document.createElementNS(NS, 'animateTransform');
+    at.setAttribute('attributeName', 'transform');
+    at.setAttribute('type', 'rotate');
+    at.setAttribute('from', `0 ${half} ${half}`);
+    at.setAttribute('to', `${counterDeg} ${half} ${half}`);
+    at.setAttribute('dur', `${counterDur}s`);
+    at.setAttribute('repeatCount', 'indefinite');
+    g.appendChild(at);
+
+    // 圆底 (baguadi-yuan1)
+    const img = document.createElementNS(NS, 'image');
+    img.setAttribute('href', 'baguatu2/baguadi-yuan1.svg');
+    img.setAttribute('x', '0'); img.setAttribute('y', '0');
+    img.setAttribute('width', circleSize); img.setAttribute('height', circleSize);
+    g.appendChild(img);
+
+    // 3 爻横杠 (上→下: 爻2,爻1,爻0)
+    const totalH = 3 * barH + 2 * barGap;
+    const sy = half - totalH / 2;
+    const sx = (circleSize - barW) / 2;
+    [2, 1, 0].forEach((yi, vi) => {
+      const y = sy + vi * (barH + barGap);
+      const isYang = yao[yi] === 1;
+      if (isYang) {
+        const r = document.createElementNS(NS, 'rect');
+        r.setAttribute('x', sx); r.setAttribute('y', y);
+        r.setAttribute('width', barW); r.setAttribute('height', barH);
+        r.setAttribute('fill', 'white'); r.setAttribute('rx', '1');
+        g.appendChild(r);
+      } else {
+        const hw = (barW - 3) / 2;
+        [0, hw + 3].forEach(ox => {
+          const r = document.createElementNS(NS, 'rect');
+          r.setAttribute('x', sx + ox); r.setAttribute('y', y);
+          r.setAttribute('width', hw); r.setAttribute('height', barH);
+          r.setAttribute('fill', 'white'); r.setAttribute('rx', '0.8');
+          g.appendChild(r);
+        });
+      }
+    });
+    posG.appendChild(g);
+    parentG.appendChild(posG);
+  }
+
+  // 外圈 r=100, circle 30×30, 爻杠 14×2.5; 外圈顺时针22s→图标逆时针22s抵消
+  const outerG = document.getElementById('zb-outer-ring');
+  ZB_HT.forEach(gua => {
+    drawGua(outerG, zbPos(100, gua.a), 30, gua.y, 14, 2.5, 2.5, -360, 22);
+  });
+
+  // 内圈 r=54, circle 20×20, 爻杠 9×1.8; 内圈逆时针16s→图标顺时针16s抵消
+  const innerG = document.getElementById('zb-inner-ring');
+  ZB_XT.forEach(gua => {
+    drawGua(innerG, zbPos(54, gua.a), 20, gua.y, 9, 1.8, 1.8, 360, 16);
+  });
+}
+
+let zbStep = 0;   // 已摇次数 0-6
+let zbYaos = [];  // {sum, coins[]}
+let zbThrowingFlag = false;
+
+function zbInit() {
+  zbStep = 0; zbYaos = []; zbThrowingFlag = false;
+  yaos = [];
+  const coins = document.getElementById('zb-coins');
+  if (coins) coins.style.display = 'none';
+  const hint = document.getElementById('zb-hint');
+  if (hint) hint.textContent = '点击龟壳投扔硬币六次进行六爻问卜';
+  zbRenderYaoBar();
+}
+
+function zbThrow() {
+  if (zbThrowingFlag || zbStep >= 6) return;
+  zbThrowingFlag = true;
+
+  // 随机生成3枚铜钱 2=字(阴) 3=背(阳)
+  const coins = [throwOneCoin(), throwOneCoin(), throwOneCoin()];
+  const sum = coins[0] + coins[1] + coins[2]; // 6|7|8|9
+
+  // 显示铜钱 + 动画
+  const coinsEl = document.getElementById('zb-coins');
+  coinsEl.style.display = 'flex';
+  ['zb-c0', 'zb-c1', 'zb-c2'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    // 3=背(阳)=qianbi2, 2=字(阴)=qianbi1
+    el.src = `zhanbuyemian/${coins[i] === 3 ? 'qianbi2' : 'qianbi1'}.svg`;
+    el.className = '';
+    void el.offsetWidth; // reflow 触发重播
+    el.style.animationDelay = `${i * 90}ms`;
+    el.className = 'zb-coin-anim';
+  });
+
+  // 龟壳晃动
+  const guike = document.getElementById('zb-guike');
+  guike.className = 'zb-shaking';
+  guike.addEventListener('animationend', () => { guike.className = ''; }, { once: true });
+
+  // 记录并更新
+  setTimeout(() => {
+    zbYaos.push({ sum, coins });
+    zbStep++;
+    zbRenderYaoBar();
+
+    if (zbStep < 6) {
+      document.getElementById('zb-hint').textContent =
+        `第 ${zbStep} 爻已成，还需摇 ${6 - zbStep} 次`;
+    } else {
+      // 6爻完成 → 转到解卦
+      document.getElementById('zb-hint').textContent = '六爻已成，正在解卦…';
+      yaos = zbYaos.map(z => ({ value: z.sum, coins: z.coins }));
+      totalCount++;
+      const sc = document.getElementById('statCount');
+      const dc = document.getElementById('divinCount');
+      if (sc) sc.textContent = totalCount;
+      if (dc) dc.textContent = `已占卜 ${totalCount} 次`;
+      setTimeout(() => { go(2); showResult(); }, 900);
+    }
+    zbThrowingFlag = false;
+  }, 750);
+}
+
+function zbRenderYaoBar() {
+  const bar = document.getElementById('zb-yao-bar');
+  if (!bar) return;
+  let html = '';
+  // 从上爻(idx5)到初爻(idx0)，上→下排列
+  for (let i = 5; i >= 0; i--) {
+    if (i < zbYaos.length) {
+      html += zbYaoSlot(zbYaos[i].sum, i);
+    } else {
+      html += `<div style="display:flex;align-items:center;justify-content:center;height:22px;width:100%;">
+        <div style="width:7px;height:7px;border-radius:50%;background:#d0d0d0;"></div>
+      </div>`;
+    }
+  }
+  bar.innerHTML = html;
+}
+
+function zbYaoSlot(sum, idx) {
+  const isYang = sum === 7 || sum === 9;
+  const isChanging = sum === 6 || sum === 9;
+  const barColor = isChanging ? '#c0392b' : '#1a1a1a';
+  // 爻杠居中，高度10px（原5px的两倍）
+  const barHtml = isYang
+    ? `<div style="width:120px;height:10px;background:${barColor};border-radius:3px;flex-shrink:0;"></div>`
+    : `<div style="width:120px;display:flex;gap:8px;flex-shrink:0;">
+        <div style="flex:1;height:10px;background:${barColor};border-radius:2px;"></div>
+        <div style="flex:1;height:10px;background:${barColor};border-radius:2px;"></div>
+       </div>`;
+  // 图标absolute定位，不影响爻杠居中；爻杠120px，半宽60px，gap8px → left=50%+68px
+  const iconHtml = isChanging
+    ? `<img src="zhanbuyemian/${sum === 9 ? 'yang' : 'yin'}-bianyao-icon.svg" width="14" height="14" style="position:absolute;left:calc(50% + 68px);top:50%;transform:translateY(-50%);"/>`
+    : '';
+  return `<div style="position:relative;display:flex;align-items:center;justify-content:center;height:22px;width:100%;animation:fade-in .3s ease;">
+    ${barHtml}${iconHtml}
+  </div>`;
+}
+function yaoBinary(v) { return (v===7||v===9)?1:0; }
+
+function getHexNum(arr) {
+  const lines = arr.map(y=>yaoBinary(y.value));
+  return LOOKUP[lines[0]+lines[1]*2+lines[2]*4][lines[3]+lines[4]*2+lines[5]*4];
+}
+
+function getChangedHexNum(arr) {
+  if(!arr.some(y=>y.value===6||y.value===9)) return null;
+  const lines = arr.map(y=>y.value===9?0:y.value===6?1:yaoBinary(y.value));
+  return LOOKUP[lines[0]+lines[1]*2+lines[2]*4][lines[3]+lines[4]*2+lines[5]*4];
+}
+
+function getTrigramName(arr, upper) {
+  const lines = arr.map(y=>yaoBinary(y.value));
+  const o = upper?3:0;
+  return TRIGRAM_NAMES[lines[o]+lines[o+1]*2+lines[o+2]*4];
+}
+
+function renderDivStep() {
+  const content = document.getElementById('divContent');
+  if (divStep===0) {
+    content.innerHTML = `
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 28px;gap:22px;">
+        <div style="width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,#fff2ee,#ffe0d0);display:flex;align-items:center;justify-content:center;border:2px solid rgba(232,78,15,.2);">
+          <svg width="44" height="44" viewBox="0 0 56 56"><circle cx="28" cy="28" r="27" fill="white" stroke="#e0dbd4" stroke-width="1"/><path d="M28 1 A27 27 0 0 1 28 55 A13.5 13.5 0 0 1 28 28 A13.5 13.5 0 0 0 28 1 Z" fill="#1a1a1a"/><circle cx="28" cy="14.5" r="6.75" fill="#1a1a1a"/><circle cx="28" cy="41.5" r="6.75" fill="white"/><circle cx="28" cy="14.5" r="2.5" fill="white"/><circle cx="28" cy="41.5" r="2.5" fill="#1a1a1a"/></svg>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:20px;font-weight:600;color:#1a1a1a;font-family:'Noto Serif SC';margin-bottom:8px;">六爻起卦</div>
+          <div style="font-size:13px;color:#aaa;line-height:1.9;">默念心中所问之事<br/>心诚则灵，方有卦应</div>
+        </div>
+        <div style="width:100%;">
+          <textarea id="questionInput" placeholder="请输入你想问的问题（选填）" style="width:100%;padding:14px 16px;background:#f8f8f8;border:1.5px solid rgba(0,0,0,.08);border-radius:14px;font-size:14px;font-family:'Noto Sans SC';color:#333;resize:none;height:88px;outline:none;line-height:1.7;" onfocus="this.style.borderColor='rgba(232,78,15,.4)'" onblur="this.style.borderColor='rgba(0,0,0,.08)'">${question}</textarea>
+        </div>
+        <button onclick="beginThrow()" class="btn-red" style="letter-spacing:.15em;font-size:16px;">开始起卦</button>
+        <div style="font-size:12px;color:#ccc;">共需摇卦六次，起六爻卦象</div>
+      </div>`;
+  } else if (divStep>=1 && divStep<=6) {
+    const idx = divStep-1;
+    const yaosHtml = buildYaosHtml(yaos.slice(0,idx));
+    content.innerHTML = `
+      <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+        <div style="text-align:center;padding:12px 0 8px;">
+          <div style="font-size:13px;color:#E84E0F;letter-spacing:.1em;font-weight:500;">第 ${divStep} 次 · ${YAO_NAMES[idx]}</div>
+          <div style="font-size:11px;color:#bbb;margin-top:4px;">三枚铜钱，一次摇卦</div>
+        </div>
+        <div style="display:flex;justify-content:center;gap:16px;padding:10px 0 14px;" id="coinRow">
+          <div class="coin" id="coin0" style="background:#f0f0f0;font-size:22px;color:#ccc;">?</div>
+          <div class="coin" id="coin1" style="background:#f0f0f0;font-size:22px;color:#ccc;">?</div>
+          <div class="coin" id="coin2" style="background:#f0f0f0;font-size:22px;color:#ccc;">?</div>
+        </div>
+        <div id="yaoResultLabel" style="text-align:center;min-height:44px;padding:0 28px;"></div>
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;padding:0 28px 16px;">
+          <div style="font-size:11px;color:#bbb;margin-bottom:8px;letter-spacing:.06em;">已起爻象（从下往上）</div>
+          <div id="yaosStack" style="display:flex;flex-direction:column;gap:8px;">${yaosHtml}</div>
+        </div>
+        <div style="padding:0 22px 16px;">
+          <button id="throwBtn" onclick="doThrow()" class="btn-red" style="letter-spacing:.12em;">摇 卦</button>
+        </div>
+      </div>`;
+  } else if (divStep===7) {
+    const hexNum = getHexNum(yaos);
+    const hd = HD[hexNum];
+    const changedNum = getChangedHexNum(yaos);
+    const hasChanging = yaos.some(y=>y.value===6||y.value===9);
+    content.innerHTML = `
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 28px;gap:18px;">
+        <div style="font-size:72px;color:#E84E0F;line-height:1;font-family:'Noto Serif SC';animation:fade-in .5s ease;">${hd[0]}</div>
+        <div style="text-align:center;">
+          <div style="font-size:22px;font-weight:600;color:#1a1a1a;font-family:'Noto Serif SC';">${hd[0]}卦</div>
+          <div style="font-size:13px;color:#999;margin-top:6px;letter-spacing:.06em;">${hd[1]}</div>
+        </div>
+        ${hasChanging&&changedNum?`<div style="font-size:13px;color:#E84E0F;text-align:center;background:#fff2ee;padding:8px 20px;border-radius:20px;border:1px solid rgba(232,78,15,.2);">之卦：${HD[changedNum][0]}卦</div>`:''}
+        <div style="background:#fff2ee;border:1.5px solid rgba(232,78,15,.2);border-radius:14px;padding:14px 18px;width:100%;text-align:center;">
+          <div style="font-size:12px;color:#E84E0F;margin-bottom:6px;font-weight:500;">卦象已成</div>
+          <div style="font-size:13px;color:#555;line-height:1.8;">${question?`所问：${question}`:'请点击下方查看完整解卦'}</div>
+        </div>
+        <button onclick="showResult()" class="btn-red" style="letter-spacing:.12em;">查看解卦 →</button>
+      </div>`;
+  }
+}
+
+function beginThrow() {
+  question = document.getElementById('questionInput')?.value || '';
+  divStep = 1; renderDivStep();
+}
+
+function doThrow() {
+  if(throwing) return;
+  throwing = true;
+  const btn = document.getElementById('throwBtn');
+  btn.disabled = true; btn.textContent = '摇卦中…';
+  const coins = [throwOneCoin(),throwOneCoin(),throwOneCoin()];
+  const sum = coins.reduce((a,b)=>a+b,0);
+  ['coin0','coin1','coin2'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.className = 'coin coin-anim';
+    el.textContent = '🪙';
+    el.style.background = 'rgba(232,78,15,.15)';
+    el.style.color = '#E84E0F';
+  });
+  setTimeout(()=>{
+    coins.forEach((c,i)=>{
+      const el = document.getElementById('coin'+i);
+      if(!el) return;
+      el.className = c===3?'coin yang':'coin yin';
+      el.style.background = '';
+      el.innerHTML = c===3
+        ?'<div style="font-size:13px;font-weight:600;">阳</div><div style="font-size:10px;opacity:.7;">正面</div>'
+        :'<div style="font-size:13px;font-weight:600;">阴</div><div style="font-size:10px;opacity:.7;">反面</div>';
+    });
+    const label = document.getElementById('yaoResultLabel');
+    const yaoLabel = {6:'老阴（变爻）',7:'少阳',8:'少阴',9:'老阳（变爻）'}[sum];
+    const lineType = (sum===7||sum===9)?'阳爻':'阴爻';
+    const isChanging = sum===6||sum===9;
+    if(label) label.innerHTML = `
+      <div style="font-size:14px;font-weight:600;color:#1a1a1a;font-family:'Noto Serif SC';">${lineType} · ${yaoLabel}</div>
+      <div style="font-size:12px;color:${isChanging?'#E84E0F':'#bbb'};margin-top:4px;">${coins[0]+coins[1]+coins[2]}点${isChanging?' · 此爻为动爻':''}</div>`;
+    yaos.push({value:sum,coins});
+    throwing = false;
+    if(divStep<6){
+      setTimeout(()=>{ divStep++; renderDivStep(); }, 900);
+    } else {
+      setTimeout(()=>{ divStep=7; totalCount++; document.getElementById('statCount').textContent=totalCount; document.getElementById('divinCount').textContent=`已占卜 ${totalCount} 次`; renderDivStep(); }, 900);
+    }
+  }, 1300);
+}
+
+function buildYaosHtml(arr) {
+  return [...arr].reverse().map((y,ri)=>{
+    const idx = arr.length-1-ri;
+    const isYang = y.value===7||y.value===9;
+    const isChanging = y.value===6||y.value===9;
+    return `<div class="yao-row${isChanging?' changing':''}">
+      <span style="font-size:10px;color:#aaa;width:28px;text-align:right;flex-shrink:0;">${YAO_NAMES[idx]}</span>
+      <div style="flex:1;display:flex;align-items:center;position:relative;height:14px;">
+        ${isYang
+          ?`<div class="yao-yang" style="${isChanging?'background:#E84E0F':''}"></div>`
+          :`<div class="yao-yin-l" style="${isChanging?'background:#E84E0F':''}"></div><div class="yao-yin-r" style="${isChanging?'background:#E84E0F':''}"></div>`
+        }
+        ${isChanging?`<div style="position:absolute;left:50%;transform:translateX(-50%);width:10px;height:10px;border-radius:50%;background:#E84E0F;border:1.5px solid #fff;"></div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function showResult() {
+  const hexNum = getHexNum(yaos);
+  const hd = HD[hexNum];
+  const changedNum = getChangedHexNum(yaos);
+  const hasChanging = yaos.some(y=>y.value===6||y.value===9);
+  const changingYaos = yaos.map((y,i)=>({...y,idx:i})).filter(y=>y.value===6||y.value===9);
+  const lowerName = getTrigramName(yaos, false);
+  const upperName = getTrigramName(yaos, true);
+  const fortuneLabel = FORTUNE_LABELS[hd[2]];
+  const fortuneColor = FORTUNE_COLORS[hd[2]];
+
+  const hexLinesHtml = [...yaos].reverse().map((y,ri)=>{
+    const idx = yaos.length-1-ri;
+    const isYang = y.value===7||y.value===9;
+    const isChanging = y.value===6||y.value===9;
+    const lineColor = isChanging?'#E84E0F':'#e8dfc8';
+    return `<div class="hex-line">
+      <span style="font-size:9px;color:#666;width:22px;text-align:right;flex-shrink:0;">${YAO_NAMES[idx]}</span>
+      <div style="flex:1;display:flex;align-items:center;gap:4px;position:relative;">
+        ${isYang?`<div class="hex-yang" style="background:${lineColor};"></div>`:`<div class="hex-yin-l" style="background:${lineColor};"></div><div class="hex-yin-r" style="background:${lineColor};"></div>`}
+        ${isChanging?`<div style="position:absolute;left:50%;transform:translateX(-50%);width:8px;height:8px;border-radius:50%;background:#E84E0F;border:1.5px solid #0d0d1a;"></div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+
+  let changedHexSection = '';
+  if(hasChanging&&changedNum){
+    const changedHd = HD[changedNum];
+    const cArr = yaos.map(y=>({value:y.value===9?8:y.value===6?7:y.value,coins:y.coins}));
+    const changedLines = [...cArr].reverse().map((y,ri)=>{
+      const idx=cArr.length-1-ri;
+      const isYang=y.value===7||y.value===9;
+      return `<div class="hex-line"><span style="font-size:9px;color:#666;width:22px;text-align:right;flex-shrink:0;">${YAO_NAMES[idx]}</span><div style="flex:1;display:flex;align-items:center;gap:4px;">${isYang?`<div class="hex-yang" style="background:#e8dfc8;"></div>`:`<div class="hex-yin-l" style="background:#e8dfc8;"></div><div class="hex-yin-r" style="background:#e8dfc8;"></div>`}</div></div>`;
+    }).join('');
+    changedHexSection = `
+      <div style="display:flex;gap:12px;margin-bottom:14px;">
+        <div style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:14px;">
+          <div style="font-size:10px;color:#888;margin-bottom:8px;">本卦</div>${hexLinesHtml}
+          <div style="margin-top:8px;text-align:center;font-size:13px;color:#e8dfc8;font-family:'Noto Serif SC';">${hd[0]}卦</div>
+        </div>
+        <div style="display:flex;align-items:center;color:#E84E0F;font-size:18px;">→</div>
+        <div style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:14px;">
+          <div style="font-size:10px;color:#888;margin-bottom:8px;">之卦</div>${changedLines}
+          <div style="margin-top:8px;text-align:center;font-size:13px;color:#e8dfc8;font-family:'Noto Serif SC';">${changedHd[0]}卦</div>
+        </div>
+      </div>`;
+  } else {
+    changedHexSection = `
+      <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px;margin-bottom:14px;">
+        <div style="font-size:10px;color:#888;margin-bottom:10px;">本卦爻象</div>${hexLinesHtml}
+      </div>`;
+  }
+
+  let changingSection = '';
+  if(changingYaos.length>0){
+    const comments = {0:'初爻动：万事初始，奠定根基，变动中需守正。',1:'二爻动：内外均衡，居中守正，变化渐显。',2:'三爻动：上下之间，危机潜伏，谨慎应对。',3:'四爻动：近君之位，行事须谨，变化有力。',4:'五爻动：主爻动变，核心转化，影响全局。',5:'上爻动：极而必变，物极必反，终局将现。'};
+    changingSection = `<div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px;margin-bottom:14px;"><div style="font-size:11px;color:#E84E0F;margin-bottom:10px;">动爻解析</div>${changingYaos.map(y=>`<div style="font-size:12px;color:#b0a890;line-height:1.8;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06);">${comments[y.idx]}</div>`).join('')}</div>`;
+  }
+
+  document.getElementById('resultContent').innerHTML = `
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;">
+      <div style="font-size:64px;color:#E84E0F;line-height:1;font-family:'Noto Serif SC';">${hd[0]}</div>
+      <div>
+        <div style="font-size:24px;font-weight:600;color:#e8dfc8;font-family:'Noto Serif SC';">${hd[0]}卦</div>
+        <div style="font-size:12px;color:#888;margin-top:4px;">${upperName}上 ${lowerName}下</div>
+        <div style="margin-top:6px;display:inline-block;padding:3px 12px;border-radius:20px;background:${fortuneColor}22;color:${fortuneColor};border:1px solid ${fortuneColor}44;font-size:12px;">${fortuneLabel}</div>
+      </div>
+    </div>
+    ${changedHexSection}
+    <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px;margin-bottom:14px;">
+      <div style="font-size:11px;color:#E84E0F;margin-bottom:8px;">卦辞</div>
+      <div style="font-size:13px;color:#b0a890;line-height:1.9;font-family:'Noto Serif SC';">${hd[1]}</div>
+    </div>
+    <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px;margin-bottom:14px;">
+      <div style="font-size:11px;color:#E84E0F;margin-bottom:10px;">卦象解读</div>
+      <div style="font-size:13px;color:#b0a890;line-height:2;">${hd[3]}</div>
+      ${question?`<div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06);font-size:12px;color:#888;">所问：${question}</div>`:''}
+    </div>
+    ${changingSection}
+    <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px;margin-bottom:14px;">
+      <div style="font-size:11px;color:#E84E0F;margin-bottom:8px;">行事建议</div>
+      <div style="font-size:13px;color:#b0a890;line-height:1.9;">${hd[4]}</div>
+    </div>
+    <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px;margin-bottom:20px;">
+      <div style="font-size:11px;color:#E84E0F;margin-bottom:14px;">各方面运势</div>
+      ${[['事业',hd[5]],['财运',hd[6]],['感情',hd[7]],['健康',hd[8]]].map(([label,pct])=>`
+        <div style="margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+            <span style="font-size:12px;color:#888;">${label}</span>
+            <span style="font-size:12px;color:#E84E0F;">${pct}%</span>
+          </div>
+          <div class="fbar" style="background:rgba(255,255,255,.08);"><div class="fbar-fill" style="width:${pct}%;"></div></div>
+        </div>`).join('')}
+    </div>
+    <button onclick="saveResult(${hexNum})" id="saveBtn" class="btn-red" style="margin-bottom:10px;">保存此卦</button>
+    <button onclick="go(0)" style="width:100%;padding:13px;background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:16px;color:#888;font-size:14px;cursor:pointer;margin-bottom:20px;">返回首页</button>
+  `;
+  go(2);
+}
+
+function saveResult(hexNum) {
+  savedCount++;
+  document.getElementById('statSaved').textContent = savedCount;
+  const btn = document.getElementById('saveBtn');
+  btn.textContent = '已保存 ✓';
+  btn.disabled = true;
+  btn.style.background = 'rgba(232,78,15,.3)';
+}
+
+
+// ══════════════════════════════════════════════════════════════════
+// BAZI 八字排盘  (requires lunar.js loaded first)
+
+
+// ══════════════════════════════════════════════════════════════════
+// BAZI 八字排盘  (requires lunar.js loaded first)
+
+
+// ══════════════════════════════════════════════════════════════════
+// BAZI 八字排盘  (requires lunar.js loaded first)
+
+
+// ══════════════════════════════════════════════════════════════════
+// BAZI 八字排盘  (requires lunar.js loaded first)
+
+
+// ══════════════════════════════════════════════════════════════════
+// BAZI 八字排盘  (requires lunar.js loaded first)
+
+
+// ══════════════════════════════════════════════════════════════════
+// BAZI 八字排盘  (requires lunar.js loaded first)
+
+
+// ══════════════════════════════════════════════════════════════════
+// BAZI 八字排盘  (requires lunar.js loaded first)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// BZ_REGION: [省名, [[市名, 经度, [区县...]], ...]]
+const BZ_REGION = [
+['北京市',[['北京市',116.4,['东城区','西城区','朝阳区','海淀区','丰台区','石景山区','门头沟区','房山区','通州区','顺义区','昌平区','大兴区','平谷区','怀柔区','密云区','延庆区']]]],
+['天津市',[['天津市',117.2,['和平区','河东区','河西区','南开区','河北区','红桥区','滨海新区','东丽区','西青区','津南区','北辰区','武清区','宝坻区','宁河区','静海区','蓟州区']]]],
+['上海市',[['上海市',121.5,['黄浦区','徐汇区','长宁区','静安区','普陀区','虹口区','杨浦区','浦东新区','闵行区','宝山区','嘉定区','金山区','松江区','青浦区','奉贤区','崇明区']]]],
+['重庆市',[['重庆市',106.6,['渝中区','大渡口区','江北区','沙坪坝区','九龙坡区','南岸区','北碚区','渝北区','巴南区','黔江区','长寿区','江津区','合川区','永川区','南川区']]]],
+['黑龙江省',[
+  ['哈尔滨市',126.5,['道里区','道外区','南岗区','香坊区','阿城区','双城区','呼兰区','松北区','巴彦县','木兰县','通河县','延寿县','尚志市','五常市']],
+  ['齐齐哈尔市',123.9,['龙沙区','建华区','铁锋区','昂昂溪区','富拉尔基区','碾子山区','梅里斯区','龙江县','依安县','泰来县','甘南县','富裕县','克山县','克东县','拜泉县','讷河市']],
+  ['牡丹江市',129.6,['东安区','西安区','爱民区','阳明区','东宁市','海林市','宁安市','穆棱市','绥芬河市','林口县']],
+  ['佳木斯市',130.4,['向阳区','前进区','东风区','郊区','桦南县','桦川县','汤原县','同江市','富锦市','抚远市']],
+  ['大庆市',125.1,['萨尔图区','龙凤区','让胡路区','红岗区','大同区','肇州县','肇源县','林甸县','杜尔伯特蒙古族自治县']],
+  ['鹤岗市',130.3,['向阳区','工农区','南山区','兴安区','东山区','兴山区','萝北县','绥滨县']],
+  ['鸡西市',130.9,['鸡冠区','恒山区','滴道区','梨树区','城子河区','麻山区','鸡东县','虎林市','密山市']],
+]],
+['吉林省',[
+  ['长春市',125.3,['南关区','宽城区','朝阳区','二道区','绿园区','双阳区','九台区','农安县','榆树市','德惠市','公主岭市']],
+  ['吉林市',126.6,['昌邑区','龙潭区','船营区','丰满区','永吉县','蛟河市','桦甸市','舒兰市','磐石市']],
+  ['延边朝鲜族自治州',129.5,['延吉市','图们市','敦化市','珲春市','龙井市','和龙市','汪清县','安图县']],
+  ['四平市',124.4,['铁西区','铁东区','梨树县','伊通满族自治县','双辽市']],
+  ['通化市',125.9,['东昌区','二道江区','通化县','辉南县','柳河县','梅河口市','集安市']],
+  ['白城市',122.8,['洮北区','镇赉县','通榆县','洮南市','大安市']],
+]],
+['辽宁省',[
+  ['沈阳市',123.4,['和平区','沈河区','大东区','皇姑区','铁西区','苏家屯区','浑南区','沈北新区','于洪区','辽中区','康平县','法库县','新民市']],
+  ['大连市',121.6,['中山区','西岗区','沙河口区','甘井子区','旅顺口区','金州区','普兰店区','长海县','瓦房店市','庄河市']],
+  ['鞍山市',122.9,['铁东区','铁西区','立山区','千山区','台安县','岫岩满族自治县','海城市']],
+  ['锦州市',121.1,['古塔区','凌河区','太和区','黑山县','义县','凌海市','北镇市']],
+  ['丹东市',124.4,['元宝区','振兴区','振安区','宽甸满族自治县','东港市','凤城市']],
+  ['朝阳市',120.4,['双塔区','龙城区','朝阳县','建平县','喀喇沁左翼蒙古族自治县','北票市','凌源市']],
+]],
+['内蒙古自治区',[
+  ['呼和浩特市',111.7,['回民区','玉泉区','赛罕区','新城区','托克托县','和林格尔县','清水河县','武川县','土默特左旗']],
+  ['包头市',109.8,['东河区','昆都仑区','青山区','石拐区','白云鄂博矿区','九原区','土默特右旗','固阳县','达尔罕茂明安联合旗']],
+  ['呼伦贝尔市',119.8,['海拉尔区','满洲里市','牙克石市','扎兰屯市','额尔古纳市','根河市','阿荣旗','莫力达瓦达斡尔族自治旗','鄂伦春自治旗','鄂温克族自治旗','陈巴尔虎旗','新巴尔虎左旗','新巴尔虎右旗']],
+  ['赤峰市',118.9,['红山区','元宝山区','松山区','阿鲁科尔沁旗','巴林左旗','巴林右旗','林西县','克什克腾旗','翁牛特旗','喀喇沁旗','宁城县','敖汉旗']],
+  ['通辽市',122.3,['科尔沁区','科尔沁左翼中旗','科尔沁左翼后旗','开鲁县','库伦旗','奈曼旗','扎鲁特旗','霍林郭勒市']],
+  ['鄂尔多斯市',109.8,['东胜区','康巴什区','达拉特旗','准格尔旗','鄂托克前旗','鄂托克旗','杭锦旗','乌审旗','伊金霍洛旗']],
+]],
+['河北省',[
+  ['石家庄市',114.5,['长安区','桥西区','新华区','裕华区','井陉矿区','藁城区','鹿泉区','栾城区','井陉县','正定县','行唐县','灵寿县','赞皇县','无极县','平山县','元氏县','赵县','辛集市','晋州市','新乐市']],
+  ['唐山市',118.2,['路南区','路北区','古冶区','开平区','丰南区','丰润区','曹妃甸区','滦州市','滦南县','乐亭县','迁西县','玉田县','遵化市','迁安市']],
+  ['秦皇岛市',119.6,['海港区','山海关区','北戴河区','抚宁区','青龙满族自治县','昌黎县','卢龙县']],
+  ['邯郸市',114.5,['邯山区','丛台区','复兴区','峰峰矿区','肥乡区','永年区','临漳县','成安县','大名县','涉县','磁县','曲周县','武安市']],
+  ['保定市',115.5,['竞秀区','莲池区','满城区','清苑区','徐水区','安新县','易县','曲阳县','蠡县','顺平县','博野县','雄县','涿州市','定州市','安国市','高碑店市']],
+  ['张家口市',114.9,['桥东区','桥西区','宣化区','下花园区','万全区','崇礼区','张北县','康保县','沽源县','尚义县','蔚县','阳原县','怀安县','怀来县','涿鹿县','赤城县']],
+]],
+['山西省',[
+  ['太原市',112.5,['小店区','迎泽区','杏花岭区','尖草坪区','万柏林区','晋源区','清徐县','阳曲县','娄烦县','古交市']],
+  ['大同市',113.3,['平城区','云冈区','云州区','阳高县','天镇县','广灵县','灵丘县','浑源县','左云县']],
+  ['朔州市',112.4,['朔城区','平鲁区','山阴县','应县','右玉县','怀仁市']],
+  ['临汾市',111.5,['尧都区','曲沃县','翼城县','襄汾县','洪洞县','古县','安泽县','浮山县','吉县','乡宁县','大宁县','隰县','永和县','蒲县','汾西县','侯马市','霍州市']],
+  ['运城市',111.0,['盐湖区','临猗县','万荣县','闻喜县','稷山县','新绛县','绛县','垣曲县','夏县','平陆县','芮城县','永济市','河津市']],
+  ['忻州市',112.7,['忻府区','定襄县','五台县','代县','繁峙县','宁武县','静乐县','神池县','五寨县','岢岚县','河曲县','保德县','偏关县','原平市']],
+]],
+['陕西省',[
+  ['西安市',108.9,['新城区','碑林区','莲湖区','灞桥区','未央区','雁塔区','阎良区','临潼区','长安区','高陵区','鄠邑区','蓝田县','周至县']],
+  ['宝鸡市',107.2,['渭滨区','金台区','陈仓区','凤翔区','岐山县','扶风县','眉县','陇县','千阳县','麟游县','凤县','太白县']],
+  ['咸阳市',108.7,['秦都区','渭城区','三原县','泾阳县','乾县','礼泉县','永寿县','彬州市','长武县','旬邑县','淳化县','武功县','兴平市']],
+  ['延安市',109.5,['宝塔区','安塞区','延长县','延川县','子长市','志丹县','吴起县','甘泉县','富县','洛川县','宜川县','黄龙县','黄陵县']],
+  ['榆林市',109.7,['榆阳区','横山区','神木市','府谷县','靖边县','定边县','绥德县','米脂县','佳县','吴堡县','清涧县','子洲县']],
+  ['汉中市',107.0,['汉台区','南郑区','城固县','洋县','西乡县','勉县','宁强县','略阳县','镇巴县','留坝县','佛坪县']],
+]],
+['甘肃省',[
+  ['兰州市',103.8,['城关区','七里河区','西固区','安宁区','红古区','永登县','皋兰县','榆中县']],
+  ['天水市',105.7,['秦州区','麦积区','清水县','秦安县','甘谷县','武山县','张家川回族自治县']],
+  ['武威市',102.6,['凉州区','民勤县','古浪县','天祝藏族自治县']],
+  ['张掖市',100.4,['甘州区','肃南裕固族自治县','民乐县','临泽县','高台县','山丹县']],
+  ['酒泉市',98.5,['肃州区','金塔县','瓜州县','肃北蒙古族自治县','阿克塞哈萨克族自治县','玉门市','敦煌市']],
+  ['定西市',104.6,['安定区','通渭县','陇西县','渭源县','临洮县','漳县','岷县']],
+]],
+['青海省',[
+  ['西宁市',101.8,['城东区','城中区','城西区','城北区','湟中区','大通回族土族自治县','湟源县']],
+  ['海东市',102.4,['乐都区','平安区','民和回族土族自治县','互助土族自治县','化隆回族自治县','循化撒拉族自治县']],
+  ['海南藏族自治州',100.6,['共和县','同德县','贵德县','兴海县','贵南县']],
+  ['海北藏族自治州',100.9,['海晏县','祁连县','刚察县','门源回族自治县']],
+  ['玉树藏族自治州',97.0,['玉树市','杂多县','称多县','治多县','囊谦县','曲麻莱县']],
+  ['果洛藏族自治州',100.2,['玛沁县','班玛县','甘德县','达日县','久治县','玛多县']],
+]],
+['宁夏回族自治区',[
+  ['银川市',106.3,['兴庆区','西夏区','金凤区','永宁县','贺兰县','灵武市']],
+  ['石嘴山市',106.4,['大武口区','惠农区','平罗县']],
+  ['吴忠市',106.2,['利通区','红寺堡区','盐池县','同心县','青铜峡市']],
+  ['固原市',106.3,['原州区','西吉县','隆德县','泾源县','彭阳县']],
+  ['中卫市',105.2,['沙坡头区','中宁县','海原县']],
+]],
+['新疆维吾尔自治区',[
+  ['乌鲁木齐市',87.6,['天山区','沙依巴克区','新市区','水磨沟区','头屯河区','达坂城区','米东区','乌鲁木齐县']],
+  ['伊犁哈萨克自治州',81.3,['伊宁市','奎屯市','霍尔果斯市','伊宁县','察布查尔锡伯自治县','霍城县','巩留县','新源县','昭苏县','特克斯县','尼勒克县']],
+  ['阿克苏地区',80.3,['阿克苏市','温宿县','库车市','沙雅县','新和县','拜城县','乌什县','阿瓦提县','柯坪县']],
+  ['喀什地区',75.9,['喀什市','疏附县','疏勒县','英吉沙县','泽普县','莎车县','叶城县','麦盖提县','岳普湖县','伽师县','巴楚县','塔什库尔干塔吉克自治县']],
+  ['和田地区',79.9,['和田市','和田县','墨玉县','皮山县','洛浦县','策勒县','于田县','民丰县']],
+  ['哈密市',93.5,['伊州区','巴里坤哈萨克自治县','伊吾县']],
+  ['吐鲁番市',89.2,['高昌区','鄯善县','托克逊县']],
+  ['昌吉回族自治州',87.3,['昌吉市','阜康市','呼图壁县','玛纳斯县','奇台县','吉木萨尔县','木垒哈萨克自治县']],
+  ['博尔塔拉蒙古自治州',82.1,['博乐市','阿拉山口市','精河县','温泉县']],
+  ['巴音郭楞蒙古自治州',86.1,['库尔勒市','轮台县','尉犁县','若羌县','且末县','焉耆回族自治县','和静县','和硕县','博湖县']],
+]],
+['西藏自治区',[
+  ['拉萨市',91.1,['城关区','堆龙德庆区','达孜区','林周县','当雄县','尼木县','曲水县','墨竹工卡县']],
+  ['日喀则市',88.9,['桑珠孜区','南木林县','江孜县','定日县','萨迦县','拉孜县','昂仁县','谢通门县','白朗县','仁布县','康马县','定结县','亚东县','吉隆县','聂拉木县']],
+  ['昌都市',97.2,['卡若区','江达县','贡觉县','类乌齐县','丁青县','察雅县','八宿县','左贡县','芒康县','洛隆县','边坝县']],
+  ['林芝市',94.4,['巴宜区','工布江达县','米林市','墨脱县','波密县','察隅县','朗县']],
+  ['山南市',91.8,['乃东区','扎囊县','贡嘎县','桑日县','琼结县','曲松县','措美县','洛扎县','加查县','隆子县','浪卡子县']],
+  ['那曲市',92.1,['色尼区','嘉黎县','比如县','聂荣县','安多县','申扎县','索县','班戈县','巴青县','尼玛县','双湖县']],
+]],
+['四川省',[
+  ['成都市',104.1,['锦江区','青羊区','金牛区','武侯区','成华区','龙泉驿区','青白江区','新都区','温江区','双流区','郫都区','新津区','金堂县','大邑县','蒲江县','都江堰市','彭州市','邛崃市','崇州市','简阳市']],
+  ['绵阳市',104.7,['涪城区','游仙区','安州区','三台县','盐亭县','梓潼县','北川羌族自治县','平武县','江油市']],
+  ['德阳市',104.4,['旌阳区','罗江区','中江县','广汉市','什邡市','绵竹市']],
+  ['乐山市',103.8,['市中区','沙湾区','五通桥区','金口河区','犍为县','井研县','夹江县','沐川县','峨边彝族自治县','马边彝族自治县','峨眉山市']],
+  ['宜宾市',104.6,['翠屏区','南溪区','叙州区','江安县','长宁县','高县','珙县','筠连县','兴文县','屏山县']],
+  ['泸州市',105.4,['江阳区','纳溪区','龙马潭区','泸县','合江县','叙永县','古蔺县']],
+  ['达州市',107.5,['通川区','达川区','宣汉县','开江县','大竹县','渠县','万源市']],
+  ['广元市',105.8,['利州区','昭化区','朝天区','旺苍县','青川县','剑阁县','苍溪县']],
+]],
+['云南省',[
+  ['昆明市',102.7,['五华区','盘龙区','官渡区','西山区','东川区','呈贡区','晋宁区','富民县','宜良县','石林彝族自治县','嵩明县','禄劝彝族苗族自治县','寻甸回族彝族自治县','安宁市']],
+  ['曲靖市',103.8,['麒麟区','沾益区','马龙区','陆良县','师宗县','罗平县','富源县','会泽县','宣威市']],
+  ['大理白族自治州',100.2,['大理市','漾濞彝族自治县','祥云县','宾川县','弥渡县','南涧彝族自治县','巍山彝族回族自治县','永平县','云龙县','洱源县','剑川县','鹤庆县']],
+  ['西双版纳傣族自治州',100.8,['景洪市','勐海县','勐腊县']],
+  ['红河哈尼族彝族自治州',103.4,['个旧市','开远市','蒙自市','弥勒市','屏边苗族自治县','建水县','石屏县','泸西县','元阳县','红河县','金平苗族瑶族傣族自治县','绿春县','河口瑶族自治县']],
+  ['德宏傣族景颇族自治州',98.6,['瑞丽市','芒市','梁河县','盈江县','陇川县']],
+  ['保山市',99.2,['隆阳区','施甸县','龙陵县','昌宁县','腾冲市']],
+]],
+['贵州省',[
+  ['贵阳市',106.7,['南明区','云岩区','花溪区','乌当区','白云区','观山湖区','开阳县','息烽县','修文县','清镇市']],
+  ['遵义市',106.9,['红花岗区','汇川区','播州区','桐梓县','绥阳县','正安县','道真仡佬族苗族自治县','务川仡佬族苗族自治县','凤冈县','湄潭县','余庆县','习水县','赤水市','仁怀市']],
+  ['六盘水市',104.8,['钟山区','六枝特区','水城区','盘州市']],
+  ['安顺市',105.9,['西秀区','平坝区','普定县','镇宁布依族苗族自治县','关岭布依族苗族自治县','紫云苗族布依族自治县']],
+  ['毕节市',105.3,['七星关区','大方县','黔西市','金沙县','织金县','纳雍县','威宁彝族回族苗族自治县','赫章县']],
+  ['黔南布依族苗族自治州',107.5,['都匀市','福泉市','荔波县','贵定县','瓮安县','独山县','平塘县','罗甸县','长顺县','龙里县','惠水县','三都水族自治县']],
+]],
+['广西壮族自治区',[
+  ['南宁市',108.4,['兴宁区','青秀区','江南区','西乡塘区','良庆区','邕宁区','武鸣区','隆安县','马山县','上林县','宾阳县','横州市']],
+  ['桂林市',110.3,['秀峰区','叠彩区','象山区','七星区','雁山区','临桂区','阳朔县','灵川县','全州县','兴安县','永福县','灌阳县','龙胜各族自治县','资源县','平乐县','恭城瑶族自治县','荔浦市']],
+  ['柳州市',109.4,['城中区','鱼峰区','柳南区','柳北区','柳江区','柳城县','鹿寨县','融安县','融水苗族自治县','三江侗族自治县']],
+  ['梧州市',111.3,['万秀区','长洲区','龙圩区','苍梧县','藤县','蒙山县','岑溪市']],
+  ['北海市',109.1,['海城区','银海区','铁山港区','合浦县']],
+  ['玉林市',110.2,['玉州区','福绵区','容县','陆川县','博白县','兴业县','北流市']],
+]],
+['海南省',[
+  ['海口市',110.3,['秀英区','龙华区','琼山区','美兰区']],
+  ['三亚市',109.5,['海棠区','吉阳区','天涯区','崖州区']],
+  ['儋州市',109.6,['那大镇','和庆镇','南丰镇','大成镇','雅星镇','兰洋镇','光村镇','木棠镇']],
+  ['文昌市',110.8,['文城镇','重兴镇','蓬莱镇','会文镇','东路镇','潭牛镇','文教镇','东郊镇']],
+  ['琼海市',110.5,['嘉积镇','万泉镇','石壁镇','中原镇','博鳌镇','阳江镇','龙江镇','塔洋镇']],
+  ['万宁市',110.4,['万城镇','龙滚镇','和乐镇','后安镇','大茂镇','东澳镇','礼纪镇','长丰镇']],
+]],
+['湖南省',[
+  ['长沙市',113.0,['芙蓉区','天心区','岳麓区','开福区','雨花区','望城区','长沙县','浏阳市','宁乡市']],
+  ['株洲市',113.1,['荷塘区','芦淞区','石峰区','天元区','渌口区','攸县','茶陵县','炎陵县','醴陵市']],
+  ['湘潭市',112.9,['雨湖区','岳塘区','湘潭县','湘乡市','韶山市']],
+  ['衡阳市',112.6,['珠晖区','雁峰区','石鼓区','蒸湘区','南岳区','衡阳县','衡南县','衡山县','衡东县','祁东县','耒阳市','常宁市']],
+  ['岳阳市',113.1,['岳阳楼区','云溪区','君山区','岳阳县','湘阴县','平江县','汨罗市','临湘市']],
+  ['张家界市',110.5,['永定区','武陵源区','慈利县','桑植县']],
+  ['常德市',111.7,['武陵区','鼎城区','安乡县','汉寿县','澧县','临澧县','桃源县','石门县','津市市']],
+]],
+['湖北省',[
+  ['武汉市',114.3,['江岸区','江汉区','硚口区','汉阳区','武昌区','青山区','洪山区','蔡甸区','江夏区','黄陂区','新洲区','东西湖区','汉南区']],
+  ['宜昌市',111.3,['西陵区','伍家岗区','点军区','猇亭区','夷陵区','远安县','兴山县','秭归县','长阳土家族自治县','五峰土家族自治县','宜都市','当阳市','枝江市']],
+  ['荆州市',112.2,['沙市区','荆州区','公安县','监利市','江陵县','石首市','洪湖市','松滋市']],
+  ['襄阳市',112.1,['襄城区','樊城区','襄州区','南漳县','谷城县','保康县','老河口市','枣阳市','宜城市']],
+  ['十堰市',110.8,['茅箭区','张湾区','郧阳区','郧西县','竹山县','竹溪县','房县','丹江口市']],
+  ['恩施土家族苗族自治州',109.5,['恩施市','利川市','建始县','巴东县','宣恩县','咸丰县','来凤县','鹤峰县']],
+]],
+['广东省',[
+  ['广州市',113.3,['荔湾区','越秀区','海珠区','天河区','白云区','黄埔区','番禺区','花都区','南沙区','从化区','增城区']],
+  ['深圳市',114.1,['福田区','罗湖区','盐田区','南山区','宝安区','龙岗区','坪山区','龙华区','光明区','大鹏新区']],
+  ['东莞市',113.7,['莞城街道','南城街道','东城街道','万江街道','石碣镇','石龙镇','茶山镇','石排镇','企石镇','横沥镇','桥头镇','谢岗镇']],
+  ['佛山市',113.1,['禅城区','南海区','顺德区','三水区','高明区']],
+  ['珠海市',113.6,['香洲区','斗门区','金湾区']],
+  ['汕头市',116.7,['龙湖区','金平区','濠江区','潮阳区','潮南区','澄海区','南澳县']],
+  ['梅州市',116.1,['梅江区','梅县区','大埔县','丰顺县','五华县','平远县','蕉岭县','兴宁市']],
+  ['惠州市',114.4,['惠城区','惠阳区','博罗县','惠东县','龙门县']],
+]],
+['福建省',[
+  ['福州市',119.3,['鼓楼区','台江区','仓山区','马尾区','晋安区','长乐区','闽侯县','连江县','罗源县','闽清县','永泰县','平潭县','福清市']],
+  ['厦门市',118.1,['思明区','海沧区','湖里区','集美区','同安区','翔安区']],
+  ['泉州市',118.7,['鲤城区','丰泽区','洛江区','泉港区','惠安县','安溪县','永春县','德化县','石狮市','晋江市','南安市']],
+  ['漳州市',117.6,['芗城区','龙文区','龙海区','长泰区','东山县','南靖县','平和县','华安县','漳浦县','云霄县','诏安县']],
+  ['莆田市',119.0,['城厢区','涵江区','荔城区','秀屿区','仙游县']],
+  ['南平市',118.2,['延平区','建阳区','顺昌县','浦城县','光泽县','松溪县','政和县','邵武市','武夷山市','建瓯市']],
+]],
+['江西省',[
+  ['南昌市',115.9,['东湖区','西湖区','青云谱区','青山湖区','新建区','红谷滩区','南昌县','安义县','进贤县']],
+  ['赣州市',114.9,['章贡区','南康区','赣县区','信丰县','大余县','上犹县','崇义县','安远县','龙南市','定南县','全南县','宁都县','于都县','兴国县','会昌县','寻乌县','石城县','瑞金市']],
+  ['吉安市',114.9,['吉州区','青原区','吉安县','吉水县','峡江县','新干县','永丰县','泰和县','遂川县','万安县','安福县','永新县','井冈山市']],
+  ['景德镇市',117.2,['昌江区','珠山区','浮梁县','乐平市']],
+  ['上饶市',117.9,['信州区','广丰区','广信区','玉山县','铅山县','横峰县','弋阳县','余干县','鄱阳县','万年县','婺源县','德兴市']],
+  ['九江市',116.0,['浔阳区','柴桑区','武宁县','修水县','永修县','德安县','都昌县','湖口县','彭泽县','瑞昌市','共青城市','庐山市']],
+]],
+['安徽省',[
+  ['合肥市',117.3,['瑶海区','庐阳区','蜀山区','包河区','长丰县','肥东县','肥西县','庐江县','巢湖市']],
+  ['安庆市',117.0,['迎江区','大观区','宜秀区','怀宁县','潜山市','太湖县','宿松县','望江县','岳西县','桐城市']],
+  ['芜湖市',118.4,['镜湖区','弋江区','鸠江区','湾沚区','繁昌区','南陵县','无为市']],
+  ['黄山市',118.3,['屯溪区','黄山区','徽州区','歙县','休宁县','黟县','祁门县']],
+  ['阜阳市',115.8,['颍州区','颍东区','颍泉区','临泉县','太和县','阜南县','颍上县','界首市']],
+  ['宿州市',116.9,['埇桥区','砀山县','萧县','灵璧县','泗县']],
+]],
+['江苏省',[
+  ['南京市',118.8,['玄武区','秦淮区','建邺区','鼓楼区','浦口区','栖霞区','雨花台区','江宁区','六合区','溧水区','高淳区']],
+  ['苏州市',120.6,['姑苏区','虎丘区','吴中区','相城区','吴江区','常熟市','张家港市','昆山市','太仓市']],
+  ['无锡市',120.3,['梁溪区','锡山区','惠山区','滨湖区','新吴区','江阴市','宜兴市']],
+  ['徐州市',117.3,['鼓楼区','云龙区','贾汪区','泉山区','铜山区','丰县','沛县','睢宁县','新沂市','邳州市']],
+  ['南通市',120.9,['崇川区','海门区','通州区','如皋市','启东市','如东县','海安市']],
+  ['常州市',119.9,['天宁区','钟楼区','新北区','武进区','金坛区','溧阳市']],
+  ['扬州市',119.4,['广陵区','邗江区','江都区','宝应县','仪征市','高邮市']],
+]],
+['浙江省',[
+  ['杭州市',120.2,['上城区','拱墅区','西湖区','滨江区','萧山区','余杭区','临平区','钱塘区','富阳区','临安区','桐庐县','淳安县','建德市']],
+  ['宁波市',121.5,['海曙区','江北区','北仑区','镇海区','鄞州区','奉化区','象山县','宁海县','余姚市','慈溪市']],
+  ['温州市',120.7,['鹿城区','龙湾区','瓯海区','洞头区','永嘉县','平阳县','苍南县','文成县','泰顺县','瑞安市','乐清市','龙港市']],
+  ['嘉兴市',120.8,['南湖区','秀洲区','嘉善县','海盐县','海宁市','平湖市','桐乡市']],
+  ['金华市',119.6,['婺城区','金东区','武义县','浦江县','磐安县','兰溪市','义乌市','东阳市','永康市']],
+  ['绍兴市',120.6,['越城区','柯桥区','上虞区','新昌县','诸暨市','嵊州市']],
+  ['台州市',121.4,['椒江区','黄岩区','路桥区','三门县','天台县','仙居县','温岭市','临海市','玉环市']],
+]],
+['山东省',[
+  ['济南市',117.0,['历下区','市中区','槐荫区','天桥区','历城区','长清区','章丘区','济阳区','莱芜区','钢城区','平阴县','商河县']],
+  ['青岛市',120.4,['市南区','市北区','黄岛区','崂山区','李沧区','城阳区','即墨区','胶州市','平度市','莱西市']],
+  ['烟台市',121.4,['芝罘区','福山区','牟平区','莱山区','蓬莱区','龙口市','莱阳市','莱州市','招远市','栖霞市','海阳市']],
+  ['临沂市',118.4,['兰山区','罗庄区','河东区','沂南县','郯城县','沂水县','兰陵县','费县','平邑县','莒南县','蒙阴县','临沭县']],
+  ['潍坊市',119.1,['潍城区','寒亭区','坊子区','奎文区','临朐县','昌乐县','青州市','诸城市','寿光市','安丘市','高密市','昌邑市']],
+  ['济宁市',116.6,['任城区','兖州区','微山县','鱼台县','金乡县','嘉祥县','汶上县','泗水县','梁山县','曲阜市','邹城市']],
+]],
+['河南省',[
+  ['郑州市',113.6,['中原区','二七区','管城回族区','金水区','上街区','惠济区','中牟县','巩义市','荥阳市','新密市','新郑市','登封市']],
+  ['开封市',114.3,['鼓楼区','龙亭区','顺河回族区','禹王台区','祥符区','杞县','通许县','尉氏县','兰考县']],
+  ['洛阳市',112.5,['老城区','西工区','瀍河区','涧西区','洛龙区','孟津区','新安县','栾川县','嵩县','汝阳县','宜阳县','洛宁县','伊川县','偃师区']],
+  ['南阳市',112.5,['宛城区','卧龙区','南召县','方城县','西峡县','镇平县','内乡县','淅川县','社旗县','唐河县','新野县','桐柏县','邓州市']],
+  ['信阳市',114.1,['浉河区','平桥区','罗山县','光山县','新县','商城县','固始县','潢川县','淮滨县','息县']],
+  ['许昌市',113.8,['魏都区','建安区','鄢陵县','襄城县','禹州市','长葛市']],
+]],
+['香港特别行政区',[
+  ['香港岛',114.2,['中西区','湾仔区','东区','南区']],
+  ['九龙',114.2,['油尖旺区','深水埗区','九龙城区','黄大仙区','观塘区']],
+  ['新界',114.1,['荃湾区','屯门区','元朗区','北区','大埔区','沙田区','西贡区','葵青区','离岛区']],
+]],
+['澳门特别行政区',[
+  ['澳门半岛',113.5,['花地玛堂区','花王堂区','望德堂区','大堂区','风顺堂区']],
+  ['离岛',113.6,['氹仔','路环','路氹城']],
+]],
+['台湾省',[
+  ['台北市',121.5,['中正区','大同区','中山区','松山区','大安区','万华区','信义区','士林区','北投区','内湖区','南港区','文山区']],
+  ['高雄市',120.3,['新兴区','前金区','苓雅区','盐埕区','鼓山区','旗津区','前镇区','三民区','楠梓区','小港区','左营区']],
+  ['台中市',120.7,['中区','东区','南区','西区','北区','北屯区','西屯区','南屯区','太平区','大里区','雾峰区','乌日区']],
+  ['台南市',120.2,['中西区','东区','南区','北区','安平区','安南区','永康区','归仁区','新化区']],
+  ['新北市',121.5,['板桥区','三重区','中和区','永和区','新庄区','新店区','树林区','莺歌区','三峡区','淡水区','汐止区','瑞芳区']],
+]],
+];
+
+
+// ══════════════════════════════════════════════════════════════════
+// BAZI 八字排盘  (requires lunar.js loaded first)
+// ══════════════════════════════════════════════════════════════════
+
+// ── Element lookups ──────────────────────────────────────────────
+const BZ_GAN_ELEM  = {甲:'木',乙:'木',丙:'火',丁:'火',戊:'土',己:'土',庚:'金',辛:'金',壬:'水',癸:'水'};
+const BZ_ZHI_ELEM  = {子:'水',丑:'土',寅:'木',卯:'木',辰:'土',巳:'火',午:'火',未:'土',申:'金',酉:'金',戌:'土',亥:'水'};
+const BZ_ELEM_CSS  = {木:'bz-c-mu',火:'bz-c-huo',土:'bz-c-tu',金:'bz-c-jin',水:'bz-c-shui'};
+const BZ_ELEM_BG   = {木:'#5a9e7a',火:'#b03030',土:'#c47a2a',金:'#8a9ca8',水:'#2c7a7b'};
+const BZ_ELEM_LIGHT= {木:'#eaf6ef',火:'#fce8e8',土:'#fdf3e5',金:'#eff2f4',水:'#e5f2f2'};
+const BZ_SHICHEN   = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+const BZ_ZODIAC    = ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'];
+// 藏干 (hidden stems in branches) - main + sub
+const BZ_HIDE = {
+  子:['癸'],丑:['己','癸','辛'],寅:['甲','丙','戊'],卯:['乙'],
+  辰:['戊','乙','癸'],巳:['丙','庚','戊'],午:['丁','己'],未:['己','丁','乙'],
+  申:['庚','壬','戊'],酉:['辛'],戌:['戊','辛','丁'],亥:['壬','甲']
+};
+// BZ_REGION is loaded from bazi_region.js (injected before this block)
+
+// ── Profile state ─────────────────────────────────────────────────
+let bzProfiles   = JSON.parse(localStorage.getItem('bz_profiles') || '[]');
+let bzEditId     = null;
+let bzGender     = 'female';
+let bzCurrentPid = null;
+// picker state
+let bzPickerMode = 'solar';
+let bzPickY=1990, bzPickM=1, bzPickD=1, bzPickH=12, bzPickMin=0;
+// lunar picker state
+let bzLPickY=1990, bzLPickH=12;
+let bzLMonths = []; // [{month, leap, dayCount, label}]
+let bzLPgm=false, bzLYTmr=null, bzLMTmr=null;
+// location state
+let bzLocation   = '';   // province name, e.g. '北京'
+let bzTzOffset   = 0;   // minutes offset from East-8 (Beijing) time
+
+// ── True solar time helper ────────────────────────────────────────
+function bzGetSolar(p) {
+  const off = p.tzOffset || 0;
+  const baseMin = p.minute || 0;
+  if (!off) return Solar.fromYmdHms(p.year, p.month, p.day, p.hour, baseMin, 0);
+  const totalMin = p.hour * 60 + baseMin + off;
+  let h = Math.floor(totalMin / 60);
+  const m = ((totalMin % 60) + 60) % 60;
+  let y = p.year, mo = p.month, d = p.day;
+  if (h < 0) {
+    const prev = new Date(y, mo - 1, d - 1);
+    y = prev.getFullYear(); mo = prev.getMonth() + 1; d = prev.getDate(); h += 24;
+  } else if (h >= 24) {
+    const next = new Date(y, mo - 1, d + 1);
+    y = next.getFullYear(); mo = next.getMonth() + 1; d = next.getDate(); h -= 24;
+  }
+  return Solar.fromYmdHms(y, mo, d, h, m, 0);
+}
+
+// ── Timezone label helper ─────────────────────────────────────────
+function bzTzLabel(offset) {
+  if (!offset) return '【东8】中国标准时间';
+  const absMin = Math.abs(offset);
+  const h = Math.floor(absMin / 60), m = absMin % 60;
+  const diff = offset >= 0 ? `+${h}h${m ? m + 'm' : ''}` : `-${h}h${m ? m + 'm' : ''}`;
+  const zone = 8 + offset / 60;
+  return `【东${zone.toFixed(1).replace('.0','')}】真太阳时 (${diff})`;
+}
+
+// ── Navigation ───────────────────────────────────────────────────
+function openBz() {
+  document.getElementById('bzOv').classList.add('bz-show');
+  if (bzProfiles.length > 0) {
+    bzShowDetail(bzCurrentPid || bzProfiles[0].id);
+  } else {
+    bzGoHome();
+  }
+}
+function closeBz() {
+  document.getElementById('bzOv').classList.remove('bz-show');
+}
+function bzGoHome() {
+  bzShowPage('bzPgHome');
+}
+function bzShowList() {
+  bzShowPage('bzPgList');
+  bzRenderList();
+}
+function bzBackToDetail() {
+  if (bzCurrentPid) {
+    bzShowDetail(bzCurrentPid);
+  } else if (bzProfiles.length > 0) {
+    bzShowDetail(bzProfiles[0].id);
+  } else {
+    bzGoHome();
+  }
+}
+function bzFormBack() {
+  if (bzEditId) {
+    bzShowDetail(bzEditId);
+  } else if (bzProfiles.length > 0) {
+    bzShowList();
+  } else {
+    bzGoHome();
+  }
+}
+function bzGoForm(id) {
+  try {
+    bzEditId = id;
+    bzGender = 'female';
+    bzLocation = '';
+    bzTzOffset = 0;
+    const gf = document.getElementById('bzGF');
+    const gm = document.getElementById('bzGM');
+    if (gf) gf.classList.add('bz-sel');
+    if (gm) gm.classList.remove('bz-sel');
+    const nameEl = document.getElementById('bzFName');
+    if (nameEl) nameEl.value = '';
+    const tdEl = document.getElementById('bzFTimeDisp');
+    if (tdEl) { tdEl.textContent = '请选择'; tdEl.classList.add('bz-form-ph'); }
+    const locEl = document.getElementById('bzFLocDisp');
+    if (locEl) { locEl.textContent = '请选择'; locEl.classList.add('bz-form-ph'); }
+    const tzEl = document.getElementById('bzFTzDisp');
+    if (tzEl) tzEl.textContent = '【东8】中国标准时间';
+    if (id !== null) {
+      const p = bzProfiles.find(x=>x.id===id);
+      if (p) {
+        if (nameEl) nameEl.value = p.name||'';
+        bzGender = p.gender||'female';
+        bzPickY=p.year; bzPickM=p.month; bzPickD=p.day; bzPickH=p.hour; bzPickMin=p.minute||0;
+        bzLocation = p.location||'';
+        bzTzOffset = p.tzOffset||0;
+        if (tdEl) {
+          tdEl.textContent = `${p.year}年${p.month}月${p.day}日 ${p.hour}:${String(p.minute||0).padStart(2,'0')}`;
+          tdEl.classList.remove('bz-form-ph');
+        }
+        if (locEl) {
+          if (bzLocation) {
+            const parts = bzLocation.split('/');
+            locEl.textContent = parts.length >= 3 ? `${parts[1]} ${parts[2]}` : bzLocation;
+            locEl.classList.remove('bz-form-ph');
+          }
+        }
+        if (tzEl && bzTzOffset) tzEl.textContent = bzTzLabel(bzTzOffset);
+        if (p.gender==='male') {
+          if (gm) gm.classList.add('bz-sel');
+          if (gf) gf.classList.remove('bz-sel');
+        }
+      }
+    }
+    bzShowPage('bzPgForm');
+  } catch(e) {
+    document.title = 'bzGoForm ERR: ' + e.message;
+    console.error('bzGoForm error:', e);
+  }
+}
+function bzShowPage(id) {
+  ['bzPgHome','bzPgList','bzPgForm','bzPgDetail'].forEach(p=>{
+    const el = document.getElementById(p);
+    if (el) el.classList.toggle('bz-active', p === id);
+  });
+}
+
+// ── List render ──────────────────────────────────────────────────
+function bzRenderList() {
+  const list = document.getElementById('bzListItems');
+  if (!list) return;
+  const now = new Date();
+  list.innerHTML = bzProfiles.map(p => {
+    const age = now.getFullYear() - p.year + 1;
+    const elem = BZ_GAN_ELEM[p.dayGan] || '?';
+    const bg   = BZ_ELEM_BG[elem] || '#999';
+    const isCur = p.id === bzCurrentPid;
+    return `<div class="bz-pcard" onclick="bzShowDetail('${p.id}')" style="${isCur?'background:#fdf8f3;':''}">
+      <div style="width:50px;height:50px;border-radius:50%;background:${bg};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <span style="font-size:22px;color:#fff;font-family:'Noto Serif SC';">${p.dayGan||'?'}</span>
+      </div>
+      <div style="flex:1;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:15px;font-weight:600;color:#1a1a1a;font-family:'Noto Serif SC';">${p.name||'未命名'}</span>
+          ${isCur?'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#52c41a" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/></svg>':''}
+        </div>
+        <div style="font-size:12px;color:#999;margin-top:3px;">${p.year}年${p.month}月${p.day}日 · ${age}岁 · ${p.gender==='male'?'男':'女'}</div>
+        <div style="font-size:12px;color:${bg};margin-top:2px;">${p.yearGz}年 ${p.monthGz}月 ${p.dayGz}日 ${p.hourGz}时</div>
+      </div>
+      <div onclick="event.stopPropagation();bzGoForm('${p.id}')" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:20px;cursor:pointer;">›</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Home render ──────────────────────────────────────────────────
+function bzRenderHome() {
+  const empty = document.getElementById('bzEmpty');
+  const list  = document.getElementById('bzProfileList');
+  if (!bzProfiles.length) {
+    empty.style.display = 'flex';
+    list.style.display  = 'none';
+    return;
+  }
+  empty.style.display = 'none';
+  list.style.display  = 'block';
+  const now = new Date();
+  list.innerHTML = bzProfiles.map(p => {
+    const age = now.getFullYear() - p.year + 1;
+    const elem = BZ_GAN_ELEM[p.dayGan] || '?';
+    const bg   = BZ_ELEM_BG[elem] || '#999';
+    return `<div class="bz-pcard" onclick="bzShowDetail('${p.id}')">
+      <div style="width:50px;height:50px;border-radius:50%;background:${bg};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <span style="font-size:22px;color:#fff;font-family:'Noto Serif SC';">${p.dayGan||'?'}</span>
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:15px;font-weight:600;color:#1a1a1a;font-family:'Noto Serif SC';">${p.name||'未命名'}</div>
+        <div style="font-size:12px;color:#999;margin-top:3px;">${p.year}年${p.month}月${p.day}日 · ${age}岁 · ${p.gender==='male'?'男':'女'}</div>
+        <div style="font-size:12px;color:${bg};margin-top:2px;">${p.yearGz}年 ${p.monthGz}月 ${p.dayGz}日 ${p.hourGz}时</div>
+      </div>
+      <div onclick="event.stopPropagation();bzGoForm('${p.id}')" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:20px;cursor:pointer;">›</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Gender selector ──────────────────────────────────────────────
+function bzSelGender(g) {
+  bzGender = g;
+  document.getElementById('bzGF').classList.toggle('bz-sel', g==='female');
+  document.getElementById('bzGM').classList.toggle('bz-sel', g==='male');
+}
+
+// ── Time picker ───────────────────────────────────────────────────
+// Ganzhi for lunar year display
+const BZ_LY_GAN = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+const BZ_LY_ZHI = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+function bzLunarYearGZ(y) {
+  const i = ((y - 4) % 60 + 60) % 60;
+  return BZ_LY_GAN[i % 10] + BZ_LY_ZHI[i % 12];
+}
+
+function bzOpenPicker() {
+  document.getElementById('bzPickerMask').classList.add('bz-show');
+  bzSwitchPickerMode('solar');
+}
+function bzSwitchPickerMode(mode) {
+  bzPickerMode = mode;
+  const ts = document.getElementById('bzTabSolar'), tl = document.getElementById('bzTabLunar');
+  if (ts) ts.classList.toggle('bz-tab-sel', mode === 'solar');
+  if (tl) tl.classList.toggle('bz-tab-sel', mode === 'lunar');
+  const sc = document.getElementById('bzSolarCols'), lc = document.getElementById('bzLunarCols');
+  if (sc) sc.style.display = mode === 'solar' ? 'flex' : 'none';
+  if (lc) lc.style.display = mode === 'lunar'  ? 'flex' : 'none';
+  if (mode === 'solar') {
+    bzInitPickerCol('bzColY',   1900, 2025, bzPickY,   'year');
+    bzInitPickerCol('bzColM',   1,    12,   bzPickM,   'month');
+    bzInitPickerCol('bzColD',   1,    31,   bzPickD,   'day');
+    bzInitPickerCol('bzColH',   0,    23,   bzPickH,   'hour');
+    bzInitPickerCol('bzColMin', 0,    59,   bzPickMin, 'minute');
+  } else {
+    bzLInitYearCol();
+  }
+}
+function bzInitPickerCol(colId, min, max, cur, type) {
+  const col = document.getElementById(colId);
+  if (!col) return;
+  const suf = {year:'年', month:'月', day:'日', hour:'时', minute:'分'}[type] || '';
+  let html = '<div class="bz-col-pad"></div>';
+  for (let v = min; v <= max; v++) {
+    const disp = type === 'minute' ? String(v).padStart(2, '0') : v;
+    html += `<div class="bz-col-item">${disp}${suf}</div>`;
+  }
+  html += '<div class="bz-col-pad"></div>';
+  col.innerHTML = html;
+  col.dataset.min = min;
+  requestAnimationFrame(() => { col.scrollTop = (cur - min) * 44; });
+}
+function bzClosePicker() {
+  document.getElementById('bzPickerMask').classList.remove('bz-show');
+}
+function bzConfirmTime() {
+  function readCol(colId, fallback) {
+    const col = document.getElementById(colId);
+    if (!col) return fallback;
+    return parseInt(col.dataset.min || fallback) + Math.round(col.scrollTop / 44);
+  }
+  if (bzPickerMode === 'solar') {
+    bzPickY   = readCol('bzColY',   1900);
+    bzPickM   = readCol('bzColM',   1);
+    bzPickD   = readCol('bzColD',   1);
+    bzPickH   = readCol('bzColH',   0);
+    bzPickMin = readCol('bzColMin', 0);
+  } else {
+    // Lunar → Solar conversion
+    const lyCol = document.getElementById('bzColLY');
+    bzLPickY = 1900 + Math.max(0, Math.min(125, Math.round((lyCol?.scrollTop||0) / 44)));
+    const lmCol = document.getElementById('bzColLM');
+    const mIdx  = Math.max(0, Math.min(bzLMonths.length - 1, Math.round((lmCol?.scrollTop||0) / 44)));
+    const selM  = bzLMonths[mIdx] || bzLMonths[0];
+    const ldCol = document.getElementById('bzColLD');
+    const dIdx  = Math.max(0, Math.round((ldCol?.scrollTop||0) / 44));
+    bzLPickH = readCol('bzColLH', 0);
+    if (selM) {
+      try {
+        const lunarM = selM.leap ? -selM.month : selM.month;
+        const lunar  = Lunar.fromYmd(bzLPickY, lunarM, dIdx + 1);
+        const solar  = lunar.getSolar();
+        bzPickY = solar.getYear(); bzPickM = solar.getMonth(); bzPickD = solar.getDay();
+      } catch(e) { alert('农历日期转换失败，请重新选择'); return; }
+    }
+    bzPickH = bzLPickH; bzPickMin = 0;
+  }
+  bzClosePicker();
+  const td = document.getElementById('bzFTimeDisp');
+  if (td) {
+    td.textContent = `${bzPickY}年${bzPickM}月${bzPickD}日 ${bzPickH}:${String(bzPickMin).padStart(2,'0')}`;
+    td.classList.remove('bz-form-ph');
+  }
+}
+
+// ── Lunar picker cascade ──────────────────────────────────────────
+function bzLInitYearCol() {
+  const col = document.getElementById('bzColLY');
+  if (!col) return;
+  let html = '<div class="bz-col-pad"></div>';
+  for (let y = 1900; y <= 2025; y++) {
+    html += `<div class="bz-col-item" style="font-size:13px;">${y}(${bzLunarYearGZ(y)})</div>`;
+  }
+  html += '<div class="bz-col-pad"></div>';
+  col.innerHTML = html;
+  bzLPgm = true;
+  col.scrollTop = (bzLPickY - 1900) * 44;
+  requestAnimationFrame(() => { bzLPgm = false; });
+  bzLLoadMonths(bzLPickY);
+}
+function bzLLoadMonths(year) {
+  bzLMonths = [];
+  const names = ['','正','二','三','四','五','六','七','八','九','十','冬','腊'];
+  try {
+    LunarYear.fromYear(year).getMonths().forEach(m => {
+      const mn   = Math.abs(m.getMonth());
+      const leap = m.isLeap();
+      bzLMonths.push({ month: mn, leap, dayCount: m.getDayCount(), label: (leap ? '闰' : '') + names[mn] + '月' });
+    });
+  } catch(e) {
+    for (let i = 1; i <= 12; i++) bzLMonths.push({ month:i, leap:false, dayCount:30, label: names[i]+'月' });
+  }
+  const col = document.getElementById('bzColLM');
+  if (!col) return;
+  col.innerHTML = '<div class="bz-col-pad"></div>' +
+    bzLMonths.map(m => `<div class="bz-col-item">${m.label}</div>`).join('') +
+    '<div class="bz-col-pad"></div>';
+  bzLPgm = true; col.scrollTop = 0; requestAnimationFrame(() => { bzLPgm = false; });
+  bzLLoadDays(0);
+}
+function bzLLoadDays(mIdx) {
+  const m = bzLMonths[mIdx];
+  if (!m) return;
+  const dayNames = ['初一','初二','初三','初四','初五','初六','初七','初八','初九','初十',
+    '十一','十二','十三','十四','十五','十六','十七','十八','十九','二十',
+    '廿一','廿二','廿三','廿四','廿五','廿六','廿七','廿八','廿九','三十'];
+  const col = document.getElementById('bzColLD');
+  if (!col) return;
+  col.innerHTML = '<div class="bz-col-pad"></div>' +
+    dayNames.slice(0, m.dayCount).map(d => `<div class="bz-col-item">${d}</div>`).join('') +
+    '<div class="bz-col-pad"></div>';
+  bzLPgm = true; col.scrollTop = 0; requestAnimationFrame(() => { bzLPgm = false; });
+  const hCol = document.getElementById('bzColLH');
+  if (hCol && !hCol.querySelector('.bz-col-item')) {
+    hCol.innerHTML = '<div class="bz-col-pad"></div>' +
+      Array.from({length:24}, (_,i) => `<div class="bz-col-item">${i}时</div>`).join('') +
+      '<div class="bz-col-pad"></div>';
+    bzLPgm = true; hCol.scrollTop = bzLPickH * 44; requestAnimationFrame(() => { bzLPgm = false; });
+  }
+}
+function bzLOnScrollY() {
+  if (bzLPgm) return;
+  clearTimeout(bzLYTmr);
+  bzLYTmr = setTimeout(() => {
+    const col = document.getElementById('bzColLY');
+    if (!col) return;
+    const y = 1900 + Math.max(0, Math.min(125, Math.round(col.scrollTop / 44)));
+    if (y !== bzLPickY) { bzLPickY = y; bzLLoadMonths(y); }
+  }, 180);
+}
+function bzLOnScrollM() {
+  if (bzLPgm) return;
+  clearTimeout(bzLMTmr);
+  bzLMTmr = setTimeout(() => {
+    const col = document.getElementById('bzColLM');
+    if (!col) return;
+    const idx = Math.max(0, Math.min(bzLMonths.length - 1, Math.round(col.scrollTop / 44)));
+    bzLLoadDays(idx);
+  }, 180);
+}
+
+// ── Cascade location picker ───────────────────────────────────────
+let bzLocSelP = 0, bzLocSelC = 0, bzLocSelD = 0;
+let bzLocPgm  = false; // true during programmatic scroll (suppresses cascade reload)
+let bzLocPTmr = null, bzLocCTmr = null;
+
+function bzOpenLocationPicker() {
+  const mask = document.getElementById('bzLocMask');
+  if (!mask) return;
+  // Try to restore current selection
+  if (bzLocation) {
+    const parts = bzLocation.split('/');
+    const pIdx = BZ_REGION.findIndex(r => r[0] === parts[0]);
+    if (pIdx >= 0) {
+      bzLocSelP = pIdx;
+      const cities = BZ_REGION[pIdx][1];
+      const cIdx = cities.findIndex(c => c[0] === parts[1]);
+      bzLocSelC = cIdx >= 0 ? cIdx : 0;
+      const dists = cities[bzLocSelC][2];
+      const dIdx = dists.indexOf(parts[2]);
+      bzLocSelD = dIdx >= 0 ? dIdx : 0;
+    }
+  }
+  mask.classList.add('bz-show');
+  bzLocLoadP();
+}
+function bzLocLoadP() {
+  const col = document.getElementById('bzLocColP');
+  if (!col) return;
+  col.innerHTML = '<div class="bz-col-pad"></div>' +
+    BZ_REGION.map(r => `<div class="bz-col-item">${r[0]}</div>`).join('') +
+    '<div class="bz-col-pad"></div>';
+  bzLocPgm = true;
+  col.scrollTop = bzLocSelP * 44;
+  requestAnimationFrame(() => { bzLocPgm = false; });
+  bzLocLoadC();
+}
+function bzLocLoadC() {
+  const col = document.getElementById('bzLocColC');
+  if (!col) return;
+  const cities = (BZ_REGION[bzLocSelP] || BZ_REGION[0])[1];
+  col.innerHTML = '<div class="bz-col-pad"></div>' +
+    cities.map(c => `<div class="bz-col-item">${c[0]}</div>`).join('') +
+    '<div class="bz-col-pad"></div>';
+  bzLocPgm = true;
+  col.scrollTop = bzLocSelC * 44;
+  requestAnimationFrame(() => { bzLocPgm = false; });
+  bzLocLoadD();
+}
+function bzLocLoadD() {
+  const col = document.getElementById('bzLocColD');
+  if (!col) return;
+  const cities = (BZ_REGION[bzLocSelP] || BZ_REGION[0])[1];
+  const dists  = (cities[bzLocSelC] || cities[0])[2];
+  col.innerHTML = '<div class="bz-col-pad"></div>' +
+    dists.map(d => `<div class="bz-col-item">${d}</div>`).join('') +
+    '<div class="bz-col-pad"></div>';
+  bzLocPgm = true;
+  col.scrollTop = bzLocSelD * 44;
+  requestAnimationFrame(() => { bzLocPgm = false; });
+}
+function bzLocOnScrollP() {
+  if (bzLocPgm) return;
+  clearTimeout(bzLocPTmr);
+  bzLocPTmr = setTimeout(() => {
+    const col = document.getElementById('bzLocColP');
+    if (!col) return;
+    const idx = Math.max(0, Math.min(BZ_REGION.length - 1, Math.round(col.scrollTop / 44)));
+    if (idx !== bzLocSelP) { bzLocSelP = idx; bzLocSelC = 0; bzLocSelD = 0; bzLocLoadC(); }
+  }, 180);
+}
+function bzLocOnScrollC() {
+  if (bzLocPgm) return;
+  clearTimeout(bzLocCTmr);
+  bzLocCTmr = setTimeout(() => {
+    const col = document.getElementById('bzLocColC');
+    if (!col) return;
+    const cities = (BZ_REGION[bzLocSelP] || BZ_REGION[0])[1];
+    const idx = Math.max(0, Math.min(cities.length - 1, Math.round(col.scrollTop / 44)));
+    if (idx !== bzLocSelC) { bzLocSelC = idx; bzLocSelD = 0; bzLocLoadD(); }
+  }, 180);
+}
+function bzLocOnScrollD() {
+  if (bzLocPgm) return;
+  const col = document.getElementById('bzLocColD');
+  if (!col) return;
+  const cities = (BZ_REGION[bzLocSelP] || BZ_REGION[0])[1];
+  const dists  = (cities[bzLocSelC] || cities[0])[2];
+  bzLocSelD = Math.max(0, Math.min(dists.length - 1, Math.round(col.scrollTop / 44)));
+}
+function bzConfirmLocation() {
+  const prov   = BZ_REGION[bzLocSelP];
+  const cities = prov[1];
+  const city   = cities[bzLocSelC] || cities[0];
+  const dists  = city[2];
+  const dist   = dists[bzLocSelD] || dists[0];
+  const lng    = city[1];
+  bzLocation  = `${prov[0]}/${city[0]}/${dist}`;
+  bzTzOffset  = Math.round((lng - 120) * 4);
+  const locEl = document.getElementById('bzFLocDisp');
+  if (locEl) { locEl.textContent = `${city[0]} ${dist}`; locEl.classList.remove('bz-form-ph'); }
+  const tzEl  = document.getElementById('bzFTzDisp');
+  if (tzEl) tzEl.textContent = bzTzLabel(bzTzOffset);
+  bzCloseLocationPicker();
+}
+function bzLocGPS() {
+  if (!navigator.geolocation) { alert('您的浏览器不支持定位'); return; }
+  const btn = document.getElementById('bzLocGpsBtn');
+  if (btn) btn.textContent = '定位中…';
+  navigator.geolocation.getCurrentPosition(pos => {
+    const lng = pos.coords.longitude;
+    bzTzOffset = Math.round((lng - 120) * 4);
+    // Find nearest province by longitude
+    let bestP = 0, bestDist = 999;
+    BZ_REGION.forEach((r, i) => {
+      r[1].forEach(c => {
+        const d = Math.abs(c[1] - lng);
+        if (d < bestDist) { bestDist = d; bestP = i; }
+      });
+    });
+    bzLocSelP = bestP;
+    bzLocSelC = 0;
+    bzLocSelD = 0;
+    bzLocLoadP();
+    if (btn) btn.textContent = '📍 获取定位';
+  }, () => {
+    if (btn) btn.textContent = '📍 获取定位';
+    alert('定位失败，请手动选择');
+  });
+}
+function bzCloseLocationPicker() {
+  const mask = document.getElementById('bzLocMask');
+  if (mask) mask.classList.remove('bz-show');
+}
+
+// ── Save profile ─────────────────────────────────────────────────
+function bzSaveProfile() {
+  const name = document.getElementById('bzFName').value.trim() || '我';
+  if (!bzPickY) { alert('请选择出生时间'); return; }
+  try {
+    // Apply true solar time correction (if location is set)
+    const solar = bzGetSolar({
+      year: bzPickY, month: bzPickM, day: bzPickD, hour: bzPickH, minute: bzPickMin, tzOffset: bzTzOffset
+    });
+    const lunar  = solar.getLunar();
+    const ec     = lunar.getEightChar();
+    const yGan   = ec.getYearGan(), yZhi = ec.getYearZhi();
+    const mGan   = ec.getMonthGan(), mZhi = ec.getMonthZhi();
+    const dGan   = ec.getDayGan(),   dZhi = ec.getDayZhi();
+    const hGan   = ec.getTimeGan(),   hZhi = ec.getTimeZhi();
+    const id = bzEditId || ('bz' + Date.now());
+    const profile = {
+      id, name, gender: bzGender,
+      year: bzPickY, month: bzPickM, day: bzPickD, hour: bzPickH, minute: bzPickMin,
+      location: bzLocation,
+      tzOffset: bzTzOffset,
+      yearGz: yGan+yZhi, monthGz: mGan+mZhi,
+      dayGz:  dGan+dZhi, hourGz:  hGan+hZhi,
+      yearGan:yGan, yearZhi:yZhi,
+      monthGan:mGan, monthZhi:mZhi,
+      dayGan:dGan, dayZhi:dZhi,
+      hourGan:hGan, hourZhi:hZhi
+    };
+    if (bzEditId) {
+      const idx = bzProfiles.findIndex(x=>x.id===bzEditId);
+      if (idx>=0) bzProfiles[idx] = profile;
+    } else {
+      bzProfiles.push(profile);
+    }
+    localStorage.setItem('bz_profiles', JSON.stringify(bzProfiles));
+    bzShowDetail(id);
+  } catch(e) {
+    alert('计算失败，请检查日期：' + e.message);
+  }
+}
+
+// ── Show detail (命盘) ────────────────────────────────────────────
+function bzShowDetail(id) {
+  const p = bzProfiles.find(x=>x.id===id);
+  if (!p) return;
+  bzCurrentPid = id;
+  const sc = document.getElementById('bzDetailSc');
+  sc.innerHTML = bzRenderDetail(p);
+  bzShowPage('bzPgDetail');
+  sc.scrollTop = 0;
+  const hdName = document.getElementById('bzDetailHdName');
+  if (hdName) hdName.textContent = p.name || '命盘';
+  bzRenderDaYun(id);
+}
+
+function bzRenderDetail(p) {
+  const solar  = bzGetSolar(p);
+  const lunar  = solar.getLunar();
+  const ec     = lunar.getEightChar();
+  const now    = new Date();
+  const curYr  = now.getFullYear();
+  const age    = curYr - p.year + 1;
+
+  // Pillars
+  const pillars = [
+    {lbl:'年柱', gan:p.yearGan,  zhi:p.yearZhi,  ss: ec.getYearShiShenGan(),  nayin:ec.getYearNaYin(),  hide:BZ_HIDE[p.yearZhi]||[]},
+    {lbl:'月柱', gan:p.monthGan, zhi:p.monthZhi, ss: ec.getMonthShiShenGan(), nayin:ec.getMonthNaYin(), hide:BZ_HIDE[p.monthZhi]||[]},
+    {lbl:'日柱', gan:p.dayGan,   zhi:p.dayZhi,   ss: '日主',                  nayin:ec.getDayNaYin(),   hide:BZ_HIDE[p.dayZhi]||[]},
+    {lbl:'时柱', gan:p.hourGan,  zhi:p.hourZhi,  ss: ec.getTimeShiShenGan(),  nayin:ec.getTimeNaYin(),  hide:BZ_HIDE[p.hourZhi]||[]}
+  ];
+
+  // Lunar date
+  const lY = lunar.getYearInChinese();
+  const lM = lunar.getMonthInChinese();
+  const lD = lunar.getDayInChinese();
+  // Shichen (时辰)
+  const hIdx = Math.floor(((p.hour + 1) % 24) / 2);
+  const shichen = BZ_SHICHEN[hIdx];
+  // Day master info
+  const dmElem  = BZ_GAN_ELEM[p.dayGan] || '?';
+  const dmColor = BZ_ELEM_BG[dmElem] || '#999';
+  const zodiac  = BZ_ZODIAC[(p.year - 4) % 12];
+  const ganArr  = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+  const dmYang  = ganArr.indexOf(p.dayGan) % 2 === 0;
+
+  // Five elements count
+  const feCount = {木:0,火:0,土:0,金:0,水:0};
+  [p.yearGan,p.monthGan,p.dayGan,p.hourGan].forEach(g=>{const e=BZ_GAN_ELEM[g];if(e)feCount[e]+=1.5;});
+  [p.yearZhi,p.monthZhi,p.dayZhi,p.hourZhi].forEach(z=>{
+    const e=BZ_ZHI_ELEM[z]; if(e)feCount[e]+=1;
+    (BZ_HIDE[z]||[]).forEach(hg=>{const he=BZ_GAN_ELEM[hg];if(he)feCount[he]+=0.5;});
+  });
+  const feTotal = Object.values(feCount).reduce((a,b)=>a+b,0)||1;
+  const fePct   = {};
+  Object.keys(feCount).forEach(k=>fePct[k]=Math.round(feCount[k]/feTotal*100));
+
+  const dmSupport = feCount[dmElem] || 0;
+  const isStrong  = dmSupport >= (feTotal * 0.3);
+  const strength  = isStrong ? '身强' : '身弱';
+
+  const colW = 'width:22%';
+  function circle(char, elem, extra) {
+    const cls = BZ_ELEM_CSS[elem] || '';
+    return `<div class="bz-gz-circle ${cls}" style="${extra||''}">${char}</div>`;
+  }
+  function hgLine(hideArr) {
+    if(!hideArr||!hideArr.length) return '';
+    return hideArr.map(g => {
+      const e = BZ_GAN_ELEM[g]||'';
+      const c = BZ_ELEM_BG[e]||'#999';
+      const ss = bzGetSS(g, p.dayGan);
+      return `<span style="color:${c};font-size:11px;">${g}·<span style="font-size:10px;">${ss}</span></span>`;
+    }).join('<br>');
+  }
+
+  let yunStartInfo = '';
+  try {
+    const yun = ec.getYun(p.gender==='male'?1:0);
+    const sy  = yun.getStartSolar();
+    const startAge = sy.getYear() - p.year + 1;
+    yunStartInfo = `${startAge}岁起运 (${sy.getYear()}年)`;
+  } catch(e) { yunStartInfo = ''; }
+
+  // Location note for header
+  const locNote = p.location ? `${p.location} · ` : '';
+  // Correction note
+  const corrNote = p.tzOffset
+    ? `<div style="font-size:11px;color:#c47a2a;margin-top:2px;">真太阳时校正 ${p.tzOffset >= 0 ? '+' : ''}${p.tzOffset}分</div>`
+    : '';
+
+  return `
+<div style="background:#f5f3ef;padding-bottom:30px;">
+
+  <!-- Profile title -->
+  <div style="padding:14px 16px 10px;display:flex;align-items:center;gap:12px;">
+    <div style="width:44px;height:44px;border-radius:50%;background:${dmColor};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <span style="font-size:20px;color:#fff;font-family:'Noto Serif SC';">${p.dayGan}</span>
+    </div>
+    <div>
+      <div style="font-size:16px;font-weight:600;color:#1a1a1a;font-family:'Noto Serif SC';">${p.name||'我'}</div>
+      <div style="font-size:12px;color:#888;margin-top:2px;">${locNote}${p.year}年${p.month}月${p.day}日 ${p.hour}时 · ${age}岁 · ${p.gender==='male'?'男':'女'}</div>
+      ${corrNote}
+    </div>
+  </div>
+
+  <!-- 四柱 table card -->
+  <div class="bz-mp-card">
+    <table style="width:100%;border-collapse:collapse;">
+      <tr style="background:#fafaf8;">
+        <td style="width:14%;padding:8px 4px 6px;font-size:11px;color:#bbb;text-align:center;"></td>
+        <td style="width:22%;padding:8px 4px 6px;font-size:12px;color:#888;text-align:center;font-family:'Noto Serif SC';">年</td>
+        <td style="width:22%;padding:8px 4px 6px;font-size:12px;color:#888;text-align:center;font-family:'Noto Serif SC';">月</td>
+        <td style="width:22%;padding:8px 4px 6px;font-size:12px;color:#888;text-align:center;font-family:'Noto Serif SC';">日</td>
+        <td style="width:20%;padding:8px 4px 6px;font-size:12px;color:#888;text-align:center;font-family:'Noto Serif SC';">时</td>
+      </tr>
+      <tr>
+        <td style="padding:4px;font-size:11px;color:#bbb;text-align:center;vertical-align:middle;">公历</td>
+        <td style="padding:4px;font-size:13px;color:#333;text-align:center;">${p.year}</td>
+        <td style="padding:4px;font-size:13px;color:#333;text-align:center;">${p.month}</td>
+        <td style="padding:4px;font-size:13px;color:#333;text-align:center;">${p.day}</td>
+        <td style="padding:4px;font-size:13px;color:#333;text-align:center;">${p.hour}</td>
+      </tr>
+      <tr>
+        <td style="padding:4px;font-size:11px;color:#bbb;text-align:center;vertical-align:middle;">农历</td>
+        <td style="padding:4px;font-size:13px;color:#333;text-align:center;">${lY}</td>
+        <td style="padding:4px;font-size:13px;color:#333;text-align:center;">${lM}</td>
+        <td style="padding:4px;font-size:13px;color:#333;text-align:center;">${lD}</td>
+        <td style="padding:4px;font-size:13px;color:#333;text-align:center;">${shichen}</td>
+      </tr>
+      <tr style="border-top:1px solid #f5f0eb;">
+        <td style="padding:5px 4px;font-size:11px;color:#bbb;text-align:center;"></td>
+        ${pillars.map(pl=>`<td style="padding:5px 4px;text-align:center;"><div style="font-size:12px;color:#888;font-family:'Noto Serif SC';">${pl.lbl}</div></td>`).join('')}
+      </tr>
+      <tr>
+        <td style="padding:3px 4px;font-size:11px;color:#bbb;text-align:center;vertical-align:middle;">十神</td>
+        ${pillars.map(pl=>`<td style="padding:3px 4px;text-align:center;"><span style="font-size:12px;color:#E84E0F;font-family:'Noto Serif SC';">${pl.ss}</span></td>`).join('')}
+      </tr>
+      <tr>
+        <td style="padding:5px 4px;font-size:11px;color:#bbb;text-align:center;vertical-align:middle;">天干</td>
+        ${pillars.map(pl=>`<td style="padding:5px 2px;text-align:center;">${circle(pl.gan, BZ_GAN_ELEM[pl.gan], pl.lbl==='日柱'?'box-shadow:0 0 0 2px #E84E0F;':'')}</td>`).join('')}
+      </tr>
+      <tr>
+        <td style="padding:5px 4px;font-size:11px;color:#bbb;text-align:center;vertical-align:middle;">地支</td>
+        ${pillars.map(pl=>`<td style="padding:5px 2px;text-align:center;">${circle(pl.zhi, BZ_ZHI_ELEM[pl.zhi])}</td>`).join('')}
+      </tr>
+      <tr>
+        <td style="padding:5px 4px;font-size:11px;color:#bbb;text-align:center;vertical-align:top;">藏干</td>
+        ${pillars.map(pl=>`<td style="padding:5px 2px;text-align:center;line-height:1.6;">${hgLine(pl.hide)}</td>`).join('')}
+      </tr>
+      <tr style="border-top:1px solid #f5f0eb;">
+        <td style="padding:6px 4px;font-size:11px;color:#bbb;text-align:center;vertical-align:middle;">纳音</td>
+        ${pillars.map(pl=>`<td style="padding:6px 2px;text-align:center;font-size:11px;color:#666;">${pl.nayin}</td>`).join('')}
+      </tr>
+    </table>
+  </div>
+
+  <!-- Day master summary -->
+  <div style="margin:16px 14px 0;background:#fff;border-radius:16px;padding:16px;box-shadow:0 1px 8px rgba(0,0,0,.06);">
+    <div style="text-align:center;margin-bottom:10px;">
+      <span style="font-size:16px;font-weight:600;font-family:'Noto Serif SC';color:${dmColor};">${p.dayGan}${dmElem}日主</span>
+      <span style="font-size:14px;color:#888;font-family:'Noto Serif SC';"> · 【${strength}】</span>
+    </div>
+    <div style="text-align:center;font-size:13px;color:#888;">
+      ${ec.getDayNaYin()} &nbsp;|&nbsp; ${zodiac} &nbsp;|&nbsp; ${age}岁
+    </div>
+    ${yunStartInfo ? `<div style="text-align:center;font-size:12px;color:#bbb;margin-top:4px;">${yunStartInfo}</div>` : ''}
+  </div>
+
+  <!-- Five element relation diagram -->
+  ${bzMakeRelSVG(fePct)}
+
+  <!-- 喜用忌用 -->
+  ${bzMakeXiJi(dmElem, isStrong)}
+
+  <!-- 大运流年 section -->
+  <div style="margin:12px 14px 0;background:#fff;border-radius:16px;padding:16px 0 16px;box-shadow:0 1px 8px rgba(0,0,0,.06);">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:0 16px;margin-bottom:10px;">
+      <span style="font-size:15px;font-weight:600;color:#1a1a1a;font-family:'Noto Serif SC';">大运</span>
+      <span id="bzDyStart" style="font-size:11px;color:#999;"></span>
+    </div>
+    <div id="bzDyRow"></div>
+    <div style="padding:0 16px;margin:16px 0 10px;">
+      <span style="font-size:15px;font-weight:600;color:#1a1a1a;font-family:'Noto Serif SC';">流年</span>
+    </div>
+    <div id="bzLnRow"></div>
+  </div>
+
+</div>`;
+}
+
+// ── 十神 helper ───────────────────────────────────────────────────
+function bzGetSS(gan, dayGan) {
+  const elem     = BZ_GAN_ELEM[gan];
+  const dayElem  = BZ_GAN_ELEM[dayGan];
+  if (!elem || !dayElem) return '';
+  const ganArr  = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+  const ganYang = g => ganArr.indexOf(g) % 2 === 0;
+  const sameYang = ganYang(gan) === ganYang(dayGan);
+  const generates = {木:'火',火:'土',土:'金',金:'水',水:'木'};
+  const controls  = {木:'土',土:'水',水:'火',火:'金',金:'木'};
+  if (elem === dayElem) return sameYang ? '比肩' : '劫财';
+  if (generates[dayElem] === elem) return sameYang ? '食神' : '伤官';
+  if (controls[dayElem] === elem)  return sameYang ? '偏财' : '正财';
+  if (controls[elem] === dayElem)  return sameYang ? '七杀' : '正官';
+  if (generates[elem] === dayElem) return sameYang ? '偏印' : '正印';
+  return '';
+}
+
+// ── Five element relation diagram SVG ────────────────────────────
+function bzMakeRelSVG(fePct) {
+  // Pentagon clockwise from top: 火,土,金,水,木
+  const elems = ['火','土','金','水','木'];
+  const eco = {火:'#a83535', 土:'#c47a2a', 金:'#c9a038', 水:'#2c8080', 木:'#4e9b72'};
+  const W=300, H=278, cx=150, cy=143, R=100, cr=34;
+  const ang = i => -Math.PI/2 + i * 2 * Math.PI / 5;
+  const pts = elems.map((_,i) => [cx + R*Math.cos(ang(i)), cy + R*Math.sin(ang(i))]);
+
+  function arrowPath(a, b) {
+    const dx=b[0]-a[0], dy=b[1]-a[1], len=Math.sqrt(dx*dx+dy*dy);
+    const ux=dx/len, uy=dy/len;
+    return `M${(a[0]+ux*(cr+5)).toFixed(1)},${(a[1]+uy*(cr+5)).toFixed(1)} L${(b[0]-ux*(cr+9)).toFixed(1)},${(b[1]-uy*(cr+9)).toFixed(1)}`;
+  }
+  function midText(a, b, txt, perp) {
+    const mx=(a[0]+b[0])/2, my=(a[1]+b[1])/2;
+    const dx=b[0]-a[0], dy=b[1]-a[1], len=Math.sqrt(dx*dx+dy*dy);
+    const ox=-dy/len*(perp||0), oy=dx/len*(perp||0);
+    return `<text x="${(mx+ox).toFixed(1)}" y="${(my+oy+4).toFixed(1)}" text-anchor="middle" font-size="11" fill="#ccc">${txt}</text>`;
+  }
+
+  // 生 arrows: i→(i+1)%5
+  const shengPaths = elems.map((_,i) => arrowPath(pts[i], pts[(i+1)%5]));
+  const shengLabels = elems.map((_,i) => midText(pts[i], pts[(i+1)%5], '生', 9));
+  // 克 arrows: 火→金(0→2), 土→水(1→3), 金→木(2→4), 水→火(3→0), 木→土(4→1)
+  const keTarget = [2,3,4,0,1];
+  const kePaths = elems.map((_,i) => arrowPath(pts[i], pts[keTarget[i]]));
+  const keLabels = elems.map((_,i) => midText(pts[i], pts[keTarget[i]], '克', 7));
+
+  const circles = elems.map((e,i) => {
+    const [x,y]=pts[i], c=eco[e], pct=fePct[e]||0;
+    return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${cr}" fill="${c}"/>
+<text x="${x.toFixed(1)}" y="${(y-2).toFixed(1)}" text-anchor="middle" font-size="17" fill="white" font-family="Noto Serif SC,serif" font-weight="600">${e}</text>
+<text x="${x.toFixed(1)}" y="${(y+14).toFixed(1)}" text-anchor="middle" font-size="10" fill="rgba(255,255,255,.9)">${pct}%</text>`;
+  });
+
+  return `<div style="margin:12px 14px 0;background:#fff;border-radius:16px;padding:16px;box-shadow:0 1px 8px rgba(0,0,0,.06);">
+  <div style="font-size:13px;font-weight:600;color:#333;margin-bottom:4px;font-family:'Noto Serif SC';">五行分布</div>
+  <div style="display:flex;justify-content:center;">
+  <svg width="100%" viewBox="0 0 ${W} ${H}" style="max-width:${W}px;">
+    <defs>
+      <marker id="bzAS" markerWidth="7" markerHeight="7" refX="5.5" refY="3.5" orient="auto"><path d="M0,0.5 L6,3.5 L0,6.5 Z" fill="#ccc"/></marker>
+      <marker id="bzAK" markerWidth="7" markerHeight="7" refX="5.5" refY="3.5" orient="auto"><path d="M0,0.5 L6,3.5 L0,6.5 Z" fill="#ddd"/></marker>
+    </defs>
+    ${shengPaths.map(d=>`<path d="${d}" stroke="#ccc" stroke-width="1.5" fill="none" marker-end="url(#bzAS)"/>`).join('')}
+    ${shengLabels.join('')}
+    ${kePaths.map(d=>`<path d="${d}" stroke="#e0e0e0" stroke-width="1.2" fill="none" marker-end="url(#bzAK)"/>`).join('')}
+    ${keLabels.join('')}
+    ${circles.join('')}
+  </svg>
+  </div>
+</div>`;
+}
+
+// ── 喜用 / 忌用 ───────────────────────────────────────────────────
+function bzMakeXiJi(dmElem, isStrong) {
+  const genMe = {木:'水',火:'木',土:'火',金:'土',水:'金'}; // 生我(印)
+  const ctlMe = {木:'金',火:'水',土:'木',金:'火',水:'土'}; // 克我(官杀)
+  const myGen = {木:'火',火:'土',土:'金',金:'水',水:'木'}; // 我生(食伤)
+  const myCtl = {木:'土',火:'金',土:'水',金:'木',水:'火'}; // 我克(财)
+  const eco   = {火:'#a83535',土:'#c47a2a',金:'#c9a038',水:'#2c8080',木:'#4e9b72'};
+
+  let xi, ji;
+  if (!isStrong) {
+    xi = [...new Set([genMe[dmElem], dmElem])];
+    ji = [...new Set([ctlMe[dmElem], myGen[dmElem], myCtl[dmElem]])];
+  } else {
+    xi = [...new Set([ctlMe[dmElem], myGen[dmElem], myCtl[dmElem]])];
+    ji = [...new Set([genMe[dmElem], dmElem])];
+  }
+
+  const spans = arr => arr.map(e=>`<span style="font-size:18px;font-family:'Noto Serif SC',serif;color:${eco[e]};margin:0 3px;">${e}</span>`).join('');
+
+  return `<div style="margin:12px 14px 0;background:#fff;border-radius:16px;padding:20px 16px 24px;box-shadow:0 1px 8px rgba(0,0,0,.06);">
+  <div style="text-align:center;margin-bottom:20px;line-height:2;">
+    <div style="font-size:13px;color:#444;font-family:'Noto Serif SC',serif;">喜用成就顺境，忌用招致逆境。</div>
+    <div style="font-size:13px;color:#444;font-family:'Noto Serif SC',serif;">你如何自处人生的起伏，便该如何看待五行的喜忌。</div>
+    <div style="font-size:13px;color:#444;font-family:'Noto Serif SC',serif;">生命是一场完整的体验。</div>
+    <div style="font-size:13px;color:#444;font-family:'Noto Serif SC',serif;">无喜不成欢，无忌不修心。</div>
+  </div>
+  <div style="display:flex;justify-content:space-around;align-items:flex-start;">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:14px;">
+      <div style="width:56px;height:56px;border-radius:50%;border:1.5px solid #c0c0c0;display:flex;align-items:center;justify-content:center;">
+        <span style="font-size:22px;font-family:'Noto Serif SC',serif;color:#555;">喜</span>
+      </div>
+      <div>${spans(xi)}</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:14px;">
+      <div style="width:56px;height:56px;border-radius:50%;border:1.5px solid #c0c0c0;display:flex;align-items:center;justify-content:center;">
+        <span style="font-size:22px;font-family:'Noto Serif SC',serif;color:#555;">忌</span>
+      </div>
+      <div>${spans(ji)}</div>
+    </div>
+  </div>
+</div>`;
+}
+
+// ── DaYun / LiuNian render ────────────────────────────────────────
+function bzRenderDaYun(pOrId, activeIdx) {
+  const p = (typeof pOrId === 'string') ? bzProfiles.find(x=>x.id===pOrId) : pOrId;
+  if (!p) return;
+  try {
+    const solar = bzGetSolar(p);
+    const lunar  = solar.getLunar();
+    const ec     = lunar.getEightChar();
+    const yun    = ec.getYun(p.gender==='male'?1:0);
+    const daYun  = yun.getDaYun();
+    const now    = new Date().getFullYear();
+
+    let autoActive = 0;
+    daYun.forEach((dy,i) => { if (dy.getStartYear()<=now && dy.getEndYear()>=now) autoActive=i; });
+    if (activeIdx === undefined) activeIdx = autoActive;
+
+    // 起运日期
+    const startEl = document.getElementById('bzDyStart');
+    if (startEl) {
+      try {
+        const ss = yun.getStartSolar();
+        const totalM = (ss.getYear()-p.year)*12+(ss.getMonth()-(p.month||1));
+        const ageStr = totalM<12 ? totalM+'月' : (totalM/12).toFixed(1)+'岁';
+        startEl.textContent = `${ss.getYear()}年${ss.getMonth()}月${String(ss.getDay()).padStart(2,'0')}日（${ageStr}起运）`;
+      } catch(e){}
+    }
+
+    // 十神 abbreviation
+    const SS_MAP = {'比肩':'比','劫财':'劫','食神':'食','伤官':'伤','偏财':'才','正财':'财','七杀':'杀','正官':'官','偏印':'枭','正印':'印'};
+    const sh = s => SS_MAP[s] || s;
+
+    // Build one column <td>
+    function col(gz, ageLabel, yr, isCur, isNow, onclickStr) {
+      const bg = isCur ? '#fef6e8' : '';
+      const dot = isNow ? `<div style="width:5px;height:5px;border-radius:50%;background:#c47a2a;margin:0 auto 2px;"></div>` : '';
+      let body = '';
+      if (gz) {
+        const gan=gz[0], zhi=gz[1];
+        const gC=BZ_ELEM_BG[BZ_GAN_ELEM[gan]||'']||'#888';
+        const zC=BZ_ELEM_BG[BZ_ZHI_ELEM[zhi]||'']||'#888';
+        const gSS=sh(bzGetSS(gan,p.dayGan));
+        const hides=BZ_HIDE[zhi]||[];
+        const mainSS=hides[0]?sh(bzGetSS(hides[0],p.dayGan)):'';
+        const restRows=hides.slice(1).map(g=>{
+          const c=BZ_ELEM_BG[BZ_GAN_ELEM[g]||'']||'#aaa';
+          return `<div style="font-size:10px;color:${c};line-height:1.6;">${sh(bzGetSS(g,p.dayGan))}</div>`;
+        }).join('');
+        body = `<div style="display:flex;align-items:baseline;justify-content:center;gap:1px;padding:2px 0 1px;">
+            <span style="font-size:20px;color:${gC};font-family:'Noto Serif SC',serif;line-height:1.1;">${gan}</span>
+            <span style="font-size:10px;color:${gC};">${gSS}</span>
+          </div>
+          <div style="display:flex;align-items:baseline;justify-content:center;gap:1px;padding:1px 0;">
+            <span style="font-size:20px;color:${zC};font-family:'Noto Serif SC',serif;line-height:1.1;">${zhi}</span>
+            <span style="font-size:10px;color:${zC};">${mainSS}</span>
+          </div>
+          <div style="text-align:center;padding:2px 0 3px;">${restRows}</div>`;
+      } else {
+        body = `<div style="font-size:11px;color:#ccc;padding:6px 0 2px;">小运</div>`;
+      }
+      return `<td style="padding:0;background:${bg};min-width:66px;width:66px;border-right:1px solid #f0ece4;vertical-align:top;${onclickStr?'cursor:pointer;':''}" ${onclickStr?`onclick="${onclickStr}"`:''}>
+        <div style="padding:6px 3px 2px;text-align:center;">${dot}
+          <div style="font-size:10px;color:#bbb;line-height:1.4;">${ageLabel}</div>
+          <div style="font-size:10px;color:#bbb;margin-bottom:2px;">${yr}</div>
+          ${body}
+        </div>
+      </td>`;
+    }
+
+    // ── 大运 table ──────────────────────────────────────────────────
+    const dyRow = document.getElementById('bzDyRow');
+    if (dyRow) {
+      const tds = daYun.map((dy,i) => {
+        const gz=dy.getGanZhi(), sa=dy.getStartAge(), sy=dy.getStartYear();
+        const isNow=sy<=now&&dy.getEndYear()>=now;
+        const ageLabel=gz?sa+'岁':'&lt;6';
+        return col(gz||null, ageLabel, sy, i===activeIdx, isNow, `bzRenderDaYun('${p.id}',${i})`);
+      }).join('');
+      dyRow.innerHTML=`<div class="bz-hscroll"><table style="border-collapse:collapse;white-space:nowrap;"><tr>${tds}</tr></table></div>`;
+    }
+
+    // ── 流年 table ──────────────────────────────────────────────────
+    const lnRow = document.getElementById('bzLnRow');
+    if (lnRow) {
+      try {
+        const liuNian = daYun[activeIdx].getLiuNian(10);
+        const tds = liuNian.map(ln => {
+          const gz=ln.getGanZhi(), yr=ln.getYear(), ag=ln.getAge();
+          return col(gz, ag+'岁', yr, false, yr===now, null);
+        }).join('');
+        lnRow.innerHTML=`<div class="bz-hscroll"><table style="border-collapse:collapse;white-space:nowrap;"><tr>${tds}</tr></table></div>`;
+      } catch(e){ lnRow.innerHTML=''; }
+    }
+
+  } catch(e){ console.warn('DaYun error:',e); }
+}
+
+</script>
+</body>
+</html>
