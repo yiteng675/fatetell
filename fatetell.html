@@ -1352,6 +1352,10 @@ const AI_WORKSPACE = 'fatetell';
 const AI_KEY = 'ft-28d35439bef90eefd615dcbed914457837243779b8716eee';
 const AI_SESSION = 'user-' + Math.random().toString(36).slice(2, 9);
 
+function needsBaziContext(msg) {
+  return /八字|命盘|命格|运势|流年|大运|四柱|我的命|我的运|感情|事业运|财运|婚姻|今年|明年|对我|我适合|我该|我会|我能|我的未来|我的性格|生辰|算命|命理/.test(msg);
+}
+
 function getBaziContext() {
   try {
     const profiles = JSON.parse(localStorage.getItem('bz_profiles') || '[]');
@@ -1361,7 +1365,7 @@ function getBaziContext() {
     const birthStr = `${p.year}年${p.month}月${p.day}日${p.hour != null ? p.hour + '时' : ''}`;
     const siZhu = `${p.yearGz}年 ${p.monthGz}月 ${p.dayGz}日 ${p.hourGz}时`;
     const loc = p.location ? `，出生地：${p.location}` : '';
-    return `[用户命盘信息]\n姓名：${p.name || '用户'} | 性别：${genderStr}\n出生：${birthStr}${loc}\n四柱八字：${siZhu}\n请结合以上命盘回答用户问题。\n\n`;
+    return `[用户命盘信息]\n姓名：${p.name || '用户'} | 性别：${genderStr}\n出生：${birthStr}${loc}\n四柱八字：${siZhu}\n请结合以上命盘回答以下问题。\n\n`;
   } catch(e) { return ''; }
 }
 
@@ -1374,7 +1378,7 @@ function acStripThink(text) {
 }
 
 async function acCallAIStream(userMsg, onChunk, onDone) {
-  const bzCtx = getBaziContext();
+  const bzCtx = needsBaziContext(userMsg) ? getBaziContext() : '';
   const fullMsg = bzCtx ? bzCtx + userMsg : userMsg;
   const res = await fetch(`${AI_BASE}/api/v1/workspace/${AI_WORKSPACE}/stream-chat`, {
     method: 'POST',
@@ -1441,14 +1445,27 @@ async function acRunStream(userMsg, streamIdx) {
         const final = acStripThink(accumulated) || '暂时无法解读，请稍后再试。';
         acMessages[streamIdx] = { role: 'ai', text: final, showAvatar: true };
         acUsed++;
-        acRender();
+        // 不调用 acRender() 避免 DOM 重建导致文字闪烁
+        // 只插入分享按钮（如果还没有）
+        const streamEl = document.getElementById('ac-streaming-content');
+        if (streamEl) {
+          streamEl.removeAttribute('id');
+          const block = streamEl.closest('.ac-ai-block');
+          if (block && !block.previousElementSibling?.classList.contains('ac-share-btn')) {
+            const shareBtn = document.createElement('div');
+            shareBtn.className = 'ac-share-btn';
+            shareBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>导出分享卡片`;
+            block.parentNode.insertBefore(shareBtn, block);
+          }
+        }
         acSaveCount();
       }
     );
   } catch(e) {
     finished = true;
     acMessages[streamIdx] = { role: 'ai', text: '连接失败，请检查网络后重试。', showAvatar: true };
-    acRender();
+    const streamEl = document.getElementById('ac-streaming-content');
+    if (streamEl) streamEl.innerHTML = `<p style="margin-bottom:12px;">连接失败，请检查网络后重试。</p>`;
   }
 }
 
