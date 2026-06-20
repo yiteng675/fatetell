@@ -601,7 +601,7 @@ body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;m
     <div class="nb" onclick="go(0)"><img src="bagua.svg" style="display:block;width:24px;height:24px;" alt="首页"/><span>首页</span></div>
     <div class="nb" onclick="go(3)"><svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><rect x="6" y="7.5" width="12" height="2" rx="1" fill="white"/><rect x="6" y="11" width="5" height="2" rx="1" fill="white"/><rect x="13" y="11" width="5" height="2" rx="1" fill="white"/><rect x="6" y="14.5" width="5" height="2" rx="1" fill="white"/><rect x="13" y="14.5" width="5" height="2" rx="1" fill="white"/></svg><span>64卦</span></div>
     <div class="nb-ai" onclick="openAiChat()"><div class="ai-bubble"><img src="qipaoAI.svg" style="display:block;width:42px;height:auto;" alt="AI"/></div></div>
-    <div class="nb" onclick="go(3)"><img src="yijingtubiao.svg" style="display:block;width:18px;height:20px;" alt="易经"/><span>易经</span></div>
+    <div class="nb" onclick="go(8)"><img src="yijingtubiao.svg" style="display:block;width:18px;height:20px;" alt="易经"/><span>易经</span></div>
     <div class="nb" onclick="go(4)"><svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><circle cx="12" cy="9" r="3.5" fill="white"/><path d="M5.5 20.5c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5" fill="white"/></svg><span>我的</span></div>
   </div>
 </div>
@@ -706,7 +706,7 @@ body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;m
     <div class="nb" onclick="go(0)"><img src="bagua.svg" style="display:block;width:24px;height:24px;" alt="首页"/><span>首页</span></div>
     <div class="nb" onclick="go(3)"><svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><rect x="6" y="7.5" width="12" height="2" rx="1" fill="white"/><rect x="6" y="11" width="5" height="2" rx="1" fill="white"/><rect x="13" y="11" width="5" height="2" rx="1" fill="white"/><rect x="6" y="14.5" width="5" height="2" rx="1" fill="white"/><rect x="13" y="14.5" width="5" height="2" rx="1" fill="white"/></svg><span>64卦</span></div>
     <div class="nb-ai" onclick="openAiChat()"><div class="ai-bubble"><img src="qipaoAI.svg" style="display:block;width:42px;height:auto;" alt="AI"/></div></div>
-    <div class="nb" onclick="go(3)"><img src="yijingtubiao.svg" style="display:block;width:18px;height:20px;" alt="易经"/><span>易经</span></div>
+    <div class="nb" onclick="go(8)"><img src="yijingtubiao.svg" style="display:block;width:18px;height:20px;" alt="易经"/><span>易经</span></div>
     <div class="nb" onclick="go(4)"><svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><circle cx="12" cy="9" r="3.5" fill="white"/><path d="M5.5 20.5c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5" fill="white"/></svg><span>我的</span></div>
   </div>
 </div>
@@ -739,7 +739,7 @@ body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;m
     <div class="nb" onclick="go(0)"><img src="bagua.svg" style="display:block;width:24px;height:24px;" alt="首页"/><span>首页</span></div>
     <div class="nb" onclick="go(3)"><svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><rect x="6" y="7.5" width="12" height="2" rx="1" fill="white"/><rect x="6" y="11" width="5" height="2" rx="1" fill="white"/><rect x="13" y="11" width="5" height="2" rx="1" fill="white"/><rect x="6" y="14.5" width="5" height="2" rx="1" fill="white"/><rect x="13" y="14.5" width="5" height="2" rx="1" fill="white"/></svg><span>64卦</span></div>
     <div class="nb-ai" onclick="openAiChat()"><div class="ai-bubble"><img src="qipaoAI.svg" style="display:block;width:42px;height:auto;" alt="AI"/></div></div>
-    <div class="nb" onclick="go(3)"><img src="yijingtubiao.svg" style="display:block;width:18px;height:20px;" alt="易经"/><span>易经</span></div>
+    <div class="nb" onclick="go(8)"><img src="yijingtubiao.svg" style="display:block;width:18px;height:20px;" alt="易经"/><span>易经</span></div>
     <div class="nb" onclick="go(4)"><svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><circle cx="12" cy="9" r="3.5" fill="white"/><path d="M5.5 20.5c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5" fill="white"/></svg><span>我的</span></div>
   </div>
 </div>
@@ -902,6 +902,98 @@ body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;m
 
 </div>
 
+<!-- ═══ SCREEN 8: 易经 阅读器 ═══ -->
+<div class="screen" id="yijingScreen" style="background:#fff;">
+
+  <!-- Header -->
+  <div style="height:50px;padding:0 12px;display:flex;align-items:center;gap:8px;background:#fff;border-bottom:1px solid #f0f0f0;flex-shrink:0;">
+    <div onclick="go(0)" style="cursor:pointer;width:32px;height:32px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </div>
+    <div id="yj-chapter-btn" onclick="yjToggleMenu()" style="flex:1;display:flex;align-items:center;gap:4px;cursor:pointer;padding:4px 6px;border-radius:8px;">
+      <span id="yj-chapter-title" style="font-size:16px;font-weight:600;color:#1a1a1a;font-family:'Noto Serif SC';">乾为天</span>
+      <svg id="yj-menu-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2.5" style="transition:transform .2s;"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div onclick="yjSearch()" style="width:34px;height:34px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+    </div>
+    <div onclick="yjSettings()" style="width:34px;height:34px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </div>
+  </div>
+
+  <!-- Chapter content -->
+  <div class="scroll" id="yj-content" style="flex:1;padding:24px 22px 20px;"></div>
+
+  <!-- Bottom nav bar -->
+  <div style="height:60px;flex-shrink:0;background:#fff;border-top:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;padding:0 28px;">
+    <div onclick="yjPrev()" id="yj-prev-btn" style="width:40px;height:40px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+    </div>
+    <div onclick="yjPlayAudio()" style="width:50px;height:50px;border-radius:50%;background:#b31a1a;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 14px rgba(179,26,26,.35);">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>
+    </div>
+    <div onclick="yjNext()" id="yj-next-btn" style="width:40px;height:40px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+  </div>
+
+</div>
+
+<!-- 章节下拉菜单 -->
+<div id="yj-menu" style="display:none;position:fixed;top:94px;left:50%;transform:translateX(-50%);width:370px;max-height:420px;background:#fff;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,.18);z-index:200;overflow:hidden;flex-direction:column;">
+  <div style="padding:10px 16px;border-bottom:1px solid #f0f0f0;display:flex;gap:0;">
+    <div onclick="yjMenuTab('book')" id="yj-tab-book" style="flex:1;text-align:center;padding:8px 0;font-size:14px;font-weight:600;color:#b31a1a;border-bottom:2px solid #b31a1a;cursor:pointer;">书卷</div>
+    <div onclick="yjMenuTab('chapter')" id="yj-tab-chapter" style="flex:1;text-align:center;padding:8px 0;font-size:14px;color:#999;border-bottom:2px solid transparent;cursor:pointer;">章节</div>
+    <div onclick="yjMenuTab('verse')" id="yj-tab-verse" style="flex:1;text-align:center;padding:8px 0;font-size:14px;color:#999;border-bottom:2px solid transparent;cursor:pointer;">节次</div>
+  </div>
+  <div id="yj-menu-body" class="scroll" style="flex:1;overflow-y:auto;padding:8px 0;max-height:340px;"></div>
+  <div style="padding:12px 16px;border-top:1px solid #f0f0f0;">
+    <button onclick="yjMenuConfirm()" style="width:100%;padding:12px;background:#b31a1a;color:#fff;border:none;border-radius:22px;font-size:15px;font-family:'Noto Serif SC';font-weight:600;cursor:pointer;">确定</button>
+  </div>
+</div>
+<div id="yj-menu-mask" onclick="yjCloseMenu()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:199;"></div>
+
+<!-- 语音播放弹窗 -->
+<div id="yj-audio-panel" style="display:none;position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:390px;background:#fff;border-radius:24px 24px 0 0;box-shadow:0 -8px 40px rgba(0,0,0,.15);z-index:300;padding-bottom:20px;">
+  <div style="width:40px;height:4px;background:#e0e0e0;border-radius:2px;margin:12px auto 0;"></div>
+  <!-- 插图 -->
+  <div style="display:flex;justify-content:center;padding:20px 0 10px;">
+    <div style="width:160px;height:160px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fff8f0,#f0e8d8);display:flex;align-items:center;justify-content:center;font-size:72px;font-family:'Noto Serif SC';" id="yj-audio-symbol">䷀</div>
+  </div>
+  <div style="text-align:center;font-size:18px;font-weight:600;font-family:'Noto Serif SC';color:#1a1a1a;margin-bottom:4px;" id="yj-audio-name">乾为天</div>
+  <div style="text-align:center;font-size:13px;color:#aaa;margin-bottom:20px;" id="yj-audio-sec">上经 · 第1卦</div>
+  <!-- 控制栏 -->
+  <div style="display:flex;justify-content:space-around;align-items:center;padding:0 30px;margin-bottom:16px;">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><line x1="4" y1="12" x2="4" y2="12"/><line x1="7" y1="8" x2="7" y2="16"/><line x1="10" y1="5" x2="10" y2="19"/><line x1="13" y1="8" x2="13" y2="16"/><line x1="16" y1="11" x2="16" y2="13"/><line x1="19" y1="12" x2="19" y2="12"/></svg>
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    <span style="font-size:14px;color:#888;font-weight:600;">1.0x</span>
+  </div>
+  <!-- 进度条 -->
+  <div style="padding:0 24px;margin-bottom:16px;">
+    <div style="position:relative;height:4px;background:#f0f0f0;border-radius:2px;">
+      <div id="yj-progress" style="width:5%;height:100%;background:#b31a1a;border-radius:2px;"></div>
+      <div id="yj-progress-dot" style="position:absolute;top:50%;left:5%;transform:translate(-50%,-50%);width:12px;height:12px;border-radius:50%;background:#b31a1a;"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:#aaa;margin-top:6px;">
+      <span>00:05</span><span id="yj-audio-total">04:43</span>
+    </div>
+  </div>
+  <!-- 播放控制 -->
+  <div style="display:flex;align-items:center;justify-content:center;gap:36px;padding:0 30px;">
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="#b31a1a"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5" stroke="#b31a1a" stroke-width="2"/></svg>
+    <div style="width:56px;height:56px;border-radius:50%;background:#b31a1a;display:flex;align-items:center;justify-content:center;cursor:pointer;" onclick="yjTogglePlay()">
+      <svg id="yj-play-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><line x1="10" y1="15" x2="10" y2="9"/><line x1="14" y1="15" x2="14" y2="9"/></svg>
+    </div>
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="#b31a1a"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19" stroke="#b31a1a" stroke-width="2"/></svg>
+  </div>
+  <!-- 关闭 -->
+  <div onclick="yjCloseAudio()" style="text-align:center;padding:20px 0 0;font-size:15px;color:#888;cursor:pointer;letter-spacing:.04em;">Close</div>
+</div>
+<div id="yj-audio-mask" onclick="yjCloseAudio()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:299;"></div>
+
 </div></div><!-- /slider -->
 
 <!-- BAZI OVERLAY -->
@@ -1061,6 +1153,7 @@ body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;m
 </div><!-- /phone -->
 
 <script src="hex_detail.js"></script>
+<script src="yijing-book/yijing_book.js"></script>
 <script src="lib/lunar.js"></script>
 <script>
 // ══════════════════════════════════════
@@ -1670,8 +1763,9 @@ function go(n) {
   document.getElementById('clock').style.color = '#1a1a1a';
   const detailBtn = document.getElementById('result-detail-btn');
   if (detailBtn) detailBtn.style.display = (n === 2) ? 'block' : 'none';
+  if (n === 8 && typeof YIJING_CHAPTERS !== 'undefined') yjRender();
   // .nb order: 0=首页, 1=64卦, 2=易经, 3=我的  (.nb-ai is separate)
-  const tabMap = [0, -1, -1, 1, 3, -1, 1, -1]; // screen index → .nb index; -1=none
+  const tabMap = [0, -1, -1, 1, 3, -1, 1, -1, 2]; // screen index → .nb index; -1=none
   const activeTab = tabMap[n] ?? -1;
   const aiActive = (n === 7);
   document.querySelectorAll('.nav').forEach(nav => {
@@ -2144,8 +2238,128 @@ function saveResult(hexNum) {
 
 
 // ══════════════════════════════════════════════════════════════════
-// BAZI 八字排盘  (requires lunar.js loaded first)
+// 易经阅读器
+// ══════════════════════════════════════════════════════════════════
+let yjCurrentId = 1;
+let yjMenuSelId = 1;
+let yjPlaying = false;
 
+function yjOpen(id) { yjCurrentId = id || 1; yjRender(); go(8); }
+
+function yjRender() {
+  const chapters = (typeof YIJING_CHAPTERS !== 'undefined') ? YIJING_CHAPTERS : [];
+  const ch = chapters.find(c => c.id === yjCurrentId);
+  if (!ch) return;
+  document.getElementById('yj-chapter-title').textContent = ch.fullName;
+  document.getElementById('yj-prev-btn').style.opacity = ch.id <= 1 ? '.3' : '1';
+  document.getElementById('yj-next-btn').style.opacity = ch.id >= 64 ? '.3' : '1';
+  const dd = (typeof HEX_DETAIL !== 'undefined' && HEX_DETAIL[ch.id]) ? HEX_DETAIL[ch.id] : null;
+  const fmt = t => t ? t.replace(/\n/g,'<br>') : '';
+  let html = `<div style="margin-bottom:28px;">
+    <div style="font-size:13px;color:#b31a1a;font-weight:600;margin-bottom:4px;letter-spacing:.05em;">${ch.section} · 第${ch.id}卦</div>
+    <div style="font-size:28px;font-weight:700;font-family:'Noto Serif SC';color:#1a1a1a;margin-bottom:4px;">${ch.fullName}</div>
+    <div style="font-size:14px;color:#aaa;font-family:'Noto Serif SC';">${ch.symbol}　${dd&&dd.guayu?dd.guayu:''}</div>
+  </div>`;
+  ch.verses.forEach(v => {
+    html += `<div style="margin-bottom:18px;display:flex;align-items:baseline;gap:12px;">
+      <span style="font-size:12px;color:#b31a1a;font-weight:600;font-family:'Noto Serif SC';flex-shrink:0;min-width:28px;">${v.label}</span>
+      <span style="font-size:18px;font-family:'Noto Serif SC';color:#1a1a1a;line-height:2.0;letter-spacing:.04em;">${v.text}</span>
+    </div>`;
+    if (dd) {
+      let bh = '';
+      if (v.num === 1) bh = dd.guaci_bh || '';
+      else if (v.num >= 2 && v.num <= 7) bh = (dd.yao[v.num-2]||{}).bh || '';
+      else if (v.num === 8) bh = dd.yongjiu_bh || '';
+      if (bh) html += `<div style="margin:-4px 0 22px 40px;padding:12px 14px;background:#fdf8f0;border-radius:10px;font-size:13px;color:#6a4a2a;line-height:1.9;font-family:'Noto Serif SC';">${fmt(bh)}</div>`;
+    }
+  });
+  document.getElementById('yj-content').innerHTML = html;
+  document.getElementById('yj-content').scrollTop = 0;
+}
+
+function yjPrev() { if (yjCurrentId <= 1) return; yjCurrentId--; yjRender(); }
+function yjNext() { if (yjCurrentId >= 64) return; yjCurrentId++; yjRender(); }
+
+function yjToggleMenu() {
+  const menu = document.getElementById('yj-menu');
+  const mask = document.getElementById('yj-menu-mask');
+  const arrow = document.getElementById('yj-menu-arrow');
+  const open = menu.style.display !== 'flex';
+  menu.style.display = open ? 'flex' : 'none';
+  mask.style.display = open ? 'block' : 'none';
+  arrow.style.transform = open ? 'rotate(180deg)' : '';
+  if (open) { yjMenuSelId = yjCurrentId; yjMenuTab('chapter'); }
+}
+
+function yjCloseMenu() {
+  document.getElementById('yj-menu').style.display = 'none';
+  document.getElementById('yj-menu-mask').style.display = 'none';
+  document.getElementById('yj-menu-arrow').style.transform = '';
+}
+
+function yjMenuTab(tab) {
+  ['book','chapter','verse'].forEach(t => {
+    const el = document.getElementById('yj-tab-'+t);
+    if (el) { el.style.color = t===tab?'#b31a1a':'#999'; el.style.borderBottomColor = t===tab?'#b31a1a':'transparent'; el.style.fontWeight = t===tab?'600':'400'; }
+  });
+  const body = document.getElementById('yj-menu-body');
+  const chapters = (typeof YIJING_CHAPTERS !== 'undefined') ? YIJING_CHAPTERS : [];
+  if (tab === 'book') {
+    body.innerHTML = ['上经（1–30卦）','下经（31–64卦）'].map((s,i)=>`
+      <div onclick="yjMenuSelBook(${i})" style="padding:16px 20px;font-size:15px;font-family:'Noto Serif SC';color:#1a1a1a;cursor:pointer;border-bottom:1px solid #f5f5f5;">${s}</div>`).join('');
+  } else if (tab === 'chapter') {
+    body.innerHTML = ['上经','下经'].map(sec => {
+      const list = chapters.filter(c=>c.section===sec);
+      return `<div style="padding:8px 16px 4px;font-size:11px;color:#b31a1a;font-weight:600;letter-spacing:.06em;">${sec}</div>` +
+        list.map(c=>`<div onclick="yjMenuSelChapter(${c.id})" style="padding:11px 20px;display:flex;align-items:center;gap:12px;cursor:pointer;${c.id===yjMenuSelId?'background:#fdf0f0;':''}">
+          <span style="font-size:11px;color:#ccc;width:18px;text-align:right;">${c.id}</span>
+          <span style="font-size:14px;font-family:'Noto Serif SC';color:${c.id===yjMenuSelId?'#b31a1a':'#1a1a1a'};">${c.fullName}</span>
+        </div>`).join('');
+    }).join('');
+    setTimeout(()=>{const el=body.querySelector('[style*="fdf0f0"]');if(el)el.scrollIntoView({block:'center'});},50);
+  } else {
+    const ch = chapters.find(c=>c.id===yjMenuSelId)||chapters[0];
+    body.innerHTML = ch ? ch.verses.map(v=>`
+      <div onclick="yjMenuConfirm()" style="padding:12px 20px;display:flex;gap:10px;cursor:pointer;">
+        <span style="font-size:12px;color:#b31a1a;width:32px;flex-shrink:0;font-weight:600;">${v.label}</span>
+        <span style="font-size:13px;color:#555;font-family:'Noto Serif SC';line-height:1.7;">${v.text}</span>
+      </div>`).join('') : '';
+  }
+}
+
+function yjMenuSelBook(i) { yjMenuSelId = i===0?1:31; yjMenuTab('chapter'); }
+function yjMenuSelChapter(id) { yjMenuSelId = id; yjMenuTab('chapter'); }
+function yjMenuConfirm() { yjCurrentId = yjMenuSelId; yjRender(); yjCloseMenu(); }
+
+function yjPlayAudio() {
+  const chapters = (typeof YIJING_CHAPTERS !== 'undefined') ? YIJING_CHAPTERS : [];
+  const ch = chapters.find(c=>c.id===yjCurrentId);
+  if (!ch) return;
+  document.getElementById('yj-audio-symbol').textContent = ch.symbol;
+  document.getElementById('yj-audio-name').textContent = ch.fullName;
+  document.getElementById('yj-audio-sec').textContent = `${ch.section} · 第${ch.id}卦`;
+  document.getElementById('yj-audio-panel').style.display = 'block';
+  document.getElementById('yj-audio-mask').style.display = 'block';
+  yjPlaying = true; yjUpdatePlayIcon();
+}
+
+function yjCloseAudio() {
+  document.getElementById('yj-audio-panel').style.display = 'none';
+  document.getElementById('yj-audio-mask').style.display = 'none';
+  yjPlaying = false;
+}
+
+function yjTogglePlay() { yjPlaying = !yjPlaying; yjUpdatePlayIcon(); }
+function yjUpdatePlayIcon() {
+  const icon = document.getElementById('yj-play-icon');
+  if (!icon) return;
+  icon.innerHTML = yjPlaying
+    ? '<line x1="10" y1="15" x2="10" y2="9"/><line x1="14" y1="15" x2="14" y2="9"/>'
+    : '<polygon points="5 3 19 12 5 21 5 3"/>';
+}
+
+function yjSearch() { alert('搜索功能即将上线'); }
+function yjSettings() { alert('设置功能即将上线'); }
 
 // ══════════════════════════════════════════════════════════════════
 // BAZI 八字排盘  (requires lunar.js loaded first)
