@@ -808,10 +808,9 @@ body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;m
   <!-- Scrollable body -->
   <div class="scroll" style="flex:1;">
 
-    <!-- 卡牌区：有图显示图片，无图显示占位卡 -->
-    <div style="background:#fff;padding:16px 16px 0;">
-      <img id="hd-card-img" src="" alt="" style="display:none;width:100%;border-radius:14px;object-fit:cover;"/>
-      <div id="hd-card" style="display:flex;width:150px;height:215px;border-radius:14px;background:linear-gradient(158deg,#f7f1e3,#ede2c4);box-shadow:0 8px 28px rgba(0,0,0,.14);border:1.5px solid rgba(200,170,100,.25);flex-direction:column;align-items:center;justify-content:space-between;padding:14px 12px;margin:0 auto 4px;">
+    <!-- 卡牌区 (API 接口预留, 后续接入64张牌图) -->
+    <div style="background:#fff;display:flex;justify-content:center;padding:20px 0 18px;">
+      <div id="hd-card" style="width:150px;height:215px;border-radius:14px;background:linear-gradient(158deg,#f7f1e3,#ede2c4);box-shadow:0 8px 28px rgba(0,0,0,.14);border:1.5px solid rgba(200,170,100,.25);display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:14px 12px;">
         <div id="hd-card-top" style="font-size:11px;color:#c47a2a;font-family:'Noto Serif SC';letter-spacing:.08em;"></div>
         <div id="hd-card-svg" style="display:flex;align-items:center;justify-content:center;"></div>
         <div id="hd-card-name" style="font-size:28px;font-family:'Noto Serif SC';color:#2a1a0a;font-weight:600;line-height:1;"></div>
@@ -819,34 +818,23 @@ body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;m
       </div>
     </div>
 
-    <!-- 互卦 错卦 综卦 变卦 -->
-    <div style="background:#fff;display:flex;justify-content:space-around;align-items:flex-start;padding:14px 12px 16px;border-top:1px solid #f0ede8;margin-top:14px;">
+    <!-- 互卦 错卦 综卦 -->
+    <div style="background:#fff;display:flex;justify-content:space-around;align-items:flex-start;padding:14px 20px 18px;border-top:1px solid #f0ede8;">
       <div id="hd-hu-wrap" class="hd-rel-wrap">
         <div class="hd-rel-circle"><div id="hd-hu-svg"></div></div>
-        <div id="hd-hu-name" style="font-size:12px;color:#333;font-family:'Noto Serif SC';font-weight:500;"></div>
+        <div id="hd-hu-name" style="font-size:13px;color:#333;font-family:'Noto Serif SC';font-weight:500;"></div>
         <div style="font-size:10px;color:#aaa;">互卦</div>
       </div>
       <div id="hd-cuo-wrap" class="hd-rel-wrap">
         <div class="hd-rel-circle"><div id="hd-cuo-svg"></div></div>
-        <div id="hd-cuo-name" style="font-size:12px;color:#333;font-family:'Noto Serif SC';font-weight:500;"></div>
+        <div id="hd-cuo-name" style="font-size:13px;color:#333;font-family:'Noto Serif SC';font-weight:500;"></div>
         <div style="font-size:10px;color:#aaa;">错卦</div>
       </div>
       <div id="hd-zong-wrap" class="hd-rel-wrap">
         <div class="hd-rel-circle"><div id="hd-zong-svg"></div></div>
-        <div id="hd-zong-name" style="font-size:12px;color:#333;font-family:'Noto Serif SC';font-weight:500;"></div>
+        <div id="hd-zong-name" style="font-size:13px;color:#333;font-family:'Noto Serif SC';font-weight:500;"></div>
         <div style="font-size:10px;color:#aaa;">综卦</div>
       </div>
-      <div id="hd-bian-wrap" class="hd-rel-wrap" style="display:none;">
-        <div class="hd-rel-circle"><div id="hd-bian-svg"></div></div>
-        <div id="hd-bian-name" style="font-size:12px;color:#b31a1a;font-family:'Noto Serif SC';font-weight:500;"></div>
-        <div style="font-size:10px;color:#b31a1a;">变卦</div>
-      </div>
-    </div>
-
-    <!-- 图解 (卡片下方直接展示) -->
-    <div id="hd-tujie-wrap" style="display:none;background:#fdf8f0;margin:0 14px 10px;border-radius:12px;padding:14px 14px;">
-      <div style="font-size:12px;color:#c47a2a;font-weight:600;font-family:'Noto Serif SC';margin-bottom:8px;">图解</div>
-      <div id="hd-tujie-text" style="font-family:'Noto Serif SC';font-size:13px;color:#4a3a2a;line-height:2;"></div>
     </div>
 
     <!-- Info bar -->
@@ -1341,7 +1329,7 @@ function hdSendAsk() {
   input.value = '';
 }
 
-function openHexDetail(n, throwYaos) {
+function openHexDetail(n) {
   if (!n || n < 1 || n > 64) return;
   hdCurrentN = n;
   hdBookmarked = false;
@@ -1357,39 +1345,13 @@ function openHexDetail(n, throwYaos) {
   // header title
   document.getElementById('hd-title').textContent = name;
 
-  // 从 HEX_DETAIL 取富文本数据
-  const dd = (typeof HEX_DETAIL !== 'undefined' && HEX_DETAIL[n]) ? HEX_DETAIL[n] : null;
-  const fmt = t => t ? t.replace(/\n/g,'<br>') : '';
+  // card
+  document.getElementById('hd-card-top').textContent = `第 ${n} 卦`;
+  document.getElementById('hd-card-svg').innerHTML = hdMiniSVG(n, 68, 100);
+  document.getElementById('hd-card-name').textContent = name;
+  document.getElementById('hd-card-full').textContent = fullName;
 
-  // 卡片区：有图显示图片，否则显示占位卡
-  const cardImg = document.getElementById('hd-card-img');
-  const cardDiv = document.getElementById('hd-card');
-  if (dd && dd.img) {
-    cardImg.src = dd.img;
-    cardImg.style.display = 'block';
-    cardDiv.style.display = 'none';
-  } else {
-    cardImg.style.display = 'none';
-    cardDiv.style.display = 'flex';
-    document.getElementById('hd-card-top').textContent = `第 ${n} 卦`;
-    document.getElementById('hd-card-svg').innerHTML = hdMiniSVG(n, 68, 100);
-    document.getElementById('hd-card-name').textContent = name;
-    const guayu = dd ? dd.guayu : '';
-    document.getElementById('hd-card-full').innerHTML =
-      guayu ? `<span style="font-size:11px;color:#8a7060;font-family:'Noto Serif SC';">${guayu}</span>` : fullName;
-  }
-
-  // 图解（卡片下方直接展示）
-  const tujie = dd ? dd.tujie : '';
-  const tujieWrap = document.getElementById('hd-tujie-wrap');
-  if (tujie) {
-    document.getElementById('hd-tujie-text').innerHTML = fmt(tujie);
-    tujieWrap.style.display = 'block';
-  } else {
-    tujieWrap.style.display = 'none';
-  }
-
-  // related hexagrams 互/错/综
+  // related hexagrams
   const huN = hdGetHuGua(n);
   const cuoN = hdGetCuoGua(n);
   const zongN = hdGetZongGua(n);
@@ -1399,18 +1361,6 @@ function openHexDetail(n, throwYaos) {
     document.getElementById(`hd-${type}-wrap`).onclick = () => openHexDetail(rn);
   });
 
-  // 变卦（仅有占卜结果时显示）
-  const bianWrap = document.getElementById('hd-bian-wrap');
-  const bianN = throwYaos ? getChangedHexNum(throwYaos) : null;
-  if (bianN) {
-    document.getElementById('hd-bian-svg').innerHTML = hdMiniSVG(bianN, 28, 42);
-    document.getElementById('hd-bian-name').textContent = HD[bianN][0];
-    bianWrap.onclick = () => openHexDetail(bianN);
-    bianWrap.style.display = 'flex';
-  } else {
-    bianWrap.style.display = 'none';
-  }
-
   // info bar
   document.getElementById('hd-info-bar').innerHTML =
     `<span style="font-size:15px;color:#aaa;font-weight:400;">${n}.</span>
@@ -1418,6 +1368,15 @@ function openHexDetail(n, throwYaos) {
      <strong style="font-size:18px;font-family:'Noto Serif SC';">${name}</strong>
      <span style="font-size:14px;color:#555;font-family:'Noto Serif SC';">${fullName}</span>
      <span style="font-size:12px;color:#aaa;font-family:'Noto Serif SC';">${TRIGRAM_NAMES[up]}上${TRIGRAM_NAMES[lo]}下</span>`;
+
+  // 从 HEX_DETAIL 取富文本数据（如未加载则降级）
+  const dd = (typeof HEX_DETAIL !== 'undefined' && HEX_DETAIL[n]) ? HEX_DETAIL[n] : null;
+  const fmt = t => t ? t.replace(/\n/g,'<br>') : '';
+
+  // 卡片副标题：卦语
+  const guayu = dd ? dd.guayu : '';
+  document.getElementById('hd-card-full').innerHTML =
+    guayu ? `<span style="font-size:11px;color:#8a7060;font-family:'Noto Serif SC';">${guayu}</span>` : fullName;
 
   // content
   let html = '';
@@ -1432,6 +1391,15 @@ function openHexDetail(n, throwYaos) {
     <div style="font-family:'Noto Serif SC';font-size:14px;color:#2a1a0a;line-height:2.1;letter-spacing:.04em;">${fmt(guaci)}</div>
     <div class="hd-baihuo" style="display:none;margin-top:10px;font-size:13px;color:#555;line-height:1.9;background:#fdf8f0;border-radius:8px;padding:10px 12px;">${fmt(guaci_bh)}</div>
   </div>`;
+
+  // 图解（象辞）
+  const tujie = dd ? dd.tujie : '';
+  if (tujie) {
+    html += `<div class="hd-section">
+      <div class="hd-sec-hd">图解</div>
+      <div style="font-family:'Noto Serif SC';font-size:13.5px;color:#444;line-height:2;">${fmt(tujie)}</div>
+    </div>`;
+  }
 
   // 六爻爻辞
   html += `<div class="hd-section"><div class="hd-sec-hd">六爻爻辞</div>`;
@@ -2184,8 +2152,7 @@ function showResult() {
           <div class="fbar" style="background:rgba(255,255,255,.08);"><div class="fbar-fill" style="width:${pct}%;"></div></div>
         </div>`).join('')}
     </div>
-    <button onclick="openHexDetail(${hexNum}, yaos)" class="btn-red" style="margin-bottom:10px;">查看详解</button>
-    <button onclick="saveResult(${hexNum})" id="saveBtn" style="width:100%;padding:13px;background:transparent;border:1px solid rgba(255,255,255,.25);border-radius:16px;color:#ccc;font-size:14px;cursor:pointer;margin-bottom:10px;">保存此卦</button>
+    <button onclick="saveResult(${hexNum})" id="saveBtn" class="btn-red" style="margin-bottom:10px;">保存此卦</button>
     <button onclick="go(0)" style="width:100%;padding:13px;background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:16px;color:#888;font-size:14px;cursor:pointer;margin-bottom:20px;">返回首页</button>
   `;
   go(2);
