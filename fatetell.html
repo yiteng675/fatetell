@@ -673,15 +673,19 @@ body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;m
 </div>
 
 <!-- ═══ SCREEN 2: RESULT ═══ -->
-<div class="screen" style="background:#0d0d1a;" id="resultScreen">
-  <div style="padding:8px 16px 0;display:flex;align-items:center;gap:12px;background:#0d0d1a;">
-    <div onclick="go(1)" style="cursor:pointer;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+<div class="screen" style="background:#f5f5f5;" id="resultScreen">
+  <div style="height:50px;padding:0 16px;display:flex;align-items:center;gap:12px;background:#fff;border-bottom:1px solid #f0f0f0;flex-shrink:0;">
+    <div onclick="go(1)" style="cursor:pointer;width:32px;height:32px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
     </div>
-    <div style="font-size:17px;font-weight:600;color:#e8dfc8;font-family:'Noto Serif SC';flex:1;text-align:center;">卦象解析</div>
+    <div style="font-size:17px;font-weight:600;color:#1a1a1a;font-family:'Noto Serif SC';flex:1;text-align:center;">卦象解析</div>
     <div style="width:32px;"></div>
   </div>
-  <div class="scroll" style="flex:1;background:#0d0d1a;padding:16px;" id="resultContent"></div>
+  <div class="scroll" style="flex:1;padding-bottom:80px;" id="resultContent"></div>
+  <!-- 详解 悬浮按钮 -->
+  <div id="result-detail-btn" style="display:none;position:absolute;bottom:0;left:0;right:0;padding:12px 20px 24px;background:linear-gradient(transparent,#f5f5f5 40%);pointer-events:none;">
+    <button id="result-detail-inner" onclick="" style="pointer-events:auto;width:100%;padding:15px;background:#b31a1a;color:#fff;border:none;border-radius:30px;font-size:16px;font-family:'Noto Serif SC';font-weight:600;letter-spacing:.1em;cursor:pointer;box-shadow:0 6px 20px rgba(179,26,26,.35);">详解</button>
+  </div>
 </div>
 
 <!-- ═══ SCREEN 3: 64卦 ═══ -->
@@ -2062,99 +2066,63 @@ function showResult() {
   const hexNum = getHexNum(yaos);
   const hd = HD[hexNum];
   const changedNum = getChangedHexNum(yaos);
-  const hasChanging = yaos.some(y=>y.value===6||y.value===9);
-  const changingYaos = yaos.map((y,i)=>({...y,idx:i})).filter(y=>y.value===6||y.value===9);
-  const lowerName = getTrigramName(yaos, false);
-  const upperName = getTrigramName(yaos, true);
-  const fortuneLabel = FORTUNE_LABELS[hd[2]];
-  const fortuneColor = FORTUNE_COLORS[hd[2]];
+  const dd = (typeof HEX_DETAIL !== 'undefined' && HEX_DETAIL[hexNum]) ? HEX_DETAIL[hexNum] : null;
+  const fmt = t => t ? t.replace(/\n/g,'<br>') : '';
 
-  const hexLinesHtml = [...yaos].reverse().map((y,ri)=>{
-    const idx = yaos.length-1-ri;
-    const isYang = y.value===7||y.value===9;
-    const isChanging = y.value===6||y.value===9;
-    const lineColor = isChanging?'#E84E0F':'#e8dfc8';
-    return `<div class="hex-line">
-      <span style="font-size:9px;color:#666;width:22px;text-align:right;flex-shrink:0;">${YAO_NAMES[idx]}</span>
-      <div style="flex:1;display:flex;align-items:center;gap:4px;position:relative;">
-        ${isYang?`<div class="hex-yang" style="background:${lineColor};"></div>`:`<div class="hex-yin-l" style="background:${lineColor};"></div><div class="hex-yin-r" style="background:${lineColor};"></div>`}
-        ${isChanging?`<div style="position:absolute;left:50%;transform:translateX(-50%);width:8px;height:8px;border-radius:50%;background:#E84E0F;border:1.5px solid #0d0d1a;"></div>`:''}
-      </div>
+  // 互/错/综/变 卦
+  const huN   = hdGetHuGua(hexNum);
+  const cuoN  = hdGetCuoGua(hexNum);
+  const zongN = hdGetZongGua(hexNum);
+
+  function relCard(rn, label, isRed) {
+    const clickable = rn && rn >= 1 && rn <= 64;
+    const nameColor = isRed ? '#b31a1a' : '#333';
+    const labelColor = isRed ? '#b31a1a' : '#aaa';
+    const svgHtml = clickable ? hdMiniSVG(rn, 28, 42) : '<div style="width:28px;height:42px;"></div>';
+    const nameHtml = clickable ? HD[rn][0] : '—';
+    return `<div onclick="${clickable ? `openHexDetail(${rn})` : ''}" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:${clickable?'pointer':'default'};">
+      <div style="width:56px;height:56px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;">${svgHtml}</div>
+      <div style="font-size:13px;color:${nameColor};font-family:'Noto Serif SC';font-weight:500;">${nameHtml}</div>
+      <div style="font-size:10px;color:${labelColor};">${label}</div>
     </div>`;
-  }).join('');
-
-  let changedHexSection = '';
-  if(hasChanging&&changedNum){
-    const changedHd = HD[changedNum];
-    const cArr = yaos.map(y=>({value:y.value===9?8:y.value===6?7:y.value,coins:y.coins}));
-    const changedLines = [...cArr].reverse().map((y,ri)=>{
-      const idx=cArr.length-1-ri;
-      const isYang=y.value===7||y.value===9;
-      return `<div class="hex-line"><span style="font-size:9px;color:#666;width:22px;text-align:right;flex-shrink:0;">${YAO_NAMES[idx]}</span><div style="flex:1;display:flex;align-items:center;gap:4px;">${isYang?`<div class="hex-yang" style="background:#e8dfc8;"></div>`:`<div class="hex-yin-l" style="background:#e8dfc8;"></div><div class="hex-yin-r" style="background:#e8dfc8;"></div>`}</div></div>`;
-    }).join('');
-    changedHexSection = `
-      <div style="display:flex;gap:12px;margin-bottom:14px;">
-        <div style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:14px;">
-          <div style="font-size:10px;color:#888;margin-bottom:8px;">本卦</div>${hexLinesHtml}
-          <div style="margin-top:8px;text-align:center;font-size:13px;color:#e8dfc8;font-family:'Noto Serif SC';">${hd[0]}卦</div>
-        </div>
-        <div style="display:flex;align-items:center;color:#E84E0F;font-size:18px;">→</div>
-        <div style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:14px;">
-          <div style="font-size:10px;color:#888;margin-bottom:8px;">之卦</div>${changedLines}
-          <div style="margin-top:8px;text-align:center;font-size:13px;color:#e8dfc8;font-family:'Noto Serif SC';">${changedHd[0]}卦</div>
-        </div>
-      </div>`;
-  } else {
-    changedHexSection = `
-      <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px;margin-bottom:14px;">
-        <div style="font-size:10px;color:#888;margin-bottom:10px;">本卦爻象</div>${hexLinesHtml}
-      </div>`;
   }
 
-  let changingSection = '';
-  if(changingYaos.length>0){
-    const comments = {0:'初爻动：万事初始，奠定根基，变动中需守正。',1:'二爻动：内外均衡，居中守正，变化渐显。',2:'三爻动：上下之间，危机潜伏，谨慎应对。',3:'四爻动：近君之位，行事须谨，变化有力。',4:'五爻动：主爻动变，核心转化，影响全局。',5:'上爻动：极而必变，物极必反，终局将现。'};
-    changingSection = `<div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px;margin-bottom:14px;"><div style="font-size:11px;color:#E84E0F;margin-bottom:10px;">动爻解析</div>${changingYaos.map(y=>`<div style="font-size:12px;color:#b0a890;line-height:1.8;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06);">${comments[y.idx]}</div>`).join('')}</div>`;
+  // 图片区
+  const imgSrc = dd && dd.img ? dd.img : '';
+  const imgHtml = imgSrc
+    ? `<img src="${imgSrc}" style="width:100%;display:block;" alt=""/>`
+    : `<div style="width:100%;aspect-ratio:3/4;background:linear-gradient(158deg,#f7f1e3,#ede2c4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;">
+        ${hdMiniSVG(hexNum, 60, 90)}
+        <div style="font-size:32px;font-family:'Noto Serif SC';color:#2a1a0a;font-weight:600;">${hd[0]}</div>
+        <div style="font-size:13px;color:#8a7060;font-family:'Noto Serif SC';">${dd&&dd.guayu?dd.guayu:''}</div>
+      </div>`;
+
+  // 图解
+  const tujie = dd ? dd.tujie : '';
+  const tujieHtml = tujie
+    ? `<div style="background:#fff;padding:16px 18px 20px;">
+        <div style="font-family:'Noto Serif SC';font-size:13.5px;color:#3a2a1a;line-height:2.1;">${fmt(tujie)}</div>
+      </div>`
+    : '';
+
+  document.getElementById('resultContent').innerHTML =
+    `<div style="background:#fff;margin-bottom:10px;">${imgHtml}</div>
+     <div style="background:#fff;display:flex;padding:16px 8px 18px;margin-bottom:10px;">
+       ${relCard(huN,  '互卦', false)}
+       ${relCard(cuoN, '错卦', false)}
+       ${relCard(zongN,'综卦', false)}
+       ${relCard(changedNum,'变卦', true)}
+     </div>
+     ${tujieHtml}`;
+
+  // 详解按钮
+  const btn = document.getElementById('result-detail-btn');
+  const inner = document.getElementById('result-detail-inner');
+  if (btn && inner) {
+    btn.style.display = 'block';
+    inner.onclick = () => openHexDetail(hexNum, yaos);
   }
 
-  document.getElementById('resultContent').innerHTML = `
-    <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;">
-      <div style="font-size:64px;color:#E84E0F;line-height:1;font-family:'Noto Serif SC';">${hd[0]}</div>
-      <div>
-        <div style="font-size:24px;font-weight:600;color:#e8dfc8;font-family:'Noto Serif SC';">${hd[0]}卦</div>
-        <div style="font-size:12px;color:#888;margin-top:4px;">${upperName}上 ${lowerName}下</div>
-        <div style="margin-top:6px;display:inline-block;padding:3px 12px;border-radius:20px;background:${fortuneColor}22;color:${fortuneColor};border:1px solid ${fortuneColor}44;font-size:12px;">${fortuneLabel}</div>
-      </div>
-    </div>
-    ${changedHexSection}
-    <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px;margin-bottom:14px;">
-      <div style="font-size:11px;color:#E84E0F;margin-bottom:8px;">卦辞</div>
-      <div style="font-size:13px;color:#b0a890;line-height:1.9;font-family:'Noto Serif SC';">${hd[1]}</div>
-    </div>
-    <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px;margin-bottom:14px;">
-      <div style="font-size:11px;color:#E84E0F;margin-bottom:10px;">卦象解读</div>
-      <div style="font-size:13px;color:#b0a890;line-height:2;">${hd[3]}</div>
-      ${question?`<div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06);font-size:12px;color:#888;">所问：${question}</div>`:''}
-    </div>
-    ${changingSection}
-    <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px;margin-bottom:14px;">
-      <div style="font-size:11px;color:#E84E0F;margin-bottom:8px;">行事建议</div>
-      <div style="font-size:13px;color:#b0a890;line-height:1.9;">${hd[4]}</div>
-    </div>
-    <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px;margin-bottom:20px;">
-      <div style="font-size:11px;color:#E84E0F;margin-bottom:14px;">各方面运势</div>
-      ${[['事业',hd[5]],['财运',hd[6]],['感情',hd[7]],['健康',hd[8]]].map(([label,pct])=>`
-        <div style="margin-bottom:12px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
-            <span style="font-size:12px;color:#888;">${label}</span>
-            <span style="font-size:12px;color:#E84E0F;">${pct}%</span>
-          </div>
-          <div class="fbar" style="background:rgba(255,255,255,.08);"><div class="fbar-fill" style="width:${pct}%;"></div></div>
-        </div>`).join('')}
-    </div>
-    <button onclick="saveResult(${hexNum})" id="saveBtn" class="btn-red" style="margin-bottom:10px;">保存此卦</button>
-    <button onclick="go(0)" style="width:100%;padding:13px;background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:16px;color:#888;font-size:14px;cursor:pointer;margin-bottom:20px;">返回首页</button>
-  `;
   go(2);
 }
 
