@@ -1308,6 +1308,10 @@ const AC_LIMIT = 1000;
 const AC_NAME = 'Phoebe';
 const AC_WELCOME = `你好，我是${AC_NAME}，你的易经AI解读师。\n\n你可以向我提问关于卦象的深层含义、生活建议，或直接描述你的困惑，我会结合卦象为你解读。`;
 
+function acFmt(text) {
+  return text.replace(/\n\n/g,'</p><p style="margin-bottom:12px;">').replace(/\n/g,'<br>');
+}
+
 function acRender() {
   const body = document.getElementById('ac-body');
   if (!body) return;
@@ -1316,7 +1320,7 @@ function acRender() {
     if (msg.role === 'user') {
       html += `<div class="ac-user"><div class="ac-user-bubble">${msg.text}</div></div>`;
     } else {
-      const showShare = idx > 0 && acMessages[idx-1] && acMessages[idx-1].role === 'user';
+      const showShare = !msg.streaming && idx > 0 && acMessages[idx-1]?.role === 'user';
       if (showShare) {
         html += `<div class="ac-share-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>导出分享卡片</div>`;
       }
@@ -1324,8 +1328,15 @@ function acRender() {
       if (msg.showAvatar !== false) {
         html += `<div class="ac-ai-hd"><div class="ac-ai-avatar">福</div><span class="ac-ai-nm">${AC_NAME}</span></div>`;
       }
-      const formatted = msg.text.replace(/\n\n/g,'</p><p style="margin-bottom:12px;">').replace(/\n/g,'<br>');
-      html += `<div class="ac-ai-cont"><p style="margin-bottom:12px;">${formatted}</p></div>`;
+      if (msg.streaming) {
+        html += `<div class="ac-ai-cont" id="ac-streaming-content">`;
+        html += msg.text
+          ? `<p style="margin-bottom:12px;">${acFmt(msg.text)}</p>`
+          : `<span id="ac-loading-text" style="color:#999;font-style:italic;letter-spacing:.08em;"></span>`;
+        html += `</div>`;
+      } else {
+        html += `<div class="ac-ai-cont"><p style="margin-bottom:12px;">${acFmt(msg.text)}</p></div>`;
+      }
       html += `</div>`;
     }
   });
@@ -1354,21 +1365,91 @@ function getBaziContext() {
   } catch(e) { return ''; }
 }
 
-async function acCallAI(userMsg) {
+function acStripThink(text) {
+  // Remove complete <think>...</think> blocks
+  const stripped = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+  // Still inside think block (no closing tag yet) → nothing to show
+  if (!stripped && /<think>/.test(text) && !/<\/think>/.test(text)) return '';
+  return stripped;
+}
+
+async function acCallAIStream(userMsg, onChunk, onDone) {
   const bzCtx = getBaziContext();
   const fullMsg = bzCtx ? bzCtx + userMsg : userMsg;
-  const res = await fetch(`${AI_BASE}/api/v1/workspace/${AI_WORKSPACE}/chat`, {
+  const res = await fetch(`${AI_BASE}/api/v1/workspace/${AI_WORKSPACE}/stream-chat`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${AI_KEY}`
-    },
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${AI_KEY}` },
     body: JSON.stringify({ message: fullMsg, mode: 'chat', sessionId: AI_SESSION })
   });
   if (!res.ok) throw new Error('API error ' + res.status);
-  const data = await res.json();
-  const raw = data.textResponse || '暂时无法解读，请稍后再试。';
-  return raw.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buf = '';
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += decoder.decode(value, { stream: true });
+    const lines = buf.split('\n');
+    buf = lines.pop() || '';
+    for (const line of lines) {
+      if (!line.startsWith('data: ')) continue;
+      try {
+        const d = JSON.parse(line.slice(6));
+        if (d.textResponse) onChunk(d.textResponse);
+        if (d.close) onDone();
+      } catch(e) {}
+    }
+  }
+}
+
+async function acRunStream(userMsg, streamIdx) {
+  const LOADING = '屏气凝神，结果已定。';
+  let accumulated = '';
+  let actualStarted = false;
+  let finished = false;
+
+  // Loading text typewriter loop
+  (async () => {
+    let i = 0;
+    while (!actualStarted && !finished) {
+      const el = document.getElementById('ac-loading-text');
+      if (el) el.textContent = LOADING.slice(0, i % (LOADING.length + 1));
+      i++;
+      await new Promise(r => setTimeout(r, i % (LOADING.length + 1) === 0 ? 600 : 110));
+    }
+  })();
+
+  try {
+    await acCallAIStream(
+      userMsg,
+      (chunk) => {
+        accumulated += chunk;
+        const visible = acStripThink(accumulated);
+        if (!visible) return;
+        actualStarted = true;
+        acMessages[streamIdx] = { role: 'ai', text: visible, showAvatar: true, streaming: true };
+        const el = document.getElementById('ac-streaming-content');
+        if (el) {
+          el.innerHTML = `<p style="margin-bottom:12px;">${acFmt(visible)}</p>`;
+          const body = document.getElementById('ac-body');
+          if (body) body.scrollTop = body.scrollHeight;
+        }
+      },
+      () => {
+        finished = true;
+        actualStarted = true;
+        const final = acStripThink(accumulated) || '暂时无法解读，请稍后再试。';
+        acMessages[streamIdx] = { role: 'ai', text: final, showAvatar: true };
+        acUsed++;
+        acRender();
+        acSaveCount();
+      }
+    );
+  } catch(e) {
+    finished = true;
+    acMessages[streamIdx] = { role: 'ai', text: '连接失败，请检查网络后重试。', showAvatar: true };
+    acRender();
+  }
 }
 
 async function acSend() {
@@ -1379,39 +1460,25 @@ async function acSend() {
   if (acUsed >= AC_LIMIT) { alert('今日解读次数已用完，明日再来'); return; }
   inp.value = '';
   acMessages.push({ role: 'user', text });
-  acMessages.push({ role: 'ai', text: '卜算中，请稍候…', showAvatar: true, loading: true });
+  const streamIdx = acMessages.length;
+  acMessages.push({ role: 'ai', text: '', showAvatar: true, streaming: true });
   acRender();
-  try {
-    const reply = await acCallAI(text);
-    acUsed++;
-    acMessages[acMessages.length - 1] = { role: 'ai', text: reply, showAvatar: true };
-  } catch (e) {
-    acMessages[acMessages.length - 1] = { role: 'ai', text: '连接失败，请检查网络后重试。', showAvatar: true };
-  }
-  acRender();
-  acSaveCount();
+  acRunStream(text, streamIdx);
 }
 
 async function openAiChat(initMsg) {
   if (acMessages.length === 0) {
     acMessages = [{ role: 'ai', text: AC_WELCOME, showAvatar: true }];
   }
+  go(7);
   if (initMsg) {
     acMessages.push({ role: 'user', text: initMsg });
-    acMessages.push({ role: 'ai', text: '卜算中，请稍候…', showAvatar: true, loading: true });
-  }
-  go(7);
-  setTimeout(acRender, 50);
-  if (initMsg) {
-    try {
-      const reply = await acCallAI(initMsg);
-      acUsed++;
-      acMessages[acMessages.length - 1] = { role: 'ai', text: reply, showAvatar: true };
-    } catch (e) {
-      acMessages[acMessages.length - 1] = { role: 'ai', text: '连接失败，请检查网络后重试。', showAvatar: true };
-    }
-    acRender();
-    acSaveCount();
+    const streamIdx = acMessages.length;
+    acMessages.push({ role: 'ai', text: '', showAvatar: true, streaming: true });
+    setTimeout(acRender, 50);
+    setTimeout(() => acRunStream(initMsg, streamIdx), 80);
+  } else {
+    setTimeout(acRender, 50);
   }
 }
 
