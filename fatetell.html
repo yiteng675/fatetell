@@ -1341,7 +1341,7 @@ function acRender() {
     }
   });
   body.innerHTML = html;
-  body.scrollTop = body.scrollHeight;
+  acAutoScroll();
   const ct = document.getElementById('ac-used');
   if (ct) ct.textContent = acUsed;
 }
@@ -1371,10 +1371,19 @@ function getBaziContext() {
 
 function acStripThink(text) {
   // Remove complete <think>...</think> blocks
-  const stripped = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
-  // Still inside think block (no closing tag yet) → nothing to show
-  if (!stripped && /<think>/.test(text) && !/<\/think>/.test(text)) return '';
-  return stripped;
+  let result = text.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+  // Still inside an unclosed think block → show nothing
+  if (/<think>/i.test(text) && !/<\/think>/i.test(text)) return '';
+  // If result still starts with leftover think fragment, hide it
+  if (/^<think>/i.test(result)) return '';
+  return result;
+}
+
+function acAutoScroll() {
+  const body = document.getElementById('ac-body');
+  if (!body) return;
+  const nearBottom = body.scrollHeight - body.scrollTop - body.clientHeight < 80;
+  if (nearBottom) body.scrollTop = body.scrollHeight;
 }
 
 async function acCallAIStream(userMsg, onChunk, onDone) {
@@ -1435,8 +1444,7 @@ async function acRunStream(userMsg, streamIdx) {
         const el = document.getElementById('ac-streaming-content');
         if (el) {
           el.innerHTML = `<p style="margin-bottom:12px;">${acFmt(visible)}</p>`;
-          const body = document.getElementById('ac-body');
-          if (body) body.scrollTop = body.scrollHeight;
+          acAutoScroll();
         }
       },
       () => {
