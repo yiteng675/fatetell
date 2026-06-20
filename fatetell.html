@@ -673,7 +673,7 @@ body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;m
 </div>
 
 <!-- ═══ SCREEN 2: RESULT ═══ -->
-<div class="screen" style="background:#f5f5f5;" id="resultScreen">
+<div class="screen" style="background:#f5f5f5;position:relative;" id="resultScreen">
   <div style="height:50px;padding:0 16px;display:flex;align-items:center;gap:12px;background:#fff;border-bottom:1px solid #f0f0f0;flex-shrink:0;">
     <div onclick="go(1)" style="cursor:pointer;width:32px;height:32px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
@@ -681,10 +681,16 @@ body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;m
     <div style="font-size:17px;font-weight:600;color:#1a1a1a;font-family:'Noto Serif SC';flex:1;text-align:center;">卦象解析</div>
     <div style="width:32px;"></div>
   </div>
-  <div class="scroll" style="flex:1;padding-bottom:80px;" id="resultContent"></div>
+  <div class="scroll" style="flex:1;padding-bottom:90px;" id="resultContent"></div>
   <!-- 详解 悬浮按钮 -->
-  <div id="result-detail-btn" style="display:none;position:absolute;bottom:0;left:0;right:0;padding:12px 20px 24px;background:linear-gradient(transparent,#f5f5f5 40%);pointer-events:none;">
-    <button id="result-detail-inner" onclick="" style="pointer-events:auto;width:100%;padding:15px;background:#b31a1a;color:#fff;border:none;border-radius:30px;font-size:16px;font-family:'Noto Serif SC';font-weight:600;letter-spacing:.1em;cursor:pointer;box-shadow:0 6px 20px rgba(179,26,26,.35);">详解</button>
+  <div id="result-detail-btn" style="display:none;position:absolute;bottom:0;left:0;right:0;padding:12px 20px 28px;pointer-events:none;">
+    <div id="result-detail-inner" onclick="" style="pointer-events:auto;cursor:pointer;display:flex;justify-content:center;"
+      onmousedown="this.querySelector('img').src='btn/xiangjie-btn2.svg'"
+      onmouseup="this.querySelector('img').src='btn/xiangjie-btn.svg'"
+      ontouchstart="this.querySelector('img').src='btn/xiangjie-btn2.svg'"
+      ontouchend="this.querySelector('img').src='btn/xiangjie-btn.svg'">
+      <img src="btn/xiangjie-btn.svg" style="width:200px;display:block;" alt="详解"/>
+    </div>
   </div>
 </div>
 
@@ -1660,9 +1666,11 @@ setTimeout(() => go(0), 0);
 function go(n) {
   curScreen = n;
   document.getElementById('slider').style.transform = `translateX(-${n*390}px)`;
-  const dark = n === 2;
-  document.getElementById('sb').style.background = dark ? '#0d0d1a' : '#fff';
-  document.getElementById('clock').style.color = dark ? '#e8dfc8' : '#1a1a1a';
+  const dark = false;
+  document.getElementById('sb').style.background = '#fff';
+  document.getElementById('clock').style.color = '#1a1a1a';
+  const detailBtn = document.getElementById('result-detail-btn');
+  if (detailBtn) detailBtn.style.display = (n === 2) ? 'block' : 'none';
   // .nb order: 0=首页, 1=64卦, 2=易经, 3=我的  (.nb-ai is separate)
   const tabMap = [0, -1, -1, 1, 3, -1, 1, -1]; // screen index → .nb index; -1=none
   const activeTab = tabMap[n] ?? -1;
