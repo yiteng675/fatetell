@@ -1304,7 +1304,7 @@ function renderHexGrid() {
 // ══════════════════════════════════════
 let acMessages = [];
 let acUsed = 0;
-const AC_LIMIT = 2;
+const AC_LIMIT = 1000;
 const AC_NAME = 'Phoebe';
 const AC_WELCOME = `你好，我是${AC_NAME}，你的易经AI解读师。\n\n你可以向我提问关于卦象的深层含义、生活建议，或直接描述你的困惑，我会结合卦象为你解读。`;
 
@@ -1341,14 +1341,29 @@ const AI_WORKSPACE = 'fatetell';
 const AI_KEY = 'ft-28d35439bef90eefd615dcbed914457837243779b8716eee';
 const AI_SESSION = 'user-' + Math.random().toString(36).slice(2, 9);
 
+function getBaziContext() {
+  try {
+    const profiles = JSON.parse(localStorage.getItem('bz_profiles') || '[]');
+    if (!profiles.length) return '';
+    const p = profiles[0];
+    const genderStr = p.gender === 'M' ? '男' : '女';
+    const birthStr = `${p.year}年${p.month}月${p.day}日${p.hour != null ? p.hour + '时' : ''}`;
+    const siZhu = `${p.yearGz}年 ${p.monthGz}月 ${p.dayGz}日 ${p.hourGz}时`;
+    const loc = p.location ? `，出生地：${p.location}` : '';
+    return `[用户命盘信息]\n姓名：${p.name || '用户'} | 性别：${genderStr}\n出生：${birthStr}${loc}\n四柱八字：${siZhu}\n请结合以上命盘回答用户问题。\n\n`;
+  } catch(e) { return ''; }
+}
+
 async function acCallAI(userMsg) {
+  const bzCtx = getBaziContext();
+  const fullMsg = bzCtx ? bzCtx + userMsg : userMsg;
   const res = await fetch(`${AI_BASE}/api/v1/workspace/${AI_WORKSPACE}/chat`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${AI_KEY}`
     },
-    body: JSON.stringify({ message: userMsg, mode: 'chat', sessionId: AI_SESSION })
+    body: JSON.stringify({ message: fullMsg, mode: 'chat', sessionId: AI_SESSION })
   });
   if (!res.ok) throw new Error('API error ' + res.status);
   const data = await res.json();
