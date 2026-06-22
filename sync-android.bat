@@ -22,6 +22,7 @@ xcopy /Y /E /Q "%SRC%\zhanbuyemian\*" "%WWW%\zhanbuyemian\" >nul 2>&1
 xcopy /Y /E /Q "%SRC%\lib\*"          "%WWW%\lib\"          >nul 2>&1
 xcopy /Y /E /Q "%SRC%\yijing-book\*"  "%WWW%\yijing-book\"  >nul 2>&1
 xcopy /Y /E /Q "%SRC%\wu-tu\*"        "%WWW%\wu-tu\"        >nul 2>&1
+xcopy /Y /E /Q "%SRC%\12shengxiao\*"  "%WWW%\12shengxiao\"  >nul 2>&1
 
 copy /Y "%SRC%\*.svg" "%WWW%\" >nul 2>&1
 copy /Y "%SRC%\*.png" "%WWW%\" >nul 2>&1
