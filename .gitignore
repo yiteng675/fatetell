@@ -5,3 +5,5 @@ __pycache__/
 figma_*.json
 tmp_script_*.js
 test_url.txt
+server/node_modules/
+server/.env
