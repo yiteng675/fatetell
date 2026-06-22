@@ -2381,17 +2381,6 @@ window.addEventListener('load',()=>{
   const dateEl = document.getElementById('dateText'); if (dateEl) dateEl.textContent = ds;
 })();
 
-// Capacitor 原生 App 检测：隐藏假状态栏，全屏布局，屏幕适配
-(function detectNative() {
-  if (!window.Capacitor) return;
-  // 把 viewport width 固定为设计基准 390px，WebView 自动等比缩放适配所有屏幕
-  const vp = document.querySelector('meta[name=viewport]');
-  if (vp) vp.content = 'width=390,initial-scale=1,minimum-scale=1,viewport-fit=cover';
-  window._appW = 390;
-  document.body.classList.add('native-mode');
-  const sb = document.getElementById('sb');
-  if (sb) sb.style.display = 'none';
-})();
 
 // Init active tab on first load
 setTimeout(() => { go(0); authUpdateHomeBtn(); }, 0);
