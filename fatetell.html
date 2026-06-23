@@ -15,10 +15,11 @@ body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;m
 .slider-inner{display:flex;height:100%;transition:transform .4s cubic-bezier(.4,0,.2,1)}
 .screen{width:390px;flex-shrink:0;height:100%;display:flex;flex-direction:column;overflow:hidden;background:#fff}
 /* Capacitor 原生 App 全屏模式 */
-body.native-mode{background:#fff;align-items:flex-start;justify-content:flex-start;min-height:100dvh;}
-body.native-mode .phone{width:100vw !important;height:100dvh !important;box-shadow:none !important;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
+body.native-mode{background:#fff;display:block;overflow:hidden;}
+body.native-mode .phone{width:100vw !important;height:100dvh !important;height:100vh !important;box-shadow:none !important;border-radius:0 !important;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
 body.native-mode .screen{width:100vw !important;}
-body.native-mode .slider-inner{transition:none !important;}
+html,body{overscroll-behavior:none}
+.scroll{overscroll-behavior-y:contain}
 /* 子页面进入/退出动画 */
 @keyframes pg-zoom-in{from{transform:scale(.93);opacity:0}to{transform:scale(1);opacity:1}}
 @keyframes pg-zoom-out{from{transform:scale(1);opacity:1}to{transform:scale(.93);opacity:0}}
@@ -2373,6 +2374,24 @@ window.addEventListener('load',()=>{
   const dateEl = document.getElementById('dateText'); if (dateEl) dateEl.textContent = ds;
 })();
 
+
+// Capacitor 原生 App 检测：全屏适配
+(function detectNative() {
+  if (!window.Capacitor) return;
+  const vp = document.querySelector('meta[name=viewport]');
+  if (vp) vp.content = 'width=device-width,initial-scale=1,viewport-fit=cover';
+  document.body.classList.add('native-mode');
+  window._appW = window.innerWidth;
+  window.addEventListener('resize', () => {
+    window._appW = window.innerWidth;
+    const slider = document.getElementById('slider');
+    if (slider && typeof curScreen !== 'undefined') {
+      slider.style.transition = 'none';
+      slider.style.transform = `translateX(${-curScreen * window._appW}px)`;
+      requestAnimationFrame(() => { slider.style.transition = ''; });
+    }
+  });
+})();
 
 // Init active tab on first load
 setTimeout(() => { go(0); authUpdateHomeBtn(); }, 0);
