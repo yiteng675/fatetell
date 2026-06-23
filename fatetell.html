@@ -4728,8 +4728,11 @@ function bzRenderDetail(p) {
   try {
     const yun = ec.getYun(p.gender==='male'?1:0);
     const sy  = yun.getStartSolar();
-    const startAge = sy.getYear() - p.year + 1;
-    yunStartInfo = `${startAge}岁起运 (${sy.getYear()}年)`;
+    const _bd = new Date(p.year,(p.month||1)-1,p.day||1);
+    const _sd = new Date(sy.getYear(),sy.getMonth()-1,sy.getDay());
+    const _ay = (_sd-_bd)/86400000/365.25;
+    const _as = _ay<1 ? Math.round(_ay*12)+'月' : _ay.toFixed(1)+'岁';
+    yunStartInfo = `${_as}起运（${sy.getYear()}年）`;
   } catch(e) { yunStartInfo = ''; }
 
   // Location note for header
@@ -4987,8 +4990,10 @@ function bzRenderDaYun(pOrId, activeIdx) {
     if (startEl) {
       try {
         const ss = yun.getStartSolar();
-        const totalM = (ss.getYear()-p.year)*12+(ss.getMonth()-(p.month||1));
-        const ageStr = totalM<12 ? totalM+'月' : (totalM/12).toFixed(1)+'岁';
+        const _bd2 = new Date(p.year,(p.month||1)-1,p.day||1);
+        const _sd2 = new Date(ss.getYear(),ss.getMonth()-1,ss.getDay());
+        const _ay2 = (_sd2-_bd2)/86400000/365.25;
+        const ageStr = _ay2<1 ? Math.round(_ay2*12)+'月' : _ay2.toFixed(1)+'岁';
         startEl.textContent = `${ss.getYear()}年${ss.getMonth()}月${String(ss.getDay()).padStart(2,'0')}日（${ageStr}起运）`;
       } catch(e){}
     }
