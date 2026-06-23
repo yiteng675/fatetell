@@ -2350,7 +2350,7 @@ window.addEventListener('load',()=>{
 (function(){
   const now = new Date();
   const h = now.getHours(), m = now.getMinutes();
-  document.getElementById('clock').textContent = `${h}:${m<10?'0'+m:m}`;
+  const clockEl = document.getElementById('clock'); if (clockEl) clockEl.textContent = `${h}:${m<10?'0'+m:m}`;
   const days = ['日','一','二','三','四','五','六'];
   const ds = `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日 星期${days[now.getDay()]}`;
   document.getElementById('fullDate').textContent = ds;
@@ -2418,8 +2418,8 @@ function go(n) {
 }
 
 function _goUI(n) {
-  document.getElementById('sb').style.background = '#fff';
-  document.getElementById('clock').style.color = '#1a1a1a';
+  const sbEl = document.getElementById('sb'); if (sbEl) sbEl.style.background = '#fff';
+  const ckEl = document.getElementById('clock'); if (ckEl) ckEl.style.color = '#1a1a1a';
   const detailBtn = document.getElementById('result-detail-btn');
   if (detailBtn) detailBtn.style.display = (n === 2) ? 'block' : 'none';
   if (n === 8 && typeof YIJING_CHAPTERS !== 'undefined') yjRender();
