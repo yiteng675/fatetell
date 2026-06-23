@@ -5061,6 +5061,7 @@ function bzRenderDaYun(pOrId, activeIdx) {
     // ── 大运 table ──────────────────────────────────────────────────
     const dyRow = document.getElementById('bzDyRow');
     if (dyRow) {
+      const prevScroll = dyRow.querySelector('.bz-hscroll')?.scrollLeft || 0;
       const tds = daYun.map((dy,i) => {
         const gz=dy.getGanZhi(), sa=dy.getStartAge(), sy=dy.getStartYear();
         const isNow=sy<=now&&dy.getEndYear()>=now;
@@ -5068,6 +5069,7 @@ function bzRenderDaYun(pOrId, activeIdx) {
         return col(gz||null, ageLabel, sy, i===activeIdx, isNow, `bzRenderDaYun('${p.id}',${i})`);
       }).join('');
       dyRow.innerHTML=`<div class="bz-hscroll"><table style="border-collapse:collapse;white-space:nowrap;"><tr>${tds}</tr></table></div>`;
+      if (prevScroll) dyRow.querySelector('.bz-hscroll').scrollLeft = prevScroll;
     }
 
     // ── 流年 table ──────────────────────────────────────────────────
