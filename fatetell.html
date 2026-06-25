@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover"/>
 <meta name="theme-color" content="#ffffff"/>
 <title>FateTell · 命理</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600&family=Noto+Sans+SC:wght@300;400;500&family=Saira+Stencil+One&family=Salsa&family=Zen+Dots&family=Signika+SC:wght@400&display=swap"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Stencil+One&family=Salsa&family=Zen+Dots&family=Signika+SC:wght@400&display=swap"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;min-height:100vh;font-family:'Noto Sans SC',sans-serif}
+body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;min-height:100vh;font-family:'Microsoft YaHei',sans-serif}
 .phone{width:390px;height:844px;background:#fff;border-radius:0;overflow:hidden;position:relative;box-shadow:0 40px 100px rgba(0,0,0,.8);display:flex;flex-direction:column}
 .status-bar{height:44px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 22px;z-index:20}
 .slider{flex:1;overflow:hidden;display:flex}
@@ -18,6 +18,12 @@ body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;m
 body.native-mode{background:#fff;display:block;overflow:hidden;}
 body.native-mode .phone{width:100vw !important;height:100dvh !important;height:100vh !important;box-shadow:none !important;border-radius:0 !important;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
 body.native-mode .screen{width:100vw !important;}
+/* 手机浏览器自适应 */
+@media (max-width:600px){
+  body{background:#fff;display:block;overflow:hidden;}
+  .phone{width:100vw !important;height:100dvh !important;height:100vh !important;box-shadow:none !important;border-radius:0 !important;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
+  .screen{width:100vw !important;}
+}
 html,body{overscroll-behavior:none}
 .scroll{overscroll-behavior-y:contain}
 /* 子页面进入/退出动画 */
@@ -46,11 +52,11 @@ html,body{overscroll-behavior:none}
 /* 问卦入口页 */
 .wg-sphere{width:88px;height:88px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#5a5a5a,#1e1e1e);box-shadow:0 10px 40px rgba(0,0,0,.28),inset 0 -6px 16px rgba(0,0,0,.4);animation:wg-breathe 3.5s ease-in-out infinite;margin-top:10px;flex-shrink:0}
 @keyframes wg-breathe{0%,100%{transform:scale(1);box-shadow:0 10px 40px rgba(0,0,0,.28),inset 0 -6px 16px rgba(0,0,0,.4)}50%{transform:scale(1.07);box-shadow:0 18px 58px rgba(0,0,0,.34),inset 0 -6px 16px rgba(0,0,0,.4)}}
-.wg-chip{background:#fff;border-radius:20px;padding:7px 15px;font-size:12.5px;color:#555;cursor:pointer;border:1px solid rgba(0,0,0,.07);font-family:'Noto Serif SC',serif;user-select:none}
+.wg-chip{background:#fff;border-radius:20px;padding:7px 15px;font-size:12.5px;color:#555;cursor:pointer;border:1px solid rgba(0,0,0,.07);font-family:'Microsoft YaHei',serif;user-select:none}
 .wg-chip:active{background:#f2f2f2}
-.wg-btn-r{background:#b31a1a;color:#fff;text-align:center;padding:10px 16px;border-radius:30px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Noto Serif SC',serif;user-select:none;letter-spacing:.06em}
+.wg-btn-r{background:#b31a1a;color:#fff;text-align:center;padding:10px 16px;border-radius:30px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Microsoft YaHei',serif;user-select:none;letter-spacing:.06em}
 .wg-btn-r:active{opacity:.88}
-.wg-btn-d{background:#333;color:#fff;text-align:center;padding:10px 16px;border-radius:30px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Noto Serif SC',serif;user-select:none;letter-spacing:.06em}
+.wg-btn-d{background:#333;color:#fff;text-align:center;padding:10px 16px;border-radius:30px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Microsoft YaHei',serif;user-select:none;letter-spacing:.06em}
 .wg-btn-d:active{opacity:.82}
 
 /* ── 摇卦页 动画 ── */
@@ -65,6 +71,12 @@ html,body{overscroll-behavior:none}
   90%{ transform:rotate(3deg) translateY(0); }
 }
 .zb-shaking { animation: zb-guike-shake 0.7s ease-in-out; }
+@keyframes zb-stick-emerge {
+  0%   { transform:translateY(36px) rotate(-8deg); opacity:0; }
+  55%  { transform:translateY(-8px) rotate(2deg); opacity:1; }
+  100% { transform:translateY(0) rotate(0); opacity:1; }
+}
+.zb-stick-out { animation: zb-stick-emerge 0.65s cubic-bezier(.2,.8,.4,1) both; }
 @keyframes zb-coin-pop {
   0%   { opacity:0; transform:translateY(-32px) scale(.6); }
   60%  { transform:translateY(5px) scale(1.06); }
@@ -100,7 +112,7 @@ html,body{overscroll-behavior:none}
 .hex-yin-r{height:4px;border-radius:2px;width:44%;margin-left:auto}
 .fbar{height:4px;background:#f0ede8;border-radius:2px;overflow:hidden}
 .fbar-fill{height:100%;background:linear-gradient(to right,#E84E0F,#ff8c52);border-radius:2px}
-.btn-red{width:100%;padding:15px;background:linear-gradient(135deg,#E84E0F,#c53a0a);border:none;border-radius:16px;color:#fff;font-size:15px;font-family:'Noto Serif SC';cursor:pointer;letter-spacing:.1em;box-shadow:0 8px 24px rgba(232,78,15,.4)}
+.btn-red{width:100%;padding:15px;background:linear-gradient(135deg,#E84E0F,#c53a0a);border:none;border-radius:16px;color:#fff;font-size:15px;font-family:'Microsoft YaHei';cursor:pointer;letter-spacing:.1em;box-shadow:0 8px 24px rgba(232,78,15,.4)}
 .card-white{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:16px}
 
 /* 64卦 GRID CARDS */
@@ -110,12 +122,12 @@ html,body{overscroll-behavior:none}
 .gk-wrap::before{content:'';display:block;padding-top:163.7%;}/* 103/63 */
 .gk-inner-abs{position:absolute;top:0;left:0;right:0;bottom:0;}
 .gk-bg{width:100%;height:100%;object-fit:fill;display:block;}
-.gk-num{position:absolute;top:3.5%;left:0;right:0;text-align:center;font-size:12px;font-weight:400;color:#fff;font-family:'Noto Sans SC';line-height:1;}
+.gk-num{position:absolute;top:3.5%;left:0;right:0;text-align:center;font-size:12px;font-weight:400;color:#fff;font-family:'Microsoft YaHei';line-height:1;}
 .gk-lines{position:absolute;top:23%;left:23.3%;width:54.4%;display:flex;flex-direction:column;gap:4px;}
 .gk-heng{width:66.7%;height:auto;display:block;margin:0 auto;}
 .gk-sep{display:none;}
-.gk-fullname{position:absolute;top:70.9%;left:11.1%;width:78.9%;text-align:center;font-size:10px;font-weight:600;color:#fdfdfd;font-family:'Noto Serif SC';line-height:1;}
-.gk-name{position:absolute;top:85.1%;left:11.1%;width:78.9%;text-align:center;font-size:13px;font-weight:600;color:#fdfdfd;font-family:'Noto Serif SC';line-height:1;}
+.gk-fullname{position:absolute;top:70.9%;left:11.1%;width:78.9%;text-align:center;font-size:10px;font-weight:600;color:#fdfdfd;font-family:'Microsoft YaHei';line-height:1;}
+.gk-name{position:absolute;top:85.1%;left:11.1%;width:78.9%;text-align:center;font-size:13px;font-weight:600;color:#fdfdfd;font-family:'Microsoft YaHei';line-height:1;}
 
 /* === BAZI OVERLAY === */
 .bz-ov{position:absolute;top:0;left:0;width:100%;height:100%;background:#f5f3ef;z-index:200;display:none;}
@@ -124,7 +136,7 @@ html,body{overscroll-behavior:none}
 .bz-page.bz-active{display:flex;}
 .bz-hd{height:52px;flex-shrink:0;background:#fff;display:flex;align-items:center;padding:0 16px;border-bottom:1px solid #f0ede8;}
 .bz-hd-back{width:32px;height:32px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;cursor:pointer;}
-.bz-hd-title{flex:1;text-align:center;font-size:17px;font-weight:600;color:#1a1a1a;font-family:'Noto Serif SC';}
+.bz-hd-title{flex:1;text-align:center;font-size:17px;font-weight:600;color:#1a1a1a;font-family:'Microsoft YaHei';}
 .bz-sc{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
 .bz-sc::-webkit-scrollbar{display:none;}
 .bz-pcard{background:#fff;border-radius:14px;margin:12px 14px 0;padding:16px;display:flex;align-items:center;gap:14px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.06);}
@@ -145,13 +157,13 @@ html,body{overscroll-behavior:none}
 .bz-picker-cols::after{bottom:0;background:linear-gradient(transparent,#fff);}
 .bz-col{flex:1;overflow-y:scroll;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:relative;z-index:1;}
 .bz-col::-webkit-scrollbar{display:none;}
-.bz-col-item{height:44px;scroll-snap-align:center;display:flex;align-items:center;justify-content:center;font-size:16px;color:#1a1a1a;font-family:"Noto Serif SC";}
+.bz-col-item{height:44px;scroll-snap-align:center;display:flex;align-items:center;justify-content:center;font-size:16px;color:#1a1a1a;font-family:"Microsoft YaHei";}
 .bz-col-pad{height:94px;}
 .bz-picker-tabs{display:flex;gap:24px;align-items:center;}
 .bz-tab{font-size:15px;color:#aaa;cursor:pointer;padding-bottom:3px;border-bottom:2px solid transparent;}
 .bz-tab.bz-tab-sel{color:#1a1a1a;font-weight:600;border-bottom-color:#c47a2a;}
 .bz-mp-card{background:#fff;border-radius:16px;margin:12px 14px 0;overflow:hidden;box-shadow:0 1px 10px rgba(0,0,0,.07);}
-.bz-gz-circle{width:38px;height:38px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:17px;font-weight:600;color:#fff;font-family:"Noto Serif SC";}
+.bz-gz-circle{width:38px;height:38px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:17px;font-weight:600;color:#fff;font-family:"Microsoft YaHei";}
 .bz-c-mu{background:#5a9e7a;}.bz-c-huo{background:#b03030;}.bz-c-tu{background:#c47a2a;}.bz-c-jin{background:#8a9ca8;}.bz-c-shui{background:#2c7a7b;}
 .bz-dy-row{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;}
 .bz-dy-row::-webkit-scrollbar{display:none;}
@@ -176,7 +188,7 @@ html,body{overscroll-behavior:none}
 .ac-user-bubble{background:#e8e8e8;border-radius:18px 18px 4px 18px;padding:10px 15px;max-width:72%;font-size:14.5px;color:#1a1a1a;line-height:1.65;word-break:break-all;}
 .ac-ai-block{margin:14px 0 6px;}
 .ac-ai-hd{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
-.ac-ai-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#f5c8a0,#d4784a);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;font-family:'Noto Serif SC';}
+.ac-ai-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#f5c8a0,#d4784a);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;font-family:'Microsoft YaHei';}
 .ac-ai-nm{font-size:13px;color:#888;}
 .ac-ai-text{font-size:14.5px;color:#1a1a1a;line-height:1.9;white-space:pre-wrap;}
 .ac-ai-cont{font-size:14.5px;color:#1a1a1a;line-height:1.9;background:#fdf6f0;border-radius:12px;padding:12px 14px;}
@@ -186,12 +198,12 @@ html,body{overscroll-behavior:none}
 
 /* ── 卦象详情页 ── */
 .hd-section{background:#fff;border-radius:14px;padding:16px;margin-bottom:10px;}
-.hd-sec-hd{font-size:14px;font-weight:600;font-family:'Noto Serif SC';color:#1a1a1a;display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.hd-sec-hd{font-size:14px;font-weight:600;font-family:'Microsoft YaHei';color:#1a1a1a;display:flex;align-items:center;gap:8px;margin-bottom:12px;}
 .hd-sec-hd::before{content:'';width:3px;height:15px;background:#b31a1a;border-radius:2px;flex-shrink:0;}
 .hd-yao-row{padding:10px 0;border-bottom:1px solid #f0f0f0;}
 .hd-yao-row:last-child{border-bottom:none;}
-.hd-yao-nm{font-size:13px;font-weight:700;font-family:'Noto Serif SC';color:#1a1a1a;}
-.hd-yao-ci{font-size:13px;color:#555;line-height:1.85;margin-top:5px;font-family:'Noto Serif SC';}
+.hd-yao-nm{font-size:13px;font-weight:700;font-family:'Microsoft YaHei';color:#1a1a1a;}
+.hd-yao-ci{font-size:13px;color:#555;line-height:1.85;margin-top:5px;font-family:'Microsoft YaHei';}
 .hd-rel-wrap{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;}
 .hd-rel-wrap:active{opacity:.75;}
 .hd-rel-circle{width:38px;height:38px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;}
@@ -211,8 +223,8 @@ html,body{overscroll-behavior:none}
   <div style="padding:4px 16px 8px;display:flex;justify-content:space-between;align-items:center;">
     <div style="display:flex;align-items:center;gap:10px;">
       <!-- Yin-yang product logo (Figma asset) -->
-      <img src="yijing_logo.png" style="display:block;height:30px;width:auto;" alt="logo"/>
-      <div style="font-size:15px;font-weight:500;color:#1a1a1a;" id="greetText">早上好，王一腾</div>
+      <img src="yijing_logo.png" style="display:block;height:20px;width:auto;" alt="logo"/>
+      <div style="font-size:15px;font-weight:500;color:#c4c4c4;" id="greetText">早上好，王一腾</div>
     </div>
     <!-- 右上角按钮组 -->
     <div style="display:flex;align-items:center;gap:10px;">
@@ -230,22 +242,22 @@ html,body{overscroll-behavior:none}
       <div style="display:flex;min-height:110px;position:relative;">
         <div style="flex:1;padding:14px 14px 8px;background:transparent;">
           <div style="display:flex;align-items:center;gap:4px;margin-bottom:4px;">
-            <span style="font-size:11px;color:#8f8f8f;font-family:'Salsa',cursive;" id="fullDate">2026年4月5日 星期日</span>
+            <span style="font-size:11px;color:#8f8f8f;font-family:'Microsoft YaHei',sans-serif;" id="fullDate">2026年4月5日 星期日</span>
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
           </div>
           <div style="font-size:80px;color:#c4c4c4;font-family:'Saira Stencil One',sans-serif;line-height:.95;margin-top:2px;" id="dayNum">4</div>
         </div>
         <div style="padding:14px 16px 8px 10px;width:160px;flex-shrink:0;">
           <div style="display:flex;gap:20px;">
-            <div>
-              <div style="font-size:8px;color:rgba(140,80,30,.65);font-family:'Salsa',cursive;letter-spacing:.04em;">yi</div>
-              <div style="font-size:18px;color:#8e8e8e;font-family:'Salsa',cursive;margin:3px 0 6px;">宜</div>
-              <div style="font-size:9.5px;color:#7b7b7b;font-family:'Salsa',cursive;line-height:2.1;">自强不息<br/>承担责任</div>
+            <div style="text-align:center;">
+              <div style="font-size:8px;color:rgba(140,80,30,.65);font-family:'Microsoft YaHei',sans-serif;letter-spacing:.04em;">yi</div>
+              <div style="font-size:18px;color:#8e8e8e;font-family:'Microsoft YaHei',sans-serif;margin:3px 0 6px;">宜</div>
+              <div style="font-size:9.5px;color:#7b7b7b;font-family:'Microsoft YaHei',sans-serif;line-height:2.1;">自强不息<br/>承担责任</div>
             </div>
-            <div>
-              <div style="font-size:8px;color:rgba(100,60,30,.6);font-family:'Salsa',cursive;letter-spacing:.04em;">ji</div>
-              <div style="font-size:18px;color:#8e8e8e;font-family:'Salsa',cursive;margin:3px 0 6px;">忌</div>
-              <div style="font-size:9.5px;color:#7b7b7b;font-family:'Salsa',cursive;line-height:2.1;">固执己见<br/>自暴自弃</div>
+            <div style="text-align:center;">
+              <div style="font-size:8px;color:rgba(100,60,30,.6);font-family:'Microsoft YaHei',sans-serif;letter-spacing:.04em;">ji</div>
+              <div style="font-size:18px;color:#8e8e8e;font-family:'Microsoft YaHei',sans-serif;margin:3px 0 6px;">忌</div>
+              <div style="font-size:9.5px;color:#7b7b7b;font-family:'Microsoft YaHei',sans-serif;line-height:2.1;">固执己见<br/>自暴自弃</div>
             </div>
           </div>
         </div>
@@ -301,7 +313,7 @@ html,body{overscroll-behavior:none}
       </g>
 
       <!-- ── 第2层: 24节气 文字环 ── -->
-      <g id="bw-jieqi" font-family="'Noto Serif SC',serif"></g>
+      <g id="bw-jieqi" font-family="'Microsoft YaHei',serif"></g>
 
       <!-- ── 第3层: bg2 灰圆 (272px) ── -->
       <g id="bw-bg2">
@@ -309,7 +321,7 @@ html,body{overscroll-behavior:none}
       </g>
 
       <!-- ── 第4层: 24山 文字环 ── -->
-      <g id="bw-shan" font-family="'Noto Serif SC',serif"></g>
+      <g id="bw-shan" font-family="'Microsoft YaHei',serif"></g>
 
       <!-- ── 第5层: bg3 内白圆+投影 (230px) ── -->
       <g id="bw-bg3">
@@ -320,10 +332,10 @@ html,body{overscroll-behavior:none}
       <g id="bw-houtian-circles"></g>
 
       <!-- ── 第7层: 后天八卦 卦名+属性 文字 ── -->
-      <g id="bw-houtian-labels" font-family="'Noto Serif SC',serif"></g>
+      <g id="bw-houtian-labels" font-family="'Microsoft YaHei',serif"></g>
 
       <!-- ── 第8层: 八方向 文字 (北东南西…) ── -->
-      <g id="bw-dirs" font-family="'Noto Serif SC',serif"></g>
+      <g id="bw-dirs" font-family="'Microsoft YaHei',serif"></g>
 
       <!-- ── 第9层: bg4 内圈装饰路径 (108px) ── -->
       <g id="bw-bg4">
@@ -512,7 +524,7 @@ html,body{overscroll-behavior:none}
             <rect x="0" y="5" width="16" height="2.5" rx="1" fill="#888"/>
             <rect x="0" y="10" width="16" height="2.5" rx="1" fill="#888"/>
           </g>
-          <text x="130" y="43" text-anchor="middle" font-size="9" fill="#666" font-family="Noto Serif SC">乾</text>
+          <text x="130" y="43" text-anchor="middle" font-size="9" fill="#666" font-family="Microsoft YaHei">乾</text>
 
           <!-- Top-right: 巽 -->
           <circle cx="219" cy="41" r="16" fill="#d8d4ce" stroke="none"/>
@@ -522,7 +534,7 @@ html,body{overscroll-behavior:none}
             <rect x="0" y="10" width="6" height="2.5" rx="1" fill="#888"/>
             <rect x="10" y="10" width="6" height="2.5" rx="1" fill="#888"/>
           </g>
-          <text x="219" y="64" text-anchor="middle" font-size="9" fill="#666" font-family="Noto Serif SC">巽</text>
+          <text x="219" y="64" text-anchor="middle" font-size="9" fill="#666" font-family="Microsoft YaHei">巽</text>
 
           <!-- Right: 离 -->
           <circle cx="242" cy="130" r="16" fill="#d8d4ce" stroke="none"/>
@@ -532,7 +544,7 @@ html,body{overscroll-behavior:none}
             <rect x="10" y="5" width="6" height="2.5" rx="1" fill="#888"/>
             <rect x="0" y="10" width="16" height="2.5" rx="1" fill="#888"/>
           </g>
-          <text x="242" y="153" text-anchor="middle" font-size="9" fill="#666" font-family="Noto Serif SC">离</text>
+          <text x="242" y="153" text-anchor="middle" font-size="9" fill="#666" font-family="Microsoft YaHei">离</text>
 
           <!-- Bottom-right: 兑 -->
           <circle cx="219" cy="219" r="16" fill="#d8d4ce" stroke="none"/>
@@ -542,7 +554,7 @@ html,body{overscroll-behavior:none}
             <rect x="0" y="5" width="16" height="2.5" rx="1" fill="#888"/>
             <rect x="0" y="10" width="16" height="2.5" rx="1" fill="#888"/>
           </g>
-          <text x="219" y="242" text-anchor="middle" font-size="9" fill="#666" font-family="Noto Serif SC">兑</text>
+          <text x="219" y="242" text-anchor="middle" font-size="9" fill="#666" font-family="Microsoft YaHei">兑</text>
 
           <!-- Bottom: 坤 -->
           <circle cx="130" cy="242" r="16" fill="#d8d4ce" stroke="none"/>
@@ -554,7 +566,7 @@ html,body{overscroll-behavior:none}
             <rect x="0" y="10" width="6" height="2.5" rx="1" fill="#888"/>
             <rect x="10" y="10" width="6" height="2.5" rx="1" fill="#888"/>
           </g>
-          <text x="130" y="217" text-anchor="middle" font-size="9" fill="#666" font-family="Noto Serif SC">坤</text>
+          <text x="130" y="217" text-anchor="middle" font-size="9" fill="#666" font-family="Microsoft YaHei">坤</text>
 
           <!-- Bottom-left: 震 -->
           <circle cx="41" cy="219" r="16" fill="#d8d4ce" stroke="none"/>
@@ -565,7 +577,7 @@ html,body{overscroll-behavior:none}
             <rect x="10" y="5" width="6" height="2.5" rx="1" fill="#888"/>
             <rect x="0" y="10" width="16" height="2.5" rx="1" fill="#888"/>
           </g>
-          <text x="41" y="242" text-anchor="middle" font-size="9" fill="#666" font-family="Noto Serif SC">震</text>
+          <text x="41" y="242" text-anchor="middle" font-size="9" fill="#666" font-family="Microsoft YaHei">震</text>
 
           <!-- Left: 坎 -->
           <circle cx="18" cy="130" r="16" fill="#d8d4ce" stroke="none"/>
@@ -576,7 +588,7 @@ html,body{overscroll-behavior:none}
             <rect x="0" y="10" width="6" height="2.5" rx="1" fill="#888"/>
             <rect x="10" y="10" width="6" height="2.5" rx="1" fill="#888"/>
           </g>
-          <text x="18" y="153" text-anchor="middle" font-size="9" fill="#666" font-family="Noto Serif SC">坎</text>
+          <text x="18" y="153" text-anchor="middle" font-size="9" fill="#666" font-family="Microsoft YaHei">坎</text>
 
           <!-- Top-left: 艮 -->
           <circle cx="41" cy="41" r="16" fill="#d8d4ce" stroke="none"/>
@@ -587,17 +599,17 @@ html,body{overscroll-behavior:none}
             <rect x="0" y="10" width="6" height="2.5" rx="1" fill="#888"/>
             <rect x="10" y="10" width="6" height="2.5" rx="1" fill="#888"/>
           </g>
-          <text x="41" y="64" text-anchor="middle" font-size="9" fill="#666" font-family="Noto Serif SC">艮</text>
+          <text x="41" y="64" text-anchor="middle" font-size="9" fill="#666" font-family="Microsoft YaHei">艮</text>
 
           <!-- Middle ring trigram names -->
-          <text x="130" y="75" text-anchor="middle" font-size="10" fill="#555" font-family="Noto Serif SC">乾</text>
-          <text x="185" y="88" text-anchor="middle" font-size="10" fill="#555" font-family="Noto Serif SC">巽</text>
-          <text x="205" y="134" text-anchor="middle" font-size="10" fill="#555" font-family="Noto Serif SC">离</text>
-          <text x="185" y="180" text-anchor="middle" font-size="10" fill="#555" font-family="Noto Serif SC">兑</text>
-          <text x="130" y="195" text-anchor="middle" font-size="10" fill="#555" font-family="Noto Serif SC">坤</text>
-          <text x="75" y="180" text-anchor="middle" font-size="10" fill="#555" font-family="Noto Serif SC">震</text>
-          <text x="55" y="134" text-anchor="middle" font-size="10" fill="#555" font-family="Noto Serif SC">坎</text>
-          <text x="75" y="88" text-anchor="middle" font-size="10" fill="#555" font-family="Noto Serif SC">艮</text>
+          <text x="130" y="75" text-anchor="middle" font-size="10" fill="#555" font-family="Microsoft YaHei">乾</text>
+          <text x="185" y="88" text-anchor="middle" font-size="10" fill="#555" font-family="Microsoft YaHei">巽</text>
+          <text x="205" y="134" text-anchor="middle" font-size="10" fill="#555" font-family="Microsoft YaHei">离</text>
+          <text x="185" y="180" text-anchor="middle" font-size="10" fill="#555" font-family="Microsoft YaHei">兑</text>
+          <text x="130" y="195" text-anchor="middle" font-size="10" fill="#555" font-family="Microsoft YaHei">坤</text>
+          <text x="75" y="180" text-anchor="middle" font-size="10" fill="#555" font-family="Microsoft YaHei">震</text>
+          <text x="55" y="134" text-anchor="middle" font-size="10" fill="#555" font-family="Microsoft YaHei">坎</text>
+          <text x="75" y="88" text-anchor="middle" font-size="10" fill="#555" font-family="Microsoft YaHei">艮</text>
 
           <!-- Yin-yang center -->
           <circle cx="130" cy="130" r="38" fill="white" stroke="#d0c8be" stroke-width="1"/>
@@ -613,7 +625,7 @@ html,body{overscroll-behavior:none}
       <div onclick="startDivination()" style="cursor:pointer;position:relative;width:100px;height:100px;">
         <img src="btn/btn-wengua2.svg" style="position:absolute;top:0;left:0;width:100px;height:100px;transform-origin:center center;animation:wengua-breathe 2.2s ease-in-out infinite;z-index:0;" />
         <img src="btn/btn-wengua1.svg" style="position:absolute;top:9px;left:9px;width:82px;height:82px;z-index:1;" />
-        <span style="position:absolute;top:0;left:0;width:100px;height:100px;display:flex;align-items:center;justify-content:center;z-index:2;color:#fff;font-size:16px;font-weight:600;font-family:'Noto Serif SC';letter-spacing:2px;">问卦</span>
+        <span style="position:absolute;top:0;left:0;width:100px;height:100px;display:flex;align-items:center;justify-content:center;z-index:2;color:#fff;font-size:16px;font-weight:600;font-family:'Microsoft YaHei';letter-spacing:2px;">问卦</span>
       </div>
     </div>
 
@@ -625,7 +637,7 @@ html,body{overscroll-behavior:none}
     <div class="nb" onclick="go(0)"><img src="bagua.svg" style="display:block;width:24px;height:24px;" alt="首页"/><span>首页</span></div>
     <div class="nb" onclick="go(3)"><svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><rect x="6" y="7.5" width="12" height="2" rx="1" fill="white"/><rect x="6" y="11" width="5" height="2" rx="1" fill="white"/><rect x="13" y="11" width="5" height="2" rx="1" fill="white"/><rect x="6" y="14.5" width="5" height="2" rx="1" fill="white"/><rect x="13" y="14.5" width="5" height="2" rx="1" fill="white"/></svg><span>64卦</span></div>
     <div class="nb-ai" onclick="openAiChat()"><div class="ai-bubble"><img src="qipaoAI.svg" style="display:block;width:42px;height:auto;" alt="AI"/></div></div>
-    <div class="nb" onclick="go(8)"><img src="yijingtubiao.svg" style="display:block;width:18px;height:20px;" alt="易经"/><span>易经</span></div>
+    <div class="nb" onclick="go(8)"><div style="width:24px;height:24px;display:flex;align-items:center;justify-content:center;"><img src="yijingtubiao.svg" style="display:block;width:18px;height:20px;" alt="易经"/></div><span>易经</span></div>
     <div class="nb" onclick="go(4)"><svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><circle cx="12" cy="9" r="3.5" fill="white"/><path d="M5.5 20.5c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5" fill="white"/></svg><span>我的</span></div>
   </div>
 </div>
@@ -638,7 +650,7 @@ html,body{overscroll-behavior:none}
     <div onclick="go(5)" style="cursor:pointer;width:32px;height:32px;border-radius:50%;background:#f2f2f2;display:flex;align-items:center;justify-content:center;">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
     </div>
-    <div style="flex:1;text-align:center;font-size:17px;font-weight:500;color:#1a1a1a;font-family:'Noto Serif SC';">占卜</div>
+    <div id="zb-screen-title" style="flex:1;text-align:center;font-size:17px;font-weight:500;color:#1a1a1a;font-family:'Microsoft YaHei';">占卜</div>
     <div style="width:32px;height:32px;border-radius:50%;background:#f2f2f2;display:flex;align-items:center;justify-content:center;">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
     </div>
@@ -684,12 +696,53 @@ html,body{overscroll-behavior:none}
       <img id="zb-c1" src="zhanbuyemian/qianbi1.svg" width="48" height="48"/>
       <img id="zb-c2" src="zhanbuyemian/qianbi1.svg" width="48" height="48"/>
     </div>
-    <!-- 龟壳 -->
-    <div onclick="zbThrow()" style="cursor:pointer;display:flex;justify-content:center;user-select:none;">
+    <!-- 龟壳 (六爻模式) -->
+    <div id="zb-guike-area" onclick="zbThrow()" style="cursor:pointer;display:flex;justify-content:center;user-select:none;">
       <img id="zb-guike" src="zhanbuyemian/guike.svg" width="71" height="85" style="display:block;"/>
     </div>
+    <!-- 签筒 (抽签模式, 初始隐藏) -->
+    <div id="zb-qiantong-area" onclick="zbDrawQian()" style="display:none;cursor:pointer;user-select:none;flex-direction:column;align-items:center;">
+      <!-- 签筒 SVG -->
+      <svg id="zb-qiantong-svg" width="86" height="118" viewBox="0 0 86 118" style="display:block;overflow:visible;">
+        <defs>
+          <linearGradient id="qtGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%"  stop-color="#7a4820"/>
+            <stop offset="28%" stop-color="#c07838"/>
+            <stop offset="65%" stop-color="#a05c28"/>
+            <stop offset="100%" stop-color="#6a3818"/>
+          </linearGradient>
+          <linearGradient id="qtStick" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%"  stop-color="#b89040"/>
+            <stop offset="50%" stop-color="#e0c870"/>
+            <stop offset="100%" stop-color="#b08030"/>
+          </linearGradient>
+        </defs>
+        <!-- 背景签（多根，露出筒口） -->
+        <rect x="27" y="4"  width="5" height="38" rx="2.5" fill="#b89040" opacity=".85"/>
+        <rect x="34" y="1"  width="5" height="41" rx="2.5" fill="#d4b460" opacity=".9"/>
+        <rect x="42" y="0"  width="5" height="42" rx="2.5" fill="url(#qtStick)"/>
+        <rect x="50" y="2"  width="5" height="40" rx="2.5" fill="#d4b460" opacity=".9"/>
+        <rect x="57" y="5"  width="5" height="37" rx="2.5" fill="#b89040" opacity=".85"/>
+        <!-- 筒身 -->
+        <ellipse cx="43" cy="42" rx="28" ry="8" fill="#c07838"/>
+        <rect x="15" y="42" width="56" height="66" fill="url(#qtGrad)"/>
+        <!-- 装饰横纹 -->
+        <rect x="15" y="54" width="56" height="2.5" rx="1" fill="rgba(0,0,0,.18)"/>
+        <rect x="15" y="71" width="56" height="2.5" rx="1" fill="rgba(0,0,0,.18)"/>
+        <rect x="15" y="88" width="56" height="2.5" rx="1" fill="rgba(0,0,0,.18)"/>
+        <!-- 底 -->
+        <ellipse cx="43" cy="108" rx="28" ry="8" fill="#6a3818"/>
+        <!-- 顶口 -->
+        <ellipse cx="43" cy="42" rx="28" ry="8" fill="none" stroke="#5a2c08" stroke-width="2"/>
+        <!-- 弹出签 (初始隐藏) -->
+        <g id="zb-qian-stick-g" opacity="0">
+          <rect x="40" y="-28" width="6" height="46" rx="3" fill="url(#qtStick)"/>
+          <text x="43" y="-8" text-anchor="middle" font-size="9" fill="#7a5010" font-family="'Microsoft YaHei'" font-weight="600">签</text>
+        </g>
+      </svg>
+    </div>
     <!-- 提示文字 -->
-    <div id="zb-hint" style="font-size:12px;color:#aaa;text-align:center;margin-top:16px;font-family:'Noto Serif SC',serif;letter-spacing:.04em;padding:0 32px;">
+    <div id="zb-hint" style="font-size:12px;color:#aaa;text-align:center;margin-top:16px;font-family:'Microsoft YaHei',serif;letter-spacing:.04em;padding:0 32px;">
       点击龟壳投扔硬币六次进行六爻问卜
     </div>
   </div>
@@ -702,7 +755,7 @@ html,body{overscroll-behavior:none}
     <div onclick="go(1)" style="cursor:pointer;width:32px;height:32px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
     </div>
-    <div style="font-size:17px;font-weight:600;color:#1a1a1a;font-family:'Noto Serif SC';flex:1;text-align:center;">卦象解析</div>
+    <div style="font-size:17px;font-weight:600;color:#1a1a1a;font-family:'Microsoft YaHei';flex:1;text-align:center;">卦象解析</div>
     <div style="width:32px;"></div>
   </div>
   <div class="scroll" style="flex:1;padding-bottom:90px;" id="resultContent"></div>
@@ -711,7 +764,7 @@ html,body{overscroll-behavior:none}
     <div id="result-detail-inner" onclick="" style="pointer-events:auto;cursor:pointer;display:flex;justify-content:center;">
       <div style="position:relative;width:200px;height:50px;display:flex;align-items:center;justify-content:center;">
         <img src="btn/xiangjie-btn.svg" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:200px;height:auto;" alt=""/>
-        <span style="position:relative;z-index:1;font-size:16px;font-family:'Noto Serif SC';font-weight:600;color:#fff;letter-spacing:.15em;">详解</span>
+        <span style="position:relative;z-index:1;font-size:16px;font-family:'Microsoft YaHei';font-weight:600;color:#fff;letter-spacing:.15em;">详解</span>
       </div>
     </div>
   </div>
@@ -721,7 +774,7 @@ html,body{overscroll-behavior:none}
 <div class="screen" id="hexScreen">
   <div style="padding:10px 16px 6px;display:flex;align-items:center;gap:8px;">
     <img src="yijing_logo.png" style="height:24px;width:auto;display:block;" alt="logo"/>
-    <div style="font-size:16px;font-weight:400;color:#8f8f8f;font-family:'Noto Serif SC';">64卦</div>
+    <div style="font-size:16px;font-weight:400;color:#8f8f8f;font-family:'Microsoft YaHei';">64卦</div>
   </div>
   <div class="scroll" style="flex:1;background:#f5f5f5;">
     <div class="hex-grid" id="hexGrid"></div>
@@ -730,7 +783,7 @@ html,body{overscroll-behavior:none}
     <div class="nb" onclick="go(0)"><img src="bagua.svg" style="display:block;width:24px;height:24px;" alt="首页"/><span>首页</span></div>
     <div class="nb" onclick="go(3)"><svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><rect x="6" y="7.5" width="12" height="2" rx="1" fill="white"/><rect x="6" y="11" width="5" height="2" rx="1" fill="white"/><rect x="13" y="11" width="5" height="2" rx="1" fill="white"/><rect x="6" y="14.5" width="5" height="2" rx="1" fill="white"/><rect x="13" y="14.5" width="5" height="2" rx="1" fill="white"/></svg><span>64卦</span></div>
     <div class="nb-ai" onclick="openAiChat()"><div class="ai-bubble"><img src="qipaoAI.svg" style="display:block;width:42px;height:auto;" alt="AI"/></div></div>
-    <div class="nb" onclick="go(8)"><img src="yijingtubiao.svg" style="display:block;width:18px;height:20px;" alt="易经"/><span>易经</span></div>
+    <div class="nb" onclick="go(8)"><div style="width:24px;height:24px;display:flex;align-items:center;justify-content:center;"><img src="yijingtubiao.svg" style="display:block;width:18px;height:20px;" alt="易经"/></div><span>易经</span></div>
     <div class="nb" onclick="go(4)"><svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><circle cx="12" cy="9" r="3.5" fill="white"/><path d="M5.5 20.5c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5" fill="white"/></svg><span>我的</span></div>
   </div>
 </div>
@@ -757,7 +810,7 @@ html,body{overscroll-behavior:none}
         <svg width="160" height="160" viewBox="0 0 160 160"><circle cx="80" cy="80" r="72" fill="none" stroke="#fff" stroke-width="2.5"/><circle cx="80" cy="80" r="48" fill="none" stroke="#fff" stroke-width="1.8"/><circle cx="80" cy="80" r="24" fill="rgba(255,255,255,.35)"/></svg>
       </div>
       <div style="position:absolute;inset:0;padding:20px 20px 22px;display:flex;flex-direction:column;justify-content:flex-end;">
-        <div style="font-size:15px;font-weight:600;color:rgba(255,255,255,.95);font-family:'Noto Serif SC';margin-bottom:14px;letter-spacing:.3px;">升级会员，解锁更多专属权益。</div>
+        <div style="font-size:15px;font-weight:600;color:rgba(255,255,255,.95);font-family:'Microsoft YaHei';margin-bottom:14px;letter-spacing:.3px;">升级会员，解锁更多专属权益。</div>
         <div><button onclick="alert('即将上线')" style="background:#fff;border:none;border-radius:22px;padding:9px 28px;font-size:14px;color:#7a3b0e;font-weight:600;cursor:pointer;letter-spacing:.5px;">购买</button></div>
       </div>
     </div>
@@ -856,7 +909,7 @@ html,body{overscroll-behavior:none}
     <div class="nb" onclick="go(0)"><img src="bagua.svg" style="display:block;width:24px;height:24px;" alt="首页"/><span>首页</span></div>
     <div class="nb" onclick="go(3)"><svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><rect x="6" y="7.5" width="12" height="2" rx="1" fill="white"/><rect x="6" y="11" width="5" height="2" rx="1" fill="white"/><rect x="13" y="11" width="5" height="2" rx="1" fill="white"/><rect x="6" y="14.5" width="5" height="2" rx="1" fill="white"/><rect x="13" y="14.5" width="5" height="2" rx="1" fill="white"/></svg><span>64卦</span></div>
     <div class="nb-ai" onclick="openAiChat()"><div class="ai-bubble"><img src="qipaoAI.svg" style="display:block;width:42px;height:auto;" alt="AI"/></div></div>
-    <div class="nb" onclick="go(8)"><img src="yijingtubiao.svg" style="display:block;width:18px;height:20px;" alt="易经"/><span>易经</span></div>
+    <div class="nb" onclick="go(8)"><div style="width:24px;height:24px;display:flex;align-items:center;justify-content:center;"><img src="yijingtubiao.svg" style="display:block;width:18px;height:20px;" alt="易经"/></div><span>易经</span></div>
     <div class="nb" onclick="go(4)"><svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><circle cx="12" cy="9" r="3.5" fill="white"/><path d="M5.5 20.5c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5" fill="white"/></svg><span>我的</span></div>
   </div>
 </div>
@@ -878,7 +931,7 @@ html,body{overscroll-behavior:none}
     <!-- 段1: 球 + 文字 (固定高度, 不撑开) -->
     <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 0 14px;">
       <div class="wg-sphere"></div>
-      <div style="text-align:center;margin-top:18px;color:#888;font-size:16px;line-height:1.8;font-family:'Noto Serif SC',serif;">
+      <div style="text-align:center;margin-top:18px;color:#888;font-size:16px;line-height:1.8;font-family:'Microsoft YaHei',serif;">
         深呼吸<br>写下你的问题
       </div>
     </div>
@@ -888,7 +941,7 @@ html,body{overscroll-behavior:none}
       <!-- 输入框 -->
       <div id="wenguaBox" style="background:#fff;border-radius:18px;border:1.5px solid #cddaed;padding:14px 14px 8px;box-sizing:border-box;transition:border-color .25s;">
         <textarea id="wenguaQ" placeholder="请输入至少4个字" rows="3" oninput="wenguaInputChange()"
-          style="width:100%;border:none;outline:none;resize:none;font-size:15px;color:#333;background:transparent;font-family:'Noto Serif SC',serif;line-height:1.65;box-sizing:border-box;display:block;"></textarea>
+          style="width:100%;border:none;outline:none;resize:none;font-size:15px;color:#333;background:transparent;font-family:'Microsoft YaHei',serif;line-height:1.65;box-sizing:border-box;display:block;"></textarea>
         <div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;padding-top:4px;">
           <div style="width:34px;height:34px;border-radius:50%;background:#f2f2f2;display:flex;align-items:center;justify-content:center;cursor:pointer;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3M9 22h6"/></svg>
@@ -925,7 +978,7 @@ html,body{overscroll-behavior:none}
     <div onclick="go(_hdPrevScreen)" style="cursor:pointer;width:32px;height:32px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
     </div>
-    <div id="hd-title" style="flex:1;text-align:center;font-size:17px;font-weight:500;color:#1a1a1a;font-family:'Noto Serif SC';">乾</div>
+    <div id="hd-title" style="flex:1;text-align:center;font-size:17px;font-weight:500;color:#1a1a1a;font-family:'Microsoft YaHei';">乾</div>
     <div id="hd-bm-btn" onclick="hdToggleBookmark()" style="width:32px;height:32px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;cursor:pointer;">
       <svg id="hd-bm-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
     </div>
@@ -937,6 +990,7 @@ html,body{overscroll-behavior:none}
     <!-- 图片 Banner（scroll 联动缩放） -->
     <div id="hd-img-banner" style="background:#f2f0ec;padding:16px 0 10px;display:flex;flex-direction:column;align-items:center;">
       <img id="hd-banner-img" src="" alt="" onclick="hdOpenFullscreen()" style="border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.15);display:block;height:auto;cursor:pointer;"/>
+      <div id="hd-banner-fallback" style="display:none;border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.15);background:#f8f5f0;padding:20px 24px;cursor:pointer;" onclick="hdOpenFullscreen()"></div>
       <div id="hd-card" style="display:none;"><div id="hd-card-top"></div><div id="hd-card-svg"></div><div id="hd-card-name"></div><div id="hd-card-full"></div></div>
     </div>
 
@@ -957,7 +1011,7 @@ html,body{overscroll-behavior:none}
   <div style="flex-shrink:0;background:#fff;border-top:1px solid #f0ede8;padding:10px 14px;display:flex;align-items:center;gap:10px;">
     <div style="flex:1;background:#f5f5f5;border-radius:24px;display:flex;align-items:center;gap:8px;padding:9px 14px;">
       <img src="qipaoAI.svg" style="width:20px;height:20px;" alt="AI"/>
-      <input type="text" id="hd-ask-input" placeholder="再详细说说…" style="flex:1;border:none;background:transparent;font-size:14px;color:#333;outline:none;font-family:'Noto Sans SC';" onkeydown="if(event.key==='Enter')hdSendAsk()"/>
+      <input type="text" id="hd-ask-input" placeholder="再详细说说…" style="flex:1;border:none;background:transparent;font-size:14px;color:#333;outline:none;font-family:'Microsoft YaHei';" onkeydown="if(event.key==='Enter')hdSendAsk()"/>
     </div>
     <div onclick="hdSendAsk()" id="hd-send-btn" style="width:38px;height:38px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;cursor:pointer;">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.2"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/></svg>
@@ -987,7 +1041,7 @@ html,body{overscroll-behavior:none}
   <!-- Bottom input -->
   <div style="flex-shrink:0;background:#fff;border-top:1px solid #f0ede8;padding:10px 14px 14px;display:flex;align-items:center;gap:10px;">
     <div style="flex:1;background:#f2f2f2;border-radius:24px;padding:12px 18px;display:flex;align-items:center;gap:8px;">
-      <input type="text" id="ac-input" placeholder="请进一步描述背景信息或详细情况" style="flex:1;border:none;background:transparent;font-size:14px;color:#333;outline:none;font-family:'Noto Sans SC';" onkeydown="if(event.key==='Enter')acSend()"/>
+      <input type="text" id="ac-input" placeholder="请进一步描述背景信息或详细情况" style="flex:1;border:none;background:transparent;font-size:14px;color:#333;outline:none;font-family:'Microsoft YaHei';" onkeydown="if(event.key==='Enter')acSend()"/>
     </div>
     <div onclick="acSend()" style="width:40px;height:40px;border-radius:50%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/></svg>
@@ -1002,7 +1056,7 @@ html,body{overscroll-behavior:none}
   <!-- Header -->
   <div style="height:50px;padding:0 12px;display:flex;align-items:center;gap:8px;background:#fff;border-bottom:1px solid #f0f0f0;flex-shrink:0;">
     <div id="yj-chapter-btn" onclick="yjToggleMenu()" style="flex:1;display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 6px;border-radius:8px;min-width:0;">
-      <span id="yj-chapter-title" style="font-size:16px;font-weight:600;color:#1a1a1a;font-family:'Noto Serif SC';white-space:nowrap;">乾为天</span>
+      <span id="yj-chapter-title" style="font-size:16px;font-weight:600;color:#1a1a1a;font-family:'Microsoft YaHei';white-space:nowrap;">乾为天</span>
       <svg id="yj-menu-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2.5" style="transition:transform .2s;flex-shrink:0;"><path d="M6 9l6 6 6-6"/></svg>
     </div>
     <div onclick="yjSearch()" style="width:34px;height:34px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
@@ -1039,7 +1093,7 @@ html,body{overscroll-behavior:none}
     <div class="nb" onclick="go(0)"><img src="bagua.svg" style="display:block;width:24px;height:24px;" alt="首页"/><span>首页</span></div>
     <div class="nb" onclick="go(3)"><svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><rect x="6" y="7.5" width="12" height="2" rx="1" fill="white"/><rect x="6" y="11" width="5" height="2" rx="1" fill="white"/><rect x="13" y="11" width="5" height="2" rx="1" fill="white"/><rect x="6" y="14.5" width="5" height="2" rx="1" fill="white"/><rect x="13" y="14.5" width="5" height="2" rx="1" fill="white"/></svg><span>64卦</span></div>
     <div class="nb-ai" onclick="openAiChat()"><div class="ai-bubble"><img src="qipaoAI.svg" style="display:block;width:42px;height:auto;" alt="AI"/></div></div>
-    <div class="nb" onclick="go(8)"><img src="yijingtubiao.svg" style="display:block;width:18px;height:20px;" alt="易经"/><span>易经</span></div>
+    <div class="nb" onclick="go(8)"><div style="width:24px;height:24px;display:flex;align-items:center;justify-content:center;"><img src="yijingtubiao.svg" style="display:block;width:18px;height:20px;" alt="易经"/></div><span>易经</span></div>
     <div class="nb" onclick="go(4)"><svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><circle cx="12" cy="9" r="3.5" fill="white"/><path d="M5.5 20.5c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5" fill="white"/></svg><span>我的</span></div>
   </div>
 
@@ -1051,10 +1105,10 @@ html,body{overscroll-behavior:none}
     <div onclick="hdCloseBaihuo()" style="cursor:pointer;width:32px;height:32px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
     </div>
-    <div id="hd-bh-title" style="flex:1;text-align:center;font-size:17px;font-weight:500;color:#1a1a1a;font-family:'Noto Serif SC';"></div>
+    <div id="hd-bh-title" style="flex:1;text-align:center;font-size:17px;font-weight:500;color:#1a1a1a;font-family:'Microsoft YaHei';"></div>
     <div style="width:32px;"></div>
   </div>
-  <div id="hd-bh-body" class="scroll" style="flex:1;padding:20px 20px 40px;font-size:14px;color:#444;line-height:2;font-family:'Noto Serif SC';"></div>
+  <div id="hd-bh-body" class="scroll" style="flex:1;padding:20px 20px 40px;font-size:14px;color:#444;line-height:2;font-family:'Microsoft YaHei';"></div>
 </div>
 
 <!-- ═══ SCREEN 10: 六爻详解 ═══ -->
@@ -1063,7 +1117,7 @@ html,body{overscroll-behavior:none}
     <div onclick="go(2)" style="cursor:pointer;width:32px;height:32px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
     </div>
-    <div style="flex:1;text-align:center;font-size:17px;font-weight:500;color:#1a1a1a;font-family:'Noto Serif SC';">六爻详解</div>
+    <div style="flex:1;text-align:center;font-size:17px;font-weight:500;color:#1a1a1a;font-family:'Microsoft YaHei';">六爻详解</div>
     <div style="width:32px;"></div>
   </div>
   <div class="scroll" id="lyd-content" style="flex:1;padding:12px 14px 30px;"></div>
@@ -1100,7 +1154,7 @@ html,body{overscroll-behavior:none}
   </div>
   <div id="yj-menu-body" class="scroll" style="overflow-y:auto;padding:8px 0;max-height:300px;"></div>
   <div style="padding:12px 16px;border-top:1px solid #f0f0f0;">
-    <button onclick="yjMenuConfirm()" style="width:100%;padding:12px;background:#b31a1a;color:#fff;border:none;border-radius:22px;font-size:15px;font-family:'Noto Serif SC';font-weight:600;cursor:pointer;">确定</button>
+    <button onclick="yjMenuConfirm()" style="width:100%;padding:12px;background:#b31a1a;color:#fff;border:none;border-radius:22px;font-size:15px;font-family:'Microsoft YaHei';font-weight:600;cursor:pointer;">确定</button>
   </div>
 </div>
 <div id="yj-menu-mask" onclick="yjCloseMenu()" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,.3);z-index:499;"></div>
@@ -1109,9 +1163,9 @@ html,body{overscroll-behavior:none}
 <div id="yj-audio-panel" style="display:none;position:absolute;bottom:0;left:0;right:0;background:#fff;border-radius:24px 24px 0 0;box-shadow:0 -8px 40px rgba(0,0,0,.15);z-index:500;padding-bottom:20px;">
   <div style="width:40px;height:4px;background:#e0e0e0;border-radius:2px;margin:12px auto 0;"></div>
   <div style="display:flex;justify-content:center;padding:20px 0 10px;">
-    <div style="width:160px;height:160px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fff8f0,#f0e8d8);display:flex;align-items:center;justify-content:center;font-size:72px;font-family:'Noto Serif SC';" id="yj-audio-symbol">䷀</div>
+    <div style="width:160px;height:160px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fff8f0,#f0e8d8);display:flex;align-items:center;justify-content:center;font-size:72px;font-family:'Microsoft YaHei';" id="yj-audio-symbol">䷀</div>
   </div>
-  <div style="text-align:center;font-size:18px;font-weight:600;font-family:'Noto Serif SC';color:#1a1a1a;margin-bottom:4px;" id="yj-audio-name">乾为天</div>
+  <div style="text-align:center;font-size:18px;font-weight:600;font-family:'Microsoft YaHei';color:#1a1a1a;margin-bottom:4px;" id="yj-audio-name">乾为天</div>
   <div style="text-align:center;font-size:13px;color:#aaa;margin-bottom:20px;" id="yj-audio-sec">上经 · 第1卦</div>
   <div style="display:flex;justify-content:space-around;align-items:center;padding:0 30px;margin-bottom:16px;">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
@@ -1153,9 +1207,9 @@ html,body{overscroll-behavior:none}
     <div class="bz-sc">
       <div id="bzEmpty" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 32px;text-align:center;">
         <div style="width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,#f0e6d0,#d4b896);display:flex;align-items:center;justify-content:center;margin-bottom:22px;font-size:40px;">&#9775;</div>
-        <div style="font-size:18px;font-weight:600;color:#1a1a1a;font-family:'Noto Serif SC';margin-bottom:10px;">开始你的命盘之旅</div>
+        <div style="font-size:18px;font-weight:600;color:#1a1a1a;font-family:'Microsoft YaHei';margin-bottom:10px;">开始你的命盘之旅</div>
         <div style="font-size:13px;color:#999;line-height:1.7;margin-bottom:28px;">输入出生信息，探索八字命盘、大运流年</div>
-        <button onclick="bzGoForm(null)" style="background:linear-gradient(135deg,#c47a2a,#a05a1a);color:#fff;border:none;border-radius:26px;padding:13px 40px;font-size:15px;font-family:'Noto Serif SC';cursor:pointer;box-shadow:0 6px 20px rgba(196,122,42,.35);">创建我的命盘</button>
+        <button onclick="bzGoForm(null)" style="background:linear-gradient(135deg,#c47a2a,#a05a1a);color:#fff;border:none;border-radius:26px;padding:13px 40px;font-size:15px;font-family:'Microsoft YaHei';cursor:pointer;box-shadow:0 6px 20px rgba(196,122,42,.35);">创建我的命盘</button>
       </div>
     </div>
   </div>
@@ -1185,10 +1239,10 @@ html,body{overscroll-behavior:none}
           <span class="bz-form-label">昵称</span>
           <input id="bzFName" type="text" placeholder="请输入昵称（1-6个字）" maxlength="6" style="flex:1;border:none;font-size:14px;color:#1a1a1a;background:transparent;outline:none;"/>
         </div>
-        <div class="bz-form-row" onclick="bzOpenRelPicker()" style="cursor:pointer;">
+        <div id="bzFormRelRow" class="bz-form-row" onclick="bzOpenRelPicker()" style="cursor:pointer;">
           <span class="bz-form-label">关系</span>
           <span class="bz-form-val" id="bzFRelDisp" style="color:#1a1a1a;">本人</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+          <svg id="bzFormRelArrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
         </div>
         <div class="bz-form-row">
           <span class="bz-form-label">性别</span>
@@ -1213,7 +1267,7 @@ html,body{overscroll-behavior:none}
         </div>
       </div>
       <div style="padding:28px 16px 20px;">
-        <button onclick="bzSaveProfile()" style="width:100%;padding:15px;background:linear-gradient(135deg,#E84E0F,#c53a0a);border:none;border-radius:30px;color:#fff;font-size:16px;font-family:'Noto Serif SC';cursor:pointer;box-shadow:0 6px 20px rgba(232,78,15,.4);">保存</button>
+        <button onclick="bzSaveProfile()" style="width:100%;padding:15px;background:linear-gradient(135deg,#E84E0F,#c53a0a);border:none;border-radius:30px;color:#fff;font-size:16px;font-family:'Microsoft YaHei';cursor:pointer;box-shadow:0 6px 20px rgba(232,78,15,.4);">保存</button>
       </div>
     </div>
   </div>
@@ -1228,7 +1282,7 @@ html,body{overscroll-behavior:none}
     </div>
     <div class="scroll" id="bzRelBody" style="flex:1;padding:4px 20px 16px;overflow-y:auto;"></div>
     <div style="padding:12px 20px 28px;flex-shrink:0;border-top:1px solid #f5f5f5;">
-      <button onclick="bzConfirmRelation()" style="width:100%;padding:14px;background:linear-gradient(135deg,#E84E0F,#c53a0a);border:none;border-radius:30px;color:#fff;font-size:16px;font-family:'Noto Serif SC';cursor:pointer;box-shadow:0 4px 14px rgba(232,78,15,.35);">确认</button>
+      <button onclick="bzConfirmRelation()" style="width:100%;padding:14px;background:linear-gradient(135deg,#E84E0F,#c53a0a);border:none;border-radius:30px;color:#fff;font-size:16px;font-family:'Microsoft YaHei';cursor:pointer;box-shadow:0 4px 14px rgba(232,78,15,.35);">确认</button>
     </div>
   </div>
 
@@ -1236,7 +1290,7 @@ html,body{overscroll-behavior:none}
   <div class="bz-page" id="bzPgDetail">
     <div class="bz-hd" style="background:#f5f3ef;border-bottom:1px solid #ede8e0;">
       <div class="bz-hd-back" onclick="closeBz()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></div>
-      <div class="bz-hd-title" style="font-family:'Noto Serif SC';"></div>
+      <div style="flex:1;"></div>
       <div style="display:flex;align-items:center;gap:2px;">
         <div onclick="bzShowList()" title="切换命盘" style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/><path d="M16 11l2 2 4-4"/></svg></div>
         <div onclick="bzGoForm(null)" title="添加命盘" style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg></div>
@@ -1273,13 +1327,15 @@ html,body{overscroll-behavior:none}
       <!-- 农历列 -->
       <div id="bzLunarCols" class="bz-picker-cols" style="display:none;">
         <div class="bz-picker-hl"></div>
-        <div class="bz-col" id="bzColLY" style="flex:1.3;" onscroll="bzLOnScrollY()"></div>
+        <div class="bz-col" id="bzColLY" style="flex:1.1;" onscroll="bzLOnScrollY()"></div>
         <div style="flex-shrink:0;width:1px;background:#f0f0f0;margin:20px 0;"></div>
         <div class="bz-col" id="bzColLM" style="flex:.8;" onscroll="bzLOnScrollM()"></div>
         <div style="flex-shrink:0;width:1px;background:#f0f0f0;margin:20px 0;"></div>
         <div class="bz-col" id="bzColLD" style="flex:.85;"></div>
         <div style="flex-shrink:0;width:1px;background:#f0f0f0;margin:20px 0;"></div>
         <div class="bz-col" id="bzColLH" style="flex:.65;"></div>
+        <div style="flex-shrink:0;width:1px;background:#f0f0f0;margin:20px 0;"></div>
+        <div class="bz-col" id="bzColLMin" style="flex:.65;"></div>
       </div>
     </div>
   </div>
@@ -1292,9 +1348,7 @@ html,body{overscroll-behavior:none}
         <span style="font-size:15px;font-weight:600;color:#1a1a1a;">出生地点</span>
         <span style="color:#c47a2a;font-size:14px;cursor:pointer;font-weight:600;" onclick="bzConfirmLocation()">完成</span>
       </div>
-      <div class="bz-loc-actions">
-        <div id="bzLocGpsBtn" class="bz-loc-action-btn" onclick="bzLocGPS()">📍 获取定位</div>
-      </div>
+
       <div class="bz-loc-hint">ℹ 若出生地点不详，可选择默认北京市，会对结果有一定影响</div>
       <div class="bz-picker-cols" style="height:220px;">
         <div class="bz-picker-hl"></div>
@@ -1315,7 +1369,7 @@ html,body{overscroll-behavior:none}
     <!-- 拖动条 -->
     <div style="width:36px;height:4px;background:#e0e0e0;border-radius:2px;margin:0 auto 24px;"></div>
     <!-- 标题 -->
-    <div style="font-size:20px;font-weight:700;color:#1a1a1a;margin-bottom:6px;font-family:'Noto Serif SC';">登录 / 注册</div>
+    <div style="font-size:20px;font-weight:700;color:#1a1a1a;margin-bottom:6px;font-family:'Microsoft YaHei';">登录 / 注册</div>
     <div style="font-size:13px;color:#999;margin-bottom:24px;">未注册手机号将自动创建账号</div>
     <!-- 手机号输入 -->
     <div style="display:flex;align-items:center;background:#f5f5f5;border-radius:12px;padding:0 14px;height:50px;margin-bottom:14px;">
@@ -1360,7 +1414,7 @@ html,body{overscroll-behavior:none}
       <div id="upAvatar" style="width:72px;height:72px;border-radius:50%;background:#f5e6d8;display:flex;align-items:center;justify-content:center;">
         <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
       </div>
-      <div id="upNickname" style="font-size:18px;font-weight:700;color:#1a1a1a;font-family:'Noto Serif SC';"></div>
+      <div id="upNickname" style="font-size:18px;font-weight:700;color:#1a1a1a;font-family:'Microsoft YaHei';"></div>
       <div id="upPhone" style="font-size:13px;color:#999;"></div>
     </div>
     <!-- 操作列表 -->
@@ -1650,7 +1704,7 @@ function acMarkdown(md) {
     if (hm) {
       flushList();
       const fs = hm[1].length===1?'17px':hm[1].length===2?'16px':'15px';
-      out += `<p style="font-size:${fs};font-weight:700;color:#1a1a1a;margin:12px 0 4px;font-family:'Noto Serif SC';">${inline(hm[2])}</p>`;
+      out += `<p style="font-size:${fs};font-weight:700;color:#1a1a1a;margin:12px 0 4px;font-family:'Microsoft YaHei';">${inline(hm[2])}</p>`;
     } else if (ulm) {
       if (listT && listT!=='ul') flushList();
       listT='ul'; listBuf.push(`<li style="margin:3px 0;line-height:1.75;">${inline(ulm[1])}</li>`);
@@ -1905,8 +1959,8 @@ function hdSetRelLayout(mode) {
       return `<div onclick="openHexDetail(${n})" style="display:flex;align-items:center;gap:8px;padding:9px 20px;border-bottom:1px solid #f0ede8;cursor:pointer;background:#fff;">
         <div style="font-size:10px;color:#bbb;width:28px;">${labels[i]}</div>
         ${hdMiniSVG(n,18,27)}
-        <div style="font-size:14px;color:#333;font-family:'Noto Serif SC';margin-left:4px;flex:1;">${HD[n][0]}</div>
-        <div style="font-size:11px;color:#aaa;font-family:'Noto Serif SC';">${fn}</div>
+        <div style="font-size:14px;color:#333;font-family:'Microsoft YaHei';margin-left:4px;flex:1;">${HD[n][0]}</div>
+        <div style="font-size:11px;color:#aaa;font-family:'Microsoft YaHei';">${fn}</div>
       </div>`;
     }).join('');
   } else {
@@ -1914,7 +1968,7 @@ function hdSetRelLayout(mode) {
       ${nums.map((n,i) => `
         <div onclick="openHexDetail(${n})" class="hd-rel-wrap" style="cursor:pointer;">
           <div class="hd-rel-circle">${hdMiniSVG(n,19,28)}</div>
-          <div style="font-size:12px;color:#333;font-family:'Noto Serif SC';font-weight:500;">${HD[n][0]}</div>
+          <div style="font-size:12px;color:#333;font-family:'Microsoft YaHei';font-weight:500;">${HD[n][0]}</div>
           <div style="font-size:10px;color:#aaa;">${labels[i]}</div>
         </div>
       `).join('')}
@@ -2046,12 +2100,25 @@ function openHexDetail(n) {
   document.getElementById('hd-card-name').textContent = name;
   document.getElementById('hd-card-full').textContent = fullName;
 
-  // banner image
+  // banner image — show local SVG fallback immediately, swap in cloud image when loaded
+  window._hdBannerN = n;
   const _bi = document.getElementById('hd-banner-img');
+  const _bf = document.getElementById('hd-banner-fallback');
   if (_bi) {
-    _bi.style.opacity = '1';
+    _bi.style.display = 'none';
     _bi.onerror = null;
-    _bi.src = HEX_IMG_BASE + encodeURIComponent(n + HEX_IMG_NAMES[n-1]) + '.png';
+    if (_bf) { _bf.innerHTML = hdMiniSVG(n, 120, 176); _bf.style.display = 'block'; }
+    const _cloudSrc = HEX_IMG_BASE + encodeURIComponent(n + HEX_IMG_NAMES[n-1]) + '.png';
+    const _loadN = n;
+    const _tmp = new Image();
+    _tmp.onload = function() {
+      if (window._hdBannerN !== _loadN) return;
+      _bi.src = _cloudSrc;
+      _bi.style.display = 'block';
+      if (_bf) _bf.style.display = 'none';
+      hdInitBannerScroll();
+    };
+    _tmp.src = _cloudSrc;
   }
   hdInitBannerScroll();
   hdInitPullToExpand();
@@ -2068,9 +2135,9 @@ function openHexDetail(n) {
   document.getElementById('hd-info-bar').innerHTML =
     `<span style="font-size:15px;color:#aaa;font-weight:400;">${n}.</span>
      ${hdMiniSVG(n, 22, 32)}
-     <strong style="font-size:18px;font-family:'Noto Serif SC';">${name}</strong>
-     <span style="font-size:14px;color:#555;font-family:'Noto Serif SC';">${fullName}</span>
-     <span style="font-size:12px;color:#aaa;font-family:'Noto Serif SC';">${TRIGRAM_NAMES[up]}上${TRIGRAM_NAMES[lo]}下</span>`;
+     <strong style="font-size:18px;font-family:'Microsoft YaHei';">${name}</strong>
+     <span style="font-size:14px;color:#555;font-family:'Microsoft YaHei';">${fullName}</span>
+     <span style="font-size:12px;color:#aaa;font-family:'Microsoft YaHei';">${TRIGRAM_NAMES[up]}上${TRIGRAM_NAMES[lo]}下</span>`;
 
   // 从 HEX_DETAIL 取富文本数据（如未加载则降级）
   const dd = (typeof HEX_DETAIL !== 'undefined' && HEX_DETAIL[n]) ? HEX_DETAIL[n] : null;
@@ -2079,7 +2146,7 @@ function openHexDetail(n) {
   // 卡片副标题：卦语
   const guayu = dd ? dd.guayu : '';
   document.getElementById('hd-card-full').innerHTML =
-    guayu ? `<span style="font-size:11px;color:#8a7060;font-family:'Noto Serif SC';">${guayu}</span>` : fullName;
+    guayu ? `<span style="font-size:11px;color:#8a7060;font-family:'Microsoft YaHei';">${guayu}</span>` : fullName;
 
   // content
   let html = '';
@@ -2094,7 +2161,7 @@ function openHexDetail(n) {
   if (dd && dd.tujie) {
     html += `<div class="hd-section">
       <div class="hd-sec-hd">图解</div>
-      <div style="font-family:'Noto Serif SC';font-size:14px;color:#3a2a1a;line-height:2.1;">${fmt(dd.tujie)}</div>
+      <div style="font-family:'Microsoft YaHei';font-size:14px;color:#3a2a1a;line-height:2.1;">${fmt(dd.tujie)}</div>
     </div>`;
   }
 
@@ -2106,7 +2173,7 @@ function openHexDetail(n) {
     <div class="hd-sec-hd">卦辞
       ${guaci_bh ? `<span onclick="hdShowBaihuo(${guaciBhIdx})" style="font-size:11px;color:#c47a2a;font-weight:400;margin-left:auto;cursor:pointer;text-decoration:underline dotted;">(点击显示白话译文)</span>` : ''}
     </div>
-    <div style="font-family:'Noto Serif SC';font-size:14px;color:#2a1a0a;line-height:2.1;letter-spacing:.04em;">${fmt(guaci)}</div>
+    <div style="font-family:'Microsoft YaHei';font-size:14px;color:#2a1a0a;line-height:2.1;letter-spacing:.04em;">${fmt(guaci)}</div>
   </div>`;
 
   // 六爻爻辞
@@ -2125,7 +2192,7 @@ function openHexDetail(n) {
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
         ${barSVG}
         <span class="hd-yao-nm">${yn}</span>
-        <span style="font-size:11px;color:#bbb;font-family:'Noto Serif SC';">${YAO_NAMES[i]}</span>
+        <span style="font-size:11px;color:#bbb;font-family:'Microsoft YaHei';">${YAO_NAMES[i]}</span>
         ${yaoBh ? `<span onclick="hdShowBaihuo(${yaoBhIdx})" style="font-size:11px;color:#c47a2a;margin-left:auto;cursor:pointer;text-decoration:underline dotted;flex-shrink:0;">(点击显示白话译文)</span>` : ''}
       </div>
       <div class="hd-yao-ci">${fmt(yaoCi)}</div>
@@ -2155,7 +2222,7 @@ function openHexDetail(n) {
         </div>
         <div class="fbar"><div class="fbar-fill" style="width:${d[5+i]}%"></div></div>
       </div>`).join('')}
-    <div style="margin-top:4px;padding:10px 12px;background:#fdf8f0;border-radius:8px;font-size:12.5px;color:#666;line-height:1.85;font-family:'Noto Serif SC';">
+    <div style="margin-top:4px;padding:10px 12px;background:#fdf8f0;border-radius:8px;font-size:12.5px;color:#666;line-height:1.85;font-family:'Microsoft YaHei';">
       <strong style="color:#c47a2a;">建议：</strong>${d[4]}
     </div>
   </div>`;
@@ -2359,12 +2426,11 @@ window.addEventListener('load',()=>{
   const hName = h<6?'凌晨好':h<9?'早上好':h<12?'上午好':h<14?'中午好':h<18?'下午好':'晚上好';
   try {
     const _ps = JSON.parse(localStorage.getItem('bz_profiles')||'[]');
-    const _p = _ps[0];
+    const _p = _ps.find(x => x.relation === '本人') || _ps[0];
     if (_p) {
       document.getElementById('greetText').textContent = `${hName}，${_p.name||'用户'}`;
-      const _zi = ['12属','12牛','12虎','12兔','12龙','12蛇','12马','12羊','12猴','12鸡','12狗','12猪'];
       const _av = document.getElementById('home-zodiac-avatar');
-      if (_av) _av.src = '12shengxiao/' + _zi[((_p.year-4)%12+12)%12] + '.png';
+      if (_av) _av.src = bzGetZodiacImg(_p.yearZhi);
     } else {
       document.getElementById('greetText').textContent = `${hName}`;
     }
@@ -2401,7 +2467,7 @@ const _TABS = new Set([0, 3, 4, 7, 8]);
 
 function go(n) {
   const slider = document.getElementById('slider');
-  const W = window._appW || 390;
+  const W = slider.parentElement?.offsetWidth || window._appW || 390;
   const prev = curScreen;
   const screens = document.querySelectorAll('.screen');
 
@@ -2482,7 +2548,12 @@ function wenguaSubmit(type) {
   }
   question = q;
   if (type === 'liuyao') {
+    zbMode = 'liuyao';
     zbInit();
+    go(1);
+  } else if (type === 'qian') {
+    zbMode = 'qian';
+    zbInitQian();
     go(1);
   } else {
     alert('敬请期待');
@@ -2596,6 +2667,24 @@ function buildZbWheel() {
 let zbStep = 0;   // 已摇次数 0-6
 let zbYaos = [];  // {sum, coins[]}
 let zbThrowingFlag = false;
+let zbMode = 'liuyao'; // 'liuyao' | 'qian'
+
+function zbSetMode(mode) {
+  const guikeArea  = document.getElementById('zb-guike-area');
+  const coinsEl    = document.getElementById('zb-coins');
+  const qiantongArea = document.getElementById('zb-qiantong-area');
+  const titleEl    = document.getElementById('zb-screen-title');
+  if (mode === 'qian') {
+    if (guikeArea)    guikeArea.style.display    = 'none';
+    if (coinsEl)      coinsEl.style.display      = 'none';
+    if (qiantongArea) { qiantongArea.style.display = 'flex'; }
+    if (titleEl)      titleEl.textContent        = '抽签问卜';
+  } else {
+    if (guikeArea)    guikeArea.style.display    = 'flex';
+    if (qiantongArea) qiantongArea.style.display = 'none';
+    if (titleEl)      titleEl.textContent        = '六爻摇卦';
+  }
+}
 
 function zbInit() {
   zbStep = 0; zbYaos = []; zbThrowingFlag = false;
@@ -2604,7 +2693,70 @@ function zbInit() {
   if (coins) coins.style.display = 'none';
   const hint = document.getElementById('zb-hint');
   if (hint) hint.textContent = '点击龟壳投扔硬币六次进行六爻问卜';
+  zbSetMode('liuyao');
   zbRenderYaoBar();
+}
+
+function zbInitQian() {
+  zbStep = 0; zbYaos = []; zbThrowingFlag = false;
+  yaos = [];
+  // reset stick animation
+  const stickG = document.getElementById('zb-qian-stick-g');
+  if (stickG) { stickG.style.animation = ''; stickG.setAttribute('opacity','0'); }
+  const svg = document.getElementById('zb-qiantong-svg');
+  if (svg) { svg.classList.remove('zb-shaking'); }
+  const hint = document.getElementById('zb-hint');
+  if (hint) hint.textContent = '点击签筒摇出签象';
+  zbSetMode('qian');
+  zbRenderYaoBar();
+}
+
+function zbDrawQian() {
+  if (zbThrowingFlag || zbStep >= 6) return;
+  zbThrowingFlag = true;
+
+  // 签筒晃动
+  const svg = document.getElementById('zb-qiantong-svg');
+  if (svg) {
+    svg.classList.remove('zb-shaking');
+    void svg.offsetWidth;
+    svg.classList.add('zb-shaking');
+    svg.addEventListener('animationend', () => svg.classList.remove('zb-shaking'), { once: true });
+  }
+
+  setTimeout(() => {
+    // 生成六爻（每爻 3 枚铜钱，概率同传统摇卦）
+    zbYaos = [];
+    for (let i = 0; i < 6; i++) {
+      const coins = [throwOneCoin(), throwOneCoin(), throwOneCoin()];
+      zbYaos.push({ sum: coins[0]+coins[1]+coins[2], coins });
+    }
+    zbStep = 6;
+    zbRenderYaoBar();
+
+    // 签弹出动画
+    const stickG = document.getElementById('zb-qian-stick-g');
+    if (stickG) {
+      stickG.setAttribute('opacity','1');
+      stickG.style.transformOrigin = '43px 42px';
+      stickG.style.animation = 'none';
+      void stickG.offsetWidth;
+      stickG.style.animation = 'zb-stick-out 0.65s cubic-bezier(.2,.8,.4,1) both';
+    }
+
+    const hint = document.getElementById('zb-hint');
+    if (hint) hint.textContent = '签象已成，正在解签…';
+
+    yaos = zbYaos.map(z => ({ value: z.sum, coins: z.coins }));
+    totalCount++;
+    const sc = document.getElementById('statCount');
+    const dc = document.getElementById('divinCount');
+    if (sc) sc.textContent = totalCount;
+    if (dc) dc.textContent = `已占卜 ${totalCount} 次`;
+
+    setTimeout(() => { go(2); showResult(); }, 1000);
+    zbThrowingFlag = false;
+  }, 750);
 }
 
 function zbThrow() {
@@ -2721,11 +2873,11 @@ function renderDivStep() {
           <svg width="44" height="44" viewBox="0 0 56 56"><circle cx="28" cy="28" r="27" fill="white" stroke="#e0dbd4" stroke-width="1"/><path d="M28 1 A27 27 0 0 1 28 55 A13.5 13.5 0 0 1 28 28 A13.5 13.5 0 0 0 28 1 Z" fill="#1a1a1a"/><circle cx="28" cy="14.5" r="6.75" fill="#1a1a1a"/><circle cx="28" cy="41.5" r="6.75" fill="white"/><circle cx="28" cy="14.5" r="2.5" fill="white"/><circle cx="28" cy="41.5" r="2.5" fill="#1a1a1a"/></svg>
         </div>
         <div style="text-align:center;">
-          <div style="font-size:20px;font-weight:600;color:#1a1a1a;font-family:'Noto Serif SC';margin-bottom:8px;">六爻起卦</div>
+          <div style="font-size:20px;font-weight:600;color:#1a1a1a;font-family:'Microsoft YaHei';margin-bottom:8px;">六爻起卦</div>
           <div style="font-size:13px;color:#aaa;line-height:1.9;">默念心中所问之事<br/>心诚则灵，方有卦应</div>
         </div>
         <div style="width:100%;">
-          <textarea id="questionInput" placeholder="请输入你想问的问题（选填）" style="width:100%;padding:14px 16px;background:#f8f8f8;border:1.5px solid rgba(0,0,0,.08);border-radius:14px;font-size:14px;font-family:'Noto Sans SC';color:#333;resize:none;height:88px;outline:none;line-height:1.7;" onfocus="this.style.borderColor='rgba(232,78,15,.4)'" onblur="this.style.borderColor='rgba(0,0,0,.08)'">${question}</textarea>
+          <textarea id="questionInput" placeholder="请输入你想问的问题（选填）" style="width:100%;padding:14px 16px;background:#f8f8f8;border:1.5px solid rgba(0,0,0,.08);border-radius:14px;font-size:14px;font-family:'Microsoft YaHei';color:#333;resize:none;height:88px;outline:none;line-height:1.7;" onfocus="this.style.borderColor='rgba(232,78,15,.4)'" onblur="this.style.borderColor='rgba(0,0,0,.08)'">${question}</textarea>
         </div>
         <button onclick="beginThrow()" class="btn-red" style="letter-spacing:.15em;font-size:16px;">开始起卦</button>
         <div style="font-size:12px;color:#ccc;">共需摇卦六次，起六爻卦象</div>
@@ -2760,9 +2912,9 @@ function renderDivStep() {
     const hasChanging = yaos.some(y=>y.value===6||y.value===9);
     content.innerHTML = `
       <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 28px;gap:18px;">
-        <div style="font-size:72px;color:#E84E0F;line-height:1;font-family:'Noto Serif SC';animation:fade-in .5s ease;">${hd[0]}</div>
+        <div style="font-size:72px;color:#E84E0F;line-height:1;font-family:'Microsoft YaHei';animation:fade-in .5s ease;">${hd[0]}</div>
         <div style="text-align:center;">
-          <div style="font-size:22px;font-weight:600;color:#1a1a1a;font-family:'Noto Serif SC';">${hd[0]}卦</div>
+          <div style="font-size:22px;font-weight:600;color:#1a1a1a;font-family:'Microsoft YaHei';">${hd[0]}卦</div>
           <div style="font-size:13px;color:#999;margin-top:6px;letter-spacing:.06em;">${hd[1]}</div>
         </div>
         ${hasChanging&&changedNum?`<div style="font-size:13px;color:#E84E0F;text-align:center;background:#fff2ee;padding:8px 20px;border-radius:20px;border:1px solid rgba(232,78,15,.2);">之卦：${HD[changedNum][0]}卦</div>`:''}
@@ -2810,7 +2962,7 @@ function doThrow() {
     const lineType = (sum===7||sum===9)?'阳爻':'阴爻';
     const isChanging = sum===6||sum===9;
     if(label) label.innerHTML = `
-      <div style="font-size:14px;font-weight:600;color:#1a1a1a;font-family:'Noto Serif SC';">${lineType} · ${yaoLabel}</div>
+      <div style="font-size:14px;font-weight:600;color:#1a1a1a;font-family:'Microsoft YaHei';">${lineType} · ${yaoLabel}</div>
       <div style="font-size:12px;color:${isChanging?'#E84E0F':'#bbb'};margin-top:4px;">${coins[0]+coins[1]+coins[2]}点${isChanging?' · 此爻为动爻':''}</div>`;
     yaos.push({value:sum,coins});
     throwing = false;
@@ -2843,7 +2995,7 @@ function buildYaosHtml(arr) {
 function resImgFallback(el, n) {
   const wrap = el.parentNode;
   wrap.style.cssText += ';background:linear-gradient(158deg,#f7f1e3,#ede2c4);aspect-ratio:3/4;align-items:center;flex-direction:column;gap:12px;';
-  wrap.innerHTML = `${hdMiniSVG(n,60,90)}<div style="font-size:32px;font-family:'Noto Serif SC';color:#2a1a0a;font-weight:600;">${HD[n][0]}</div>`;
+  wrap.innerHTML = `${hdMiniSVG(n,60,90)}<div style="font-size:32px;font-family:'Microsoft YaHei';color:#2a1a0a;font-weight:600;">${HD[n][0]}</div>`;
 }
 
 let _lydTimestamp = '';
@@ -2869,7 +3021,7 @@ function showResult() {
     const nameHtml = clickable ? HD[rn][0] : '—';
     return `<div onclick="${clickable ? `openHexDetail(${rn})` : ''}" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:${clickable?'pointer':'default'};">
       <div style="width:56px;height:56px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;">${svgHtml}</div>
-      <div style="font-size:13px;color:${nameColor};font-family:'Noto Serif SC';font-weight:500;">${nameHtml}</div>
+      <div style="font-size:13px;color:${nameColor};font-family:'Microsoft YaHei';font-weight:500;">${nameHtml}</div>
       <div style="font-size:10px;color:${labelColor};">${label}</div>
     </div>`;
   }
@@ -2884,7 +3036,7 @@ function showResult() {
   const tujie = dd ? dd.tujie : '';
   const tujieHtml = tujie
     ? `<div style="background:#fff;padding:16px 18px 20px;">
-        <div style="font-family:'Noto Serif SC';font-size:13.5px;color:#3a2a1a;line-height:2.1;">${fmt(tujie)}</div>
+        <div style="font-family:'Microsoft YaHei';font-size:13.5px;color:#3a2a1a;line-height:2.1;">${fmt(tujie)}</div>
       </div>`
     : '';
 
@@ -2979,12 +3131,12 @@ function renderLydAI(text, done) {
   let html = lines.map(l => {
     const m = l.match(/^([①②③])【([^】]+)】(.*)/);
     if (m) {
-      return `<div style="margin-bottom:10px;"><span style="color:#b31a1a;font-weight:600;font-family:'Noto Serif SC';">${m[1]}【${m[2]}】</span><span style="color:#2a1a0a;">${m[3]}</span></div>`;
+      return `<div style="margin-bottom:10px;"><span style="color:#b31a1a;font-weight:600;font-family:'Microsoft YaHei';">${m[1]}【${m[2]}】</span><span style="color:#2a1a0a;">${m[3]}</span></div>`;
     }
     return `<div style="margin-bottom:8px;color:#2a1a0a;">${l}</div>`;
   }).join('');
   if (!done) html += '<span style="display:inline-block;width:5px;height:13px;background:#b31a1a;border-radius:1px;animation:fade-in .5s ease infinite alternate;vertical-align:middle;margin-left:2px;opacity:.7;"></span>';
-  return `<div style="font-size:14px;font-family:'Noto Serif SC';line-height:2;">${html}</div>`;
+  return `<div style="font-size:14px;font-family:'Microsoft YaHei';line-height:2;">${html}</div>`;
 }
 
 async function lydStreamAI(prompt) {
@@ -3068,7 +3220,7 @@ function openLiuyaoDetail() {
     const nc2=isRed?'#b31a1a':'#333',lc=isRed?'#b31a1a':'#aaa';
     return `<div onclick="${ok?`openHexDetail(${rn})`:''}" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:${ok?'pointer':'default'};">
       <div style="width:44px;height:44px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;">${ok?hdMiniSVG(rn,20,30):'<div style="width:20px;height:30px;"></div>'}</div>
-      <div style="font-size:12px;color:${nc2};font-family:'Noto Serif SC';font-weight:500;">${ok?HD[rn][0]:'—'}</div>
+      <div style="font-size:12px;color:${nc2};font-family:'Microsoft YaHei';font-weight:500;">${ok?HD[rn][0]:'—'}</div>
       <div style="font-size:10px;color:${lc};">${label}</div>
     </div>`;
   }
@@ -3100,7 +3252,7 @@ function openLiuyaoDetail() {
       const movBadge=isMov?'<span style="font-size:10px;color:#e84e0f;background:rgba(232,78,15,.1);padding:1px 6px;border-radius:10px;flex-shrink:0;">动爻</span>':'';
       const bhLink=bhIdx>=0?`<span onclick="hdShowBaihuo(${bhIdx})" style="font-size:11px;color:#c47a2a;margin-left:auto;cursor:pointer;text-decoration:underline dotted;flex-shrink:0;">(白话译文)</span>`:'';
       const row=`<div class="hd-yao-row" style="${rs}margin-bottom:6px;">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap;">${badge}${movBadge}<span class="hd-yao-nm">${yn}</span><span style="font-size:10px;color:#bbb;font-family:'Noto Serif SC';">${YAO_NAMES[i]}</span>${bhLink}</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap;">${badge}${movBadge}<span class="hd-yao-nm">${yn}</span><span style="font-size:10px;color:#bbb;font-family:'Microsoft YaHei';">${YAO_NAMES[i]}</span>${bhLink}</div>
         <div class="hd-yao-ci" style="font-size:13px;">${fmt(ci)}</div>
       </div>`;
       expanded+=row;
@@ -3121,22 +3273,22 @@ function openLiuyaoDetail() {
     return `<div style="background:#fff;border-radius:12px;margin-bottom:10px;overflow:hidden;">
       <div style="display:flex;align-items:center;padding:14px 16px 12px;cursor:pointer;" onclick="lydToggle('${secId}')">
         <div style="width:3px;height:18px;background:#b31a1a;border-radius:2px;margin-right:10px;flex-shrink:0;"></div>
-        <strong style="font-size:15px;font-family:'Noto Serif SC';color:#1a1a1a;flex:1;">${secLabel}</strong>
+        <strong style="font-size:15px;font-family:'Microsoft YaHei';color:#1a1a1a;flex:1;">${secLabel}</strong>
         <span id="${secId}-btn" style="font-size:12px;color:#c47a2a;white-space:nowrap;">详情 ▼</span>
       </div>
       <div style="padding:0 16px 14px;">
         <div style="display:flex;align-items:center;gap:6px;padding:6px 0 10px;border-top:1px solid #f5f5f5;flex-wrap:wrap;">
           <span style="font-size:13px;color:#aaa;">${hn}.</span>${hdMiniSVG(hn,18,27)}
-          <strong style="font-size:15px;font-family:'Noto Serif SC';">${name}</strong>
-          <span style="font-size:13px;color:#555;font-family:'Noto Serif SC';">${fullName}</span>
-          <span style="font-size:11px;color:#aaa;font-family:'Noto Serif SC';">${TRIGRAM_NAMES[up]}上${TRIGRAM_NAMES[lo]}下</span>
+          <strong style="font-size:15px;font-family:'Microsoft YaHei';">${name}</strong>
+          <span style="font-size:13px;color:#555;font-family:'Microsoft YaHei';">${fullName}</span>
+          <span style="font-size:11px;color:#aaa;font-family:'Microsoft YaHei';">${TRIGRAM_NAMES[up]}上${TRIGRAM_NAMES[lo]}下</span>
         </div>
         <div style="${gStyle}margin-bottom:10px;">
           <div style="display:flex;align-items:center;margin-bottom:5px;">
-            <span style="font-size:13px;font-weight:600;color:#1a1a1a;font-family:'Noto Serif SC';">卦辞</span>
+            <span style="font-size:13px;font-weight:600;color:#1a1a1a;font-family:'Microsoft YaHei';">卦辞</span>
             ${gBhIdx>=0?`<span onclick="hdShowBaihuo(${gBhIdx})" style="font-size:11px;color:#c47a2a;margin-left:auto;cursor:pointer;text-decoration:underline dotted;">(白话译文)</span>`:''}
           </div>
-          <div style="font-family:'Noto Serif SC';font-size:13px;color:#2a1a0a;line-height:2;">${fmt(guaci)}</div>
+          <div style="font-family:'Microsoft YaHei';font-size:13px;color:#2a1a0a;line-height:2;">${fmt(guaci)}</div>
         </div>
         <div id="${secId}-c">${collapsed}</div>
         <div id="${secId}-e" style="display:none;">${expanded}</div>
@@ -3162,18 +3314,18 @@ function openLiuyaoDetail() {
       ${relCard(huN,'互卦',false)}${relCard(cuoN,'错卦',false)}${relCard(zongN,'综卦',false)}${hasChanged?relCard(changedNum,'变卦',true):''}
     </div>
     <div style="background:#fff;border-radius:12px;padding:14px 16px;margin-bottom:10px;">
-      <div style="font-size:11px;color:#aaa;font-family:'Noto Serif SC';margin-bottom:4px;">问题</div>
-      <div style="font-size:15px;color:#1a1a1a;font-family:'Noto Serif SC';line-height:1.75;font-weight:500;">${question||'—'}</div>
+      <div style="font-size:11px;color:#aaa;font-family:'Microsoft YaHei';margin-bottom:4px;">问题</div>
+      <div style="font-size:15px;color:#1a1a1a;font-family:'Microsoft YaHei';line-height:1.75;font-weight:500;">${question||'—'}</div>
     </div>
     <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:10px;">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #f5f5f5;">
         <div style="width:3px;height:18px;background:#b31a1a;border-radius:2px;flex-shrink:0;"></div>
-        <span style="font-size:15px;font-weight:600;font-family:'Noto Serif SC';color:#1a1a1a;">AI解读</span>
+        <span style="font-size:15px;font-weight:600;font-family:'Microsoft YaHei';color:#1a1a1a;">AI解读</span>
         <span style="font-size:10px;color:#b31a1a;background:#fff2ee;padding:1px 8px;border-radius:10px;border:1px solid rgba(179,26,26,.15);">结合爻辞智能分析</span>
       </div>
       <div id="lyd-ai-content">
         <div style="display:flex;align-items:center;gap:7px;color:#aaa;font-size:13px;padding:6px 0;">
-          <span style="font-family:'Noto Serif SC';">正在解读</span>
+          <span style="font-family:'Microsoft YaHei';">正在解读</span>
           <span style="display:inline-flex;gap:3px;align-items:center;">
             <span style="width:5px;height:5px;background:#c47a2a;border-radius:50%;display:inline-block;animation:lyd-dot .9s ease-in-out infinite;"></span>
             <span style="width:5px;height:5px;background:#c47a2a;border-radius:50%;display:inline-block;animation:lyd-dot .9s ease-in-out .3s infinite;"></span>
@@ -3237,21 +3389,21 @@ function yjRender() {
     <div style="flex-shrink:0;margin-top:18px;">${hdMiniSVG(ch.id,26,39)}</div>
     <div style="flex:1;">
       <div style="font-size:13px;color:#b31a1a;font-weight:600;margin-bottom:4px;letter-spacing:.05em;">${ch.section} · 第${ch.id}卦</div>
-      <div style="font-size:28px;font-weight:700;font-family:'Noto Serif SC';color:#1a1a1a;margin-bottom:4px;">${ch.fullName}</div>
-      <div style="font-size:14px;color:#aaa;font-family:'Noto Serif SC';">${dd&&dd.guayu?dd.guayu:''}</div>
+      <div style="font-size:28px;font-weight:700;font-family:'Microsoft YaHei';color:#1a1a1a;margin-bottom:4px;">${ch.fullName}</div>
+      <div style="font-size:14px;color:#aaa;font-family:'Microsoft YaHei';">${dd&&dd.guayu?dd.guayu:''}</div>
     </div>
   </div>`;
   ch.verses.forEach(v => {
     html += `<div style="margin-bottom:18px;display:flex;align-items:baseline;gap:12px;">
-      <span style="font-size:12px;color:#b31a1a;font-weight:600;font-family:'Noto Serif SC';flex-shrink:0;min-width:28px;">${v.label}</span>
-      <span style="font-size:18px;font-family:'Noto Serif SC';color:#1a1a1a;line-height:2.0;letter-spacing:.04em;">${v.text}</span>
+      <span style="font-size:12px;color:#b31a1a;font-weight:600;font-family:'Microsoft YaHei';flex-shrink:0;min-width:28px;">${v.label}</span>
+      <span style="font-size:18px;font-family:'Microsoft YaHei';color:#1a1a1a;line-height:2.0;letter-spacing:.04em;">${v.text}</span>
     </div>`;
     if (dd) {
       let bh = '';
       if (v.num === 1) bh = dd.guaci_bh || '';
       else if (v.num >= 2 && v.num <= 7) bh = (dd.yao[v.num-2]||{}).bh || '';
       else if (v.num === 8) bh = dd.yongjiu_bh || '';
-      if (bh) html += `<div style="margin:-4px 0 22px 40px;padding:12px 14px;background:#fdf8f0;border-radius:10px;font-size:13px;color:#6a4a2a;line-height:1.9;font-family:'Noto Serif SC';">${fmt(bh)}</div>`;
+      if (bh) html += `<div style="margin:-4px 0 22px 40px;padding:12px 14px;background:#fdf8f0;border-radius:10px;font-size:13px;color:#6a4a2a;line-height:1.9;font-family:'Microsoft YaHei';">${fmt(bh)}</div>`;
     }
   });
   const scrollEl = document.getElementById('yj-content');
@@ -3292,14 +3444,14 @@ function yjMenuTab(tab) {
   const chapters = (typeof YIJING_CHAPTERS !== 'undefined') ? YIJING_CHAPTERS : [];
   if (tab === 'book') {
     body.innerHTML = ['上经（1–30卦）','下经（31–64卦）'].map((s,i)=>`
-      <div onclick="yjMenuSelBook(${i})" style="padding:16px 20px;font-size:15px;font-family:'Noto Serif SC';color:#1a1a1a;cursor:pointer;border-bottom:1px solid #f5f5f5;">${s}</div>`).join('');
+      <div onclick="yjMenuSelBook(${i})" style="padding:16px 20px;font-size:15px;font-family:'Microsoft YaHei';color:#1a1a1a;cursor:pointer;border-bottom:1px solid #f5f5f5;">${s}</div>`).join('');
   } else if (tab === 'chapter') {
     body.innerHTML = ['上经','下经'].map(sec => {
       const list = chapters.filter(c=>c.section===sec);
       return `<div style="padding:8px 16px 4px;font-size:11px;color:#b31a1a;font-weight:600;letter-spacing:.06em;">${sec}</div>` +
         list.map(c=>`<div onclick="yjMenuSelChapter(${c.id})" style="padding:11px 20px;display:flex;align-items:center;gap:12px;cursor:pointer;${c.id===yjMenuSelId?'background:#fdf0f0;':''}">
           <span style="font-size:11px;color:#ccc;width:18px;text-align:right;">${c.id}</span>
-          <span style="font-size:14px;font-family:'Noto Serif SC';color:${c.id===yjMenuSelId?'#b31a1a':'#1a1a1a'};">${c.fullName}</span>
+          <span style="font-size:14px;font-family:'Microsoft YaHei';color:${c.id===yjMenuSelId?'#b31a1a':'#1a1a1a'};">${c.fullName}</span>
         </div>`).join('');
     }).join('');
     setTimeout(()=>{const el=body.querySelector('[style*="fdf0f0"]');if(el)el.scrollIntoView({block:'center'});},50);
@@ -3308,7 +3460,7 @@ function yjMenuTab(tab) {
     body.innerHTML = ch ? ch.verses.map(v=>`
       <div onclick="yjMenuConfirm()" style="padding:12px 20px;display:flex;gap:10px;cursor:pointer;">
         <span style="font-size:12px;color:#b31a1a;width:32px;flex-shrink:0;font-weight:600;">${v.label}</span>
-        <span style="font-size:13px;color:#555;font-family:'Noto Serif SC';line-height:1.7;">${v.text}</span>
+        <span style="font-size:13px;color:#555;font-family:'Microsoft YaHei';line-height:1.7;">${v.text}</span>
       </div>`).join('') : '';
   }
 }
@@ -4048,15 +4200,21 @@ const BZ_ELEM_LIGHT= {木:'#eaf6ef',火:'#fce8e8',土:'#fdf3e5',金:'#eff2f4',�
 const BZ_SHICHEN   = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
 const BZ_ZODIAC    = ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'];
 const BZ_ZODIAC_IMG_FILES = ['12属','12牛','12虎','12兔','12龙','12蛇','12马','12羊','12猴','12鸡','12狗','12猪'];
-function bzGetZodiacImg(year) {
-  return '12shengxiao/' + BZ_ZODIAC_IMG_FILES[((year-4)%12+12)%12] + '.png';
+// 地支→属相索引（八字以立春为年界，必须从yearZhi推导，不能用公历年）
+const BZ_ZHI_ZODIAC = {子:0,丑:1,寅:2,卯:3,辰:4,巳:5,午:6,未:7,申:8,酉:9,戌:10,亥:11};
+function bzGetZodiacImg(yearZhi) {
+  const idx = BZ_ZHI_ZODIAC[yearZhi] ?? 0;
+  return '12shengxiao/' + BZ_ZODIAC_IMG_FILES[idx] + '.png';
+}
+function bzGetSelfProfile() {
+  return bzProfiles.find(p => p.relation === '本人') || bzProfiles[0] || null;
 }
 function homeUpdateProfile() {
   if (!bzProfiles || !bzProfiles.length) return;
-  const p = bzCurrentPid ? (bzProfiles.find(x=>x.id===bzCurrentPid)||bzProfiles[0]) : bzProfiles[0];
+  const p = bzGetSelfProfile();
   if (!p) return;
   const av = document.getElementById('home-zodiac-avatar');
-  if (av) av.src = bzGetZodiacImg(p.year);
+  if (av) av.src = bzGetZodiacImg(p.yearZhi);
   const gt = document.getElementById('greetText');
   if (gt && p.name) {
     const h = new Date().getHours();
@@ -4252,6 +4410,18 @@ function bzGoForm(id) {
         }
       }
     }
+    // Lock relation to 本人 when no self profile exists yet
+    const hasSelf = bzProfiles.some(x => x.relation === '本人' && x.id !== id);
+    const relRow   = document.getElementById('bzFormRelRow');
+    const relArrow = document.getElementById('bzFormRelArrow');
+    const relDisp  = document.getElementById('bzFRelDisp');
+    const lockRel  = (id === null) && !hasSelf;
+    if (relRow) {
+      relRow.style.pointerEvents = lockRel ? 'none' : '';
+      relRow.style.opacity = lockRel ? '0.55' : '';
+    }
+    if (relArrow) relArrow.style.display = lockRel ? 'none' : '';
+    if (relDisp && lockRel) { bzSelectedRelation = '本人'; relDisp.textContent = '本人'; }
     bzShowPage('bzPgForm');
   } catch(e) {
     document.title = 'bzGoForm ERR: ' + e.message;
@@ -4276,10 +4446,10 @@ function bzRenderList() {
     const bg   = BZ_ELEM_BG[elem] || '#999';
     const isCur = p.id === bzCurrentPid;
     return `<div class="bz-pcard" onclick="bzShowDetail('${p.id}')" style="${isCur?'background:#fdf8f3;':''}">
-      <img src="${bzGetZodiacImg(p.year)}" width="50" height="50" style="border-radius:50%;object-fit:cover;flex-shrink:0;" alt=""/>
+      <img src="${bzGetZodiacImg(p.yearZhi)}" width="50" height="50" style="border-radius:50%;object-fit:cover;flex-shrink:0;" alt=""/>
       <div style="flex:1;">
         <div style="display:flex;align-items:center;gap:6px;">
-          <span style="font-size:15px;font-weight:600;color:#1a1a1a;font-family:'Noto Serif SC';">${p.name||'未命名'}</span>
+          <span style="font-size:15px;font-weight:600;color:#1a1a1a;font-family:'Microsoft YaHei';">${p.name||'未命名'}</span>
           ${isCur?'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#52c41a" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/></svg>':''}
         </div>
         ${p.relation?`<div style="margin-top:4px;"><span style="display:inline-block;font-size:11px;line-height:1;padding:2px 8px;border-radius:20px;background:${bzRelColor(p.relation)}18;color:${bzRelColor(p.relation)};border:1px solid ${bzRelColor(p.relation)}44;">${p.relation}</span></div>`:''}
@@ -4309,10 +4479,10 @@ function bzRenderHome() {
     const bg   = BZ_ELEM_BG[elem] || '#999';
     return `<div class="bz-pcard" onclick="bzShowDetail('${p.id}')">
       <div style="width:50px;height:50px;border-radius:50%;background:${bg};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <span style="font-size:22px;color:#fff;font-family:'Noto Serif SC';">${p.dayGan||'?'}</span>
+        <span style="font-size:22px;color:#fff;font-family:'Microsoft YaHei';">${p.dayGan||'?'}</span>
       </div>
       <div style="flex:1;">
-        <div style="font-size:15px;font-weight:600;color:#1a1a1a;font-family:'Noto Serif SC';">${p.name||'未命名'}</div>
+        <div style="font-size:15px;font-weight:600;color:#1a1a1a;font-family:'Microsoft YaHei';">${p.name||'未命名'}</div>
         <div style="font-size:12px;color:#999;margin-top:3px;">${p.year}年${p.month}月${p.day}日 · ${age}岁 · ${p.gender==='male'?'男':'女'}</div>
         <div style="font-size:12px;color:${bg};margin-top:2px;">${p.yearGz}年 ${p.monthGz}月 ${p.dayGz}日 ${p.hourGz}时</div>
       </div>
@@ -4356,6 +4526,7 @@ function bzSwitchPickerMode(mode) {
     bzInitPickerCol('bzColH',   0,    23,   bzPickH,   'hour');
     bzInitPickerCol('bzColMin', 0,    59,   bzPickMin, 'minute');
   } else {
+    bzLPickH = bzPickH;
     bzLInitYearCol();
   }
 }
@@ -4406,7 +4577,7 @@ function bzConfirmTime() {
         bzPickY = solar.getYear(); bzPickM = solar.getMonth(); bzPickD = solar.getDay();
       } catch(e) { alert('农历日期转换失败，请重新选择'); return; }
     }
-    bzPickH = bzLPickH; bzPickMin = 0;
+    bzPickH = bzLPickH; bzPickMin = readCol('bzColLMin', 0);
   }
   bzClosePicker();
   const td = document.getElementById('bzFTimeDisp');
@@ -4464,11 +4635,18 @@ function bzLLoadDays(mIdx) {
     '<div class="bz-col-pad"></div>';
   bzLPgm = true; col.scrollTop = 0; requestAnimationFrame(() => { bzLPgm = false; });
   const hCol = document.getElementById('bzColLH');
-  if (hCol && !hCol.querySelector('.bz-col-item')) {
+  if (hCol) {
     hCol.innerHTML = '<div class="bz-col-pad"></div>' +
       Array.from({length:24}, (_,i) => `<div class="bz-col-item">${i}时</div>`).join('') +
       '<div class="bz-col-pad"></div>';
     bzLPgm = true; hCol.scrollTop = bzLPickH * 44; requestAnimationFrame(() => { bzLPgm = false; });
+  }
+  const minCol = document.getElementById('bzColLMin');
+  if (minCol) {
+    minCol.innerHTML = '<div class="bz-col-pad"></div>' +
+      Array.from({length:60}, (_,i) => `<div class="bz-col-item">${String(i).padStart(2,'0')}分</div>`).join('') +
+      '<div class="bz-col-pad"></div>';
+    bzLPgm = true; minCol.scrollTop = bzPickMin * 44; requestAnimationFrame(() => { bzLPgm = false; });
   }
 }
 function bzLOnScrollY() {
@@ -4680,6 +4858,17 @@ function bzShowDetail(id) {
   sc.scrollTop = 0;
   const hdName = document.getElementById('bzDetailHdName');
   if (hdName) hdName.textContent = p.name || '命盘';
+  const relTag = document.getElementById('bzDetailRelTag');
+  if (relTag) {
+    const rel = p.relation || '本人';
+    const disp = rel === '本人' ? '自己' : rel;
+    const color = bzRelColor(rel);
+    relTag.textContent = disp;
+    relTag.style.background = color + '18';
+    relTag.style.color = color;
+    relTag.style.border = '1px solid ' + color + '44';
+    relTag.style.display = 'inline-flex';
+  }
   bzRenderDaYun(id);
 }
 
@@ -4709,7 +4898,7 @@ function bzRenderDetail(p) {
   // Day master info
   const dmElem  = BZ_GAN_ELEM[p.dayGan] || '?';
   const dmColor = BZ_ELEM_BG[dmElem] || '#999';
-  const zodiac  = BZ_ZODIAC[(p.year - 4) % 12];
+  const zodiac  = BZ_ZODIAC[BZ_ZHI_ZODIAC[p.yearZhi] ?? (((p.year - 4) % 12 + 12) % 12)];
   const ganArr  = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
   const dmYang  = ganArr.indexOf(p.dayGan) % 2 === 0;
 
@@ -4754,22 +4943,34 @@ function bzRenderDetail(p) {
     yunStartInfo = `${_as}起运（${sy.getYear()}年）`;
   } catch(e) { yunStartInfo = ''; }
 
-  // Location note for header
-  const locNote = p.location ? `${p.location} · ` : '';
+  // Relation tag
+  const rel = p.relation || '本人';
+  const relDisp = rel === '本人' ? '自己' : rel;
+  const relColor = bzRelColor(rel);
+  const relTag = `<span style="padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;background:${relColor}1a;color:${relColor};border:1px solid ${relColor}40;font-family:'Microsoft YaHei';">${relDisp}</span>`;
   // Correction note
   const corrNote = p.tzOffset
-    ? `<div style="font-size:11px;color:#c47a2a;margin-top:2px;">真太阳时校正 ${p.tzOffset >= 0 ? '+' : ''}${p.tzOffset}分</div>`
+    ? `<div style="display:inline-flex;align-items:center;gap:3px;font-size:11px;color:#c47a2a;margin-top:5px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#c47a2a" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>真太阳时校正 ${p.tzOffset >= 0 ? '+' : ''}${p.tzOffset}分</div>`
     : '';
 
   return `
 <div style="background:#f5f3ef;padding-bottom:30px;">
 
   <!-- Profile title -->
-  <div style="padding:14px 16px 10px;display:flex;align-items:center;gap:12px;">
-    <img src="${bzGetZodiacImg(p.year)}" width="44" height="44" style="border-radius:50%;object-fit:cover;flex-shrink:0;" alt=""/>
-    <div>
-      <div style="font-size:16px;font-weight:600;color:#1a1a1a;font-family:'Noto Serif SC';">${p.name||'我'}</div>
-      <div style="font-size:12px;color:#888;margin-top:2px;">${locNote}${p.year}年${p.month}月${p.day}日 ${p.hour}时 · ${age}岁 · ${p.gender==='male'?'男':'女'}</div>
+  <div style="padding:16px 16px 14px;display:flex;gap:14px;align-items:flex-start;">
+    <div style="flex-shrink:0;width:58px;height:58px;border-radius:50%;overflow:hidden;background:#ede8e0;border:2.5px solid ${dmColor}55;box-shadow:0 2px 8px ${dmColor}30;">
+      <img src="${bzGetZodiacImg(p.yearZhi)}" width="58" height="58" style="object-fit:cover;display:block;" alt=""/>
+    </div>
+    <div style="flex:1;min-width:0;">
+      <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:5px;">
+        <span style="font-size:18px;font-weight:700;color:#1a1a1a;font-family:'Microsoft YaHei';">${p.name||'我'}</span>
+        ${relTag}
+      </div>
+      ${p.location ? `<div style="font-size:12px;color:#999;margin-bottom:4px;">${p.location}</div>` : ''}
+      <div style="font-size:12px;color:#666;line-height:1.9;">
+        <span>${p.year}年${p.month}月${p.day}日 · ${p.hour}时</span><br/>
+        <span style="color:#999;">农历${lY}年 ${lM}月${lD} · 属${zodiac} · ${p.gender==='male'?'男':'女'} ${age}岁</span>
+      </div>
       ${corrNote}
     </div>
   </div>
@@ -4779,10 +4980,10 @@ function bzRenderDetail(p) {
     <table style="width:100%;border-collapse:collapse;">
       <tr style="background:#fafaf8;">
         <td style="width:14%;padding:8px 4px 6px;font-size:11px;color:#bbb;text-align:center;"></td>
-        <td style="width:22%;padding:8px 4px 6px;font-size:12px;color:#888;text-align:center;font-family:'Noto Serif SC';">年</td>
-        <td style="width:22%;padding:8px 4px 6px;font-size:12px;color:#888;text-align:center;font-family:'Noto Serif SC';">月</td>
-        <td style="width:22%;padding:8px 4px 6px;font-size:12px;color:#888;text-align:center;font-family:'Noto Serif SC';">日</td>
-        <td style="width:20%;padding:8px 4px 6px;font-size:12px;color:#888;text-align:center;font-family:'Noto Serif SC';">时</td>
+        <td style="width:22%;padding:8px 4px 6px;font-size:12px;color:#888;text-align:center;font-family:'Microsoft YaHei';">年</td>
+        <td style="width:22%;padding:8px 4px 6px;font-size:12px;color:#888;text-align:center;font-family:'Microsoft YaHei';">月</td>
+        <td style="width:22%;padding:8px 4px 6px;font-size:12px;color:#888;text-align:center;font-family:'Microsoft YaHei';">日</td>
+        <td style="width:20%;padding:8px 4px 6px;font-size:12px;color:#888;text-align:center;font-family:'Microsoft YaHei';">时</td>
       </tr>
       <tr>
         <td style="padding:4px;font-size:11px;color:#bbb;text-align:center;vertical-align:middle;">公历</td>
@@ -4800,11 +5001,11 @@ function bzRenderDetail(p) {
       </tr>
       <tr style="border-top:1px solid #f5f0eb;">
         <td style="padding:5px 4px;font-size:11px;color:#bbb;text-align:center;"></td>
-        ${pillars.map(pl=>`<td style="padding:5px 4px;text-align:center;"><div style="font-size:12px;color:#888;font-family:'Noto Serif SC';">${pl.lbl}</div></td>`).join('')}
+        ${pillars.map(pl=>`<td style="padding:5px 4px;text-align:center;"><div style="font-size:12px;color:#888;font-family:'Microsoft YaHei';">${pl.lbl}</div></td>`).join('')}
       </tr>
       <tr>
         <td style="padding:3px 4px;font-size:11px;color:#bbb;text-align:center;vertical-align:middle;">十神</td>
-        ${pillars.map(pl=>`<td style="padding:3px 4px;text-align:center;"><span style="font-size:12px;color:#E84E0F;font-family:'Noto Serif SC';">${pl.ss}</span></td>`).join('')}
+        ${pillars.map(pl=>`<td style="padding:3px 4px;text-align:center;"><span style="font-size:12px;color:#E84E0F;font-family:'Microsoft YaHei';">${pl.ss}</span></td>`).join('')}
       </tr>
       <tr>
         <td style="padding:5px 4px;font-size:11px;color:#bbb;text-align:center;vertical-align:middle;">天干</td>
@@ -4828,8 +5029,8 @@ function bzRenderDetail(p) {
   <!-- Day master summary -->
   <div style="margin:16px 14px 0;background:#fff;border-radius:16px;padding:16px;box-shadow:0 1px 8px rgba(0,0,0,.06);">
     <div style="text-align:center;margin-bottom:10px;">
-      <span style="font-size:16px;font-weight:600;font-family:'Noto Serif SC';color:${dmColor};">${p.dayGan}${dmElem}日主</span>
-      <span style="font-size:14px;color:#888;font-family:'Noto Serif SC';"> · 【${strength}】</span>
+      <span style="font-size:16px;font-weight:600;font-family:'Microsoft YaHei';color:${dmColor};">${p.dayGan}${dmElem}日主</span>
+      <span style="font-size:14px;color:#888;font-family:'Microsoft YaHei';"> · 【${strength}】</span>
     </div>
     <div style="text-align:center;font-size:13px;color:#888;">
       ${ec.getDayNaYin()} &nbsp;|&nbsp; ${zodiac} &nbsp;|&nbsp; ${age}岁
@@ -4839,7 +5040,7 @@ function bzRenderDetail(p) {
   </div>
 
   <!-- Five element relation diagram -->
-  ${bzMakeRelSVG(fePct)}
+  ${bzMakeRelSVG(fePct, dmElem)}
 
   <!-- 喜用忌用 -->
   ${bzMakeXiJi(dmElem, isStrong)}
@@ -4847,12 +5048,12 @@ function bzRenderDetail(p) {
   <!-- 大运流年 section -->
   <div style="margin:12px 14px 0;background:#fff;border-radius:16px;padding:16px 0 16px;box-shadow:0 1px 8px rgba(0,0,0,.06);">
     <div style="display:flex;justify-content:space-between;align-items:center;padding:0 16px;margin-bottom:10px;">
-      <span style="font-size:15px;font-weight:600;color:#1a1a1a;font-family:'Noto Serif SC';">大运</span>
+      <span style="font-size:15px;font-weight:600;color:#1a1a1a;font-family:'Microsoft YaHei';">大运</span>
       <span id="bzDyStart" style="font-size:11px;color:#999;"></span>
     </div>
     <div id="bzDyRow"></div>
     <div style="padding:0 16px;margin:16px 0 10px;">
-      <span style="font-size:15px;font-weight:600;color:#1a1a1a;font-family:'Noto Serif SC';">流年</span>
+      <span style="font-size:15px;font-weight:600;color:#1a1a1a;font-family:'Microsoft YaHei';">流年</span>
     </div>
     <div id="bzLnRow"></div>
   </div>
@@ -4892,53 +5093,95 @@ function bzMakeDayMasterWheel(dayGan) {
   return `<img src="${src}" alt="${dayGan}" style="width:100%;max-width:336px;display:block;margin:0 auto;border-radius:12px;"/>`;
 }
 
-function bzMakeRelSVG(fePct) {
-  // Pentagon clockwise from top: 火,土,金,水,木
+function bzMakeRelSVG(fePct, dmElem) {
   const elems = ['火','土','金','水','木'];
-  const eco = {火:'#a83535', 土:'#c47a2a', 金:'#c9a038', 水:'#2c8080', 木:'#4e9b72'};
-  const W=300, H=278, cx=150, cy=143, R=100, cr=34;
-  const ang = i => -Math.PI/2 + i * 2 * Math.PI / 5;
+  // cr=30 (1/4 smaller than 40), R_arc = outer ring radius for 生 arcs
+  const W=360, H=380, cx=180, cy=195, R=108, cr=30, R_arc=142;
+  const arcGap = 0.28; // rad, clearance around each circle
+
+  const eLight  = {火:'#fce8e8',土:'#edeae3',金:'#fdf3d8',水:'#d8eef8',木:'#d8f0e4'};
+  const eStroke = {火:'#e8b0b0',土:'#cec6b8',金:'#e0cc78',水:'#94cce8',木:'#94ceb0'};
+  const eText   = {火:'#c83030',土:'#7a5830',金:'#a07818',水:'#1870a0',木:'#288060'};
+
+  const ang = i => -Math.PI/2 + i * 2*Math.PI/5;
   const pts = elems.map((_,i) => [cx + R*Math.cos(ang(i)), cy + R*Math.sin(ang(i))]);
 
-  function arrowPath(a, b) {
-    const dx=b[0]-a[0], dy=b[1]-a[1], len=Math.sqrt(dx*dx+dy*dy);
+  const genMe={木:'水',火:'木',土:'火',金:'土',水:'金'};
+  const myGen={木:'火',火:'土',土:'金',金:'水',水:'木'};
+  const myCtl={木:'土',火:'金',土:'水',金:'木',水:'火'};
+  const ctlMe={木:'金',火:'水',土:'木',金:'火',水:'土'};
+  function shiShen(e) {
+    if (!dmElem || e===dmElem) return '比劫';
+    if (e===genMe[dmElem]) return '印星';
+    if (e===myGen[dmElem]) return '食伤';
+    if (e===myCtl[dmElem]) return '财星';
+    if (e===ctlMe[dmElem]) return '官杀';
+    return '';
+  }
+
+  // True circular arc for 生 — follows circle of radius R_arc centered on pentagon
+  function shengArc(i) {
+    const a0 = ang(i);
+    let a1raw = ang((i+1)%5);
+    if (a1raw <= a0) a1raw += 2*Math.PI; // handle 木→火 wrap-around
+    const a_start = a0 + arcGap, a_end = a1raw - arcGap;
+    const sx = (cx + R_arc*Math.cos(a_start)).toFixed(2);
+    const sy = (cy + R_arc*Math.sin(a_start)).toFixed(2);
+    const ex = (cx + R_arc*Math.cos(a_end)).toFixed(2);
+    const ey = (cy + R_arc*Math.sin(a_end)).toFixed(2);
+    // "生" label inside the arc at midpoint angle
+    const amid = (a0 + a1raw) / 2;
+    const lx = (cx + (R_arc-16)*Math.cos(amid)).toFixed(1);
+    const ly = (cy + (R_arc-16)*Math.sin(amid)).toFixed(1);
+    return { d:`M${sx},${sy} A${R_arc},${R_arc} 0 0 1 ${ex},${ey}`, lx, ly };
+  }
+
+  // Straight arrow for 克 (inner pentagram)
+  function keArrow(A, B) {
+    const dx=B[0]-A[0], dy=B[1]-A[1], len=Math.sqrt(dx*dx+dy*dy);
     const ux=dx/len, uy=dy/len;
-    return `M${(a[0]+ux*(cr+5)).toFixed(1)},${(a[1]+uy*(cr+5)).toFixed(1)} L${(b[0]-ux*(cr+9)).toFixed(1)},${(b[1]-uy*(cr+9)).toFixed(1)}`;
-  }
-  function midText(a, b, txt, perp) {
-    const mx=(a[0]+b[0])/2, my=(a[1]+b[1])/2;
-    const dx=b[0]-a[0], dy=b[1]-a[1], len=Math.sqrt(dx*dx+dy*dy);
-    const ox=-dy/len*(perp||0), oy=dx/len*(perp||0);
-    return `<text x="${(mx+ox).toFixed(1)}" y="${(my+oy+4).toFixed(1)}" text-anchor="middle" font-size="11" fill="#ccc">${txt}</text>`;
+    const s=[A[0]+ux*(cr+5), A[1]+uy*(cr+5)];
+    const e=[B[0]-ux*(cr+10), B[1]-uy*(cr+10)];
+    const lx=(s[0]+e[0])/2 + (-uy)*9, ly=(s[1]+e[1])/2 + ux*9;
+    return { d:`M${s[0].toFixed(1)},${s[1].toFixed(1)} L${e[0].toFixed(1)},${e[1].toFixed(1)}`, lx, ly };
   }
 
-  // 生 arrows: i→(i+1)%5
-  const shengPaths = elems.map((_,i) => arrowPath(pts[i], pts[(i+1)%5]));
-  const shengLabels = elems.map((_,i) => midText(pts[i], pts[(i+1)%5], '生', 9));
-  // 克 arrows: 火→金(0→2), 土→水(1→3), 金→木(2→4), 水→火(3→0), 木→土(4→1)
-  const keTarget = [2,3,4,0,1];
-  const kePaths = elems.map((_,i) => arrowPath(pts[i], pts[keTarget[i]]));
-  const keLabels = elems.map((_,i) => midText(pts[i], pts[keTarget[i]], '克', 7));
+  const keTarget=[2,3,4,0,1];
+  const sArcs  = elems.map((_,i) => shengArc(i));
+  const kLines = elems.map((_,i) => keArrow(pts[i], pts[keTarget[i]]));
 
+  // Element circles + 十神 labels (close to circles)
   const circles = elems.map((e,i) => {
-    const [x,y]=pts[i], c=eco[e], pct=fePct[e]||0;
-    return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${cr}" fill="${c}"/>
-<text x="${x.toFixed(1)}" y="${(y-2).toFixed(1)}" text-anchor="middle" font-size="17" fill="white" font-family="Noto Serif SC,serif" font-weight="600">${e}</text>
-<text x="${x.toFixed(1)}" y="${(y+14).toFixed(1)}" text-anchor="middle" font-size="10" fill="rgba(255,255,255,.9)">${pct}%</text>`;
+    const [x,y]=pts[i], pct=fePct[e]||0, isDM=(e===dmElem), ss=shiShen(e);
+    // 十神 label: R+cr+8 from pentagon center, just outside circle edge
+    const lR = R + cr + 8;
+    const lax = cx + lR*Math.cos(ang(i)), lay = cy + lR*Math.sin(ang(i));
+    const anchor = lax < cx-8 ? 'end' : lax > cx+8 ? 'start' : 'middle';
+    return `
+      <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${cr}" fill="${eLight[e]}" stroke="${eStroke[e]}" stroke-width="2.5"/>
+      <text x="${x.toFixed(1)}" y="${(y-5).toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-size="18" font-weight="700" fill="${eText[e]}" font-family="'Microsoft YaHei',sans-serif">${e}</text>
+      <text x="${x.toFixed(1)}" y="${(y+11).toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-size="11" fill="${eText[e]}" font-family="'Microsoft YaHei',sans-serif">${pct}%</text>
+      ${isDM ? `<rect x="${(x-21).toFixed(1)}" y="${(y+cr-5).toFixed(1)}" width="42" height="16" rx="8" fill="${eText[e]}"/>
+        <text x="${x.toFixed(1)}" y="${(y+cr+3).toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#fff" font-family="'Microsoft YaHei',sans-serif" font-weight="600">日主</text>` : ''}
+      ${ss ? `<text x="${lax.toFixed(1)}" y="${(lay+4).toFixed(1)}" text-anchor="${anchor}" font-size="11" fill="${eText[e]}" font-family="'Microsoft YaHei',sans-serif">${ss}</text>` : ''}`;
   });
 
-  return `<div style="margin:12px 14px 0;background:#fff;border-radius:16px;padding:16px;box-shadow:0 1px 8px rgba(0,0,0,.06);">
-  <div style="font-size:13px;font-weight:600;color:#333;margin-bottom:4px;font-family:'Noto Serif SC';">五行分布</div>
+  return `<div style="margin:12px 14px 0;background:#faf8f5;border-radius:16px;padding:16px 8px 8px;box-shadow:0 1px 8px rgba(0,0,0,.06);">
+  <div style="font-size:13px;font-weight:600;color:#333;margin-bottom:0;text-align:center;font-family:'Microsoft YaHei';">五行分布</div>
   <div style="display:flex;justify-content:center;">
-  <svg width="100%" viewBox="0 0 ${W} ${H}" style="max-width:${Math.round(W*2/3*1.3)}px;">
+  <svg width="100%" viewBox="0 0 ${W} ${H}" style="max-width:${W}px;">
     <defs>
-      <marker id="bzAS" markerWidth="7" markerHeight="7" refX="5.5" refY="3.5" orient="auto"><path d="M0,0.5 L6,3.5 L0,6.5 Z" fill="#ccc"/></marker>
-      <marker id="bzAK" markerWidth="7" markerHeight="7" refX="5.5" refY="3.5" orient="auto"><path d="M0,0.5 L6,3.5 L0,6.5 Z" fill="#ddd"/></marker>
+      <marker id="bzSheng" markerWidth="8" markerHeight="8" refX="6.5" refY="4" orient="auto">
+        <path d="M0,0.8 L7,4 L0,7.2 Z" fill="#c0a878"/>
+      </marker>
+      <marker id="bzKe" markerWidth="7" markerHeight="7" refX="5.5" refY="3.5" orient="auto">
+        <path d="M0,0.5 L6,3.5 L0,6.5 Z" fill="#c0b8b0"/>
+      </marker>
     </defs>
-    ${shengPaths.map(d=>`<path d="${d}" stroke="#ccc" stroke-width="1.5" fill="none" marker-end="url(#bzAS)"/>`).join('')}
-    ${shengLabels.join('')}
-    ${kePaths.map(d=>`<path d="${d}" stroke="#e0e0e0" stroke-width="1.2" fill="none" marker-end="url(#bzAK)"/>`).join('')}
-    ${keLabels.join('')}
+    ${sArcs.map(a=>`<path d="${a.d}" stroke="#c0a878" stroke-width="2" fill="none" marker-end="url(#bzSheng)"/>`).join('\n    ')}
+    ${sArcs.map(a=>`<text x="${a.lx}" y="${a.ly}" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#c0a878" font-family="'Microsoft YaHei',sans-serif">生</text>`).join('\n    ')}
+    ${kLines.map(a=>`<path d="${a.d}" stroke="#c0b8b0" stroke-width="1.3" fill="none" marker-end="url(#bzKe)"/>`).join('\n    ')}
+    ${kLines.map(a=>`<text x="${a.lx.toFixed(1)}" y="${a.ly.toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#c0b8b0" font-family="'Microsoft YaHei',sans-serif">克</text>`).join('\n    ')}
     ${circles.join('')}
   </svg>
   </div>
@@ -4962,25 +5205,25 @@ function bzMakeXiJi(dmElem, isStrong) {
     ji = [...new Set([genMe[dmElem], dmElem])];
   }
 
-  const spans = arr => arr.map(e=>`<span style="font-size:18px;font-family:'Noto Serif SC',serif;color:${eco[e]};margin:0 3px;">${e}</span>`).join('');
+  const spans = arr => arr.map(e=>`<span style="font-size:18px;font-family:'Microsoft YaHei',serif;color:${eco[e]};margin:0 3px;">${e}</span>`).join('');
 
   return `<div style="margin:12px 14px 0;background:#fff;border-radius:16px;padding:20px 16px 24px;box-shadow:0 1px 8px rgba(0,0,0,.06);">
   <div style="text-align:center;margin-bottom:20px;line-height:2;">
-    <div style="font-size:13px;color:#444;font-family:'Noto Serif SC',serif;">喜用成就顺境，忌用招致逆境。</div>
-    <div style="font-size:13px;color:#444;font-family:'Noto Serif SC',serif;">你如何自处人生的起伏，便该如何看待五行的喜忌。</div>
-    <div style="font-size:13px;color:#444;font-family:'Noto Serif SC',serif;">生命是一场完整的体验。</div>
-    <div style="font-size:13px;color:#444;font-family:'Noto Serif SC',serif;">无喜不成欢，无忌不修心。</div>
+    <div style="font-size:13px;color:#444;font-family:'Microsoft YaHei',serif;">喜用成就顺境，忌用招致逆境。</div>
+    <div style="font-size:13px;color:#444;font-family:'Microsoft YaHei',serif;">你如何自处人生的起伏，便该如何看待五行的喜忌。</div>
+    <div style="font-size:13px;color:#444;font-family:'Microsoft YaHei',serif;">生命是一场完整的体验。</div>
+    <div style="font-size:13px;color:#444;font-family:'Microsoft YaHei',serif;">无喜不成欢，无忌不修心。</div>
   </div>
   <div style="display:flex;justify-content:space-around;align-items:flex-start;">
     <div style="display:flex;flex-direction:column;align-items:center;gap:14px;">
       <div style="width:56px;height:56px;border-radius:50%;border:1.5px solid #c0c0c0;display:flex;align-items:center;justify-content:center;">
-        <span style="font-size:22px;font-family:'Noto Serif SC',serif;color:#555;">喜</span>
+        <span style="font-size:22px;font-family:'Microsoft YaHei',serif;color:#555;">喜</span>
       </div>
       <div>${spans(xi)}</div>
     </div>
     <div style="display:flex;flex-direction:column;align-items:center;gap:14px;">
       <div style="width:56px;height:56px;border-radius:50%;border:1.5px solid #c0c0c0;display:flex;align-items:center;justify-content:center;">
-        <span style="font-size:22px;font-family:'Noto Serif SC',serif;color:#555;">忌</span>
+        <span style="font-size:22px;font-family:'Microsoft YaHei',serif;color:#555;">忌</span>
       </div>
       <div>${spans(ji)}</div>
     </div>
@@ -5038,11 +5281,11 @@ function bzRenderDaYun(pOrId, activeIdx) {
           return `<div style="font-size:10px;color:${c};line-height:1.6;">${sh(bzGetSS(g,p.dayGan))}</div>`;
         }).join('');
         body = `<div style="display:flex;align-items:baseline;justify-content:center;gap:1px;padding:2px 0 1px;">
-            <span style="font-size:20px;color:${gC};font-family:'Noto Serif SC',serif;line-height:1.1;">${gan}</span>
+            <span style="font-size:20px;color:${gC};font-family:'Microsoft YaHei',serif;line-height:1.1;">${gan}</span>
             <span style="font-size:10px;color:${gC};">${gSS}</span>
           </div>
           <div style="display:flex;align-items:baseline;justify-content:center;gap:1px;padding:1px 0;">
-            <span style="font-size:20px;color:${zC};font-family:'Noto Serif SC',serif;line-height:1.1;">${zhi}</span>
+            <span style="font-size:20px;color:${zC};font-family:'Microsoft YaHei',serif;line-height:1.1;">${zhi}</span>
             <span style="font-size:10px;color:${zC};">${mainSS}</span>
           </div>
           <div style="text-align:center;padding:2px 0 3px;">${restRows}</div>`;
