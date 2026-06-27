@@ -1424,7 +1424,6 @@ html,body{overscroll-behavior:none}
       <img src="xingxiang.png" style="width:50px;height:50px;border-radius:50%;object-fit:cover;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.12);">
       <div style="display:flex;align-items:center;gap:5px;flex:1;min-width:0;">
         <img src="logo.svg" style="height:18px;width:auto;flex-shrink:0;">
-        <span style="font-size:18px;font-weight:700;color:#1a1a1a;font-family:'Microsoft YaHei';">Yior</span>
       </div>
       <div id="bzAiExpandBtn" onclick="bzAiToggleSize()" style="width:34px;height:34px;border-radius:50%;background:#f2f2f2;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
@@ -5956,7 +5955,7 @@ function bzAiRender() {
   const body = document.getElementById('bzai-body');
   if (!body) return;
   let html = '';
-  bzAiMessages.forEach(msg => {
+  bzAiMessages.forEach((msg, idx) => {
     if (msg.role === 'user') {
       html += `<div style="display:flex;justify-content:flex-end;margin:8px 0;">
         <div style="max-width:76%;background:linear-gradient(135deg,#5bbcf0,#2e9de0);color:#fff;border-radius:18px 18px 4px 18px;padding:10px 14px;font-size:13.5px;line-height:1.65;font-family:'Microsoft YaHei';">${msg.text}</div>
