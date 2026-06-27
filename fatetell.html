@@ -188,7 +188,9 @@ html,body{overscroll-behavior:none}
 .ac-user-bubble{background:#e8e8e8;border-radius:18px 18px 4px 18px;padding:10px 15px;max-width:72%;font-size:14.5px;color:#1a1a1a;line-height:1.65;word-break:break-all;}
 .ac-ai-block{margin:14px 0 6px;}
 .ac-ai-hd{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
-.ac-ai-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#f5c8a0,#d4784a);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;font-family:'Microsoft YaHei';}
+.ac-ai-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#f5c8a0,#d4784a);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;font-family:'Zen Dots',sans-serif;letter-spacing:0;}
+@keyframes ac-blink{0%,100%{opacity:1}50%{opacity:0}}
+.ac-cursor{display:inline-block;width:2px;height:1em;background:#d4784a;margin-left:2px;vertical-align:middle;animation:ac-blink .7s infinite;border-radius:1px;}
 .ac-ai-nm{font-size:13px;color:#888;}
 .ac-ai-text{font-size:14.5px;color:#1a1a1a;line-height:1.9;white-space:pre-wrap;}
 .ac-ai-cont{font-size:14.5px;color:#1a1a1a;line-height:1.9;background:#fdf6f0;border-radius:12px;padding:12px 14px;}
@@ -1615,12 +1617,30 @@ function acSaveCurrentSession() {
   try { localStorage.setItem('ac_sessions', JSON.stringify(acSessions)); } catch(e) {}
 }
 
+function acTypeWriter(el, text, speed) {
+  speed = speed || 55;
+  el.innerHTML = '<span class="ac-cursor"></span>';
+  let i = 0;
+  const cursor = el.querySelector('.ac-cursor');
+  const timer = setInterval(function() {
+    if (i < text.length) {
+      el.insertBefore(document.createTextNode(text[i++]), cursor);
+    } else {
+      clearInterval(timer);
+      cursor.remove();
+    }
+  }, speed);
+}
+
 function acNewSession() {
   acSaveCurrentSession();
   acCurrentSessionId = 'ses-' + Date.now();
-  acMessages = [{ role: 'ai', text: AC_WELCOME, showAvatar: true }];
+  const welcome = acRandWelcome();
+  acMessages = [{ role: 'ai', text: welcome, showAvatar: true }];
   acUsed = 0;
   acRender();
+  const body = document.getElementById('ac-body');
+  if (body) { const cont = body.querySelector('.ac-ai-cont'); if (cont) acTypeWriter(cont, welcome); }
   acCloseHistory();
 }
 
@@ -1679,8 +1699,17 @@ function acRenderHistory() {
   }).join('');
 }
 const AC_LIMIT = 1000;
-const AC_NAME = 'Phoebe';
-const AC_WELCOME = `你好，我是${AC_NAME}，你的易经AI解读师。\n\n你可以向我提问关于卦象的深层含义、生活建议，或直接描述你的困惑，我会结合卦象为你解读。`;
+const AC_NAME = 'Yior';
+const AC_WELCOMES = [
+  '你好，我是Yior，解卦问运，为你指引。',
+  '缘来此处，我是Yior，且听卦中玄机。',
+  '万象皆有迹，我是Yior，来解你的卦。',
+  '阴阳流转，卦象无穷，Yior为你解读。',
+  '卜一卦，问一运，我是Yior，伴你左右。',
+  '天机藏于卦象，我是Yior，为你拨云见日。',
+];
+function acRandWelcome() { return AC_WELCOMES[Math.floor(Math.random() * AC_WELCOMES.length)]; }
+const AC_WELCOME = acRandWelcome();
 
 function acMarkdown(md) {
   const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -1734,7 +1763,7 @@ function acRender() {
     } else {
       html += `<div class="ac-ai-block">`;
       if (msg.showAvatar !== false) {
-        html += `<div class="ac-ai-hd"><div class="ac-ai-avatar">福</div><span class="ac-ai-nm">${AC_NAME}</span></div>`;
+        html += `<div class="ac-ai-hd"><div class="ac-ai-avatar">Y</div><span class="ac-ai-nm">${AC_NAME}</span></div>`;
       }
       if (msg.streaming) {
         html += `<div class="ac-ai-cont" id="ac-streaming-content">`;
@@ -1883,8 +1912,11 @@ async function acSend() {
 
 async function openAiChat(initMsg) {
   if (!acCurrentSessionId) acCurrentSessionId = 'ses-' + Date.now();
+  let isFirstOpen = false;
   if (acMessages.length === 0) {
-    acMessages = [{ role: 'ai', text: AC_WELCOME, showAvatar: true }];
+    const welcome = acRandWelcome();
+    acMessages = [{ role: 'ai', text: welcome, showAvatar: true }];
+    isFirstOpen = true;
   }
   go(7);
   if (initMsg) {
@@ -1894,7 +1926,13 @@ async function openAiChat(initMsg) {
     setTimeout(acRender, 50);
     setTimeout(() => acRunStream(initMsg, streamIdx), 80);
   } else {
-    setTimeout(acRender, 50);
+    setTimeout(() => {
+      acRender();
+      if (isFirstOpen) {
+        const body = document.getElementById('ac-body');
+        if (body) { const cont = body.querySelector('.ac-ai-cont'); if (cont) acTypeWriter(cont, acMessages[0].text); }
+      }
+    }, 50);
   }
 }
 
