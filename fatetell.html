@@ -1826,6 +1826,7 @@ function acRender() {
 const AI_BASE = 'http://43.131.226.115:6889';
 const AI_WORKSPACE = 'fatetell';
 const AI_KEY = 'ft-28d35439bef90eefd615dcbed914457837243779b8716eee';
+const YIOR_API = 'http://82.156.157.112';
 const AI_SESSION = 'user-' + Math.random().toString(36).slice(2, 9);
 
 function needsBaziContext(msg) {
@@ -6154,7 +6155,7 @@ async function bzAiFeedbackSubmit() {
 
   // 发送到服务器（如可达）
   try {
-    await fetch(`${AI_BASE.replace(':6889', ':3000')}/api/feedback`, {
+    await fetch(`${YIOR_API}/api/feedback`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
