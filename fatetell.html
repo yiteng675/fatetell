@@ -5478,29 +5478,39 @@ function bzRenderDaYun(pOrId, activeIdx) {
     const _isStrong=(_feC[_dmE]||0)>=(_feTotal*0.3);
     bzRenderDyBar(p, daYun, activeIdx, _isStrong);
 
-    // AI 精准评分（异步，完成后刷新柱状图）
+    // AI 精准评分（优先读缓存，首次才调 AI）
     const _barEl = document.getElementById('bzDyBar');
     if (_barEl && !_barEl.dataset.aiDone) {
-      _barEl.dataset.aiDone = '0';
-      const _loadTip = document.createElement('div');
-      _loadTip.id = 'bzDyBarLoading';
-      _loadTip.style.cssText = 'font-size:11px;color:#c0a060;text-align:center;padding:4px 0 0;';
-      _loadTip.textContent = 'AI 分析中…';
-      _barEl.appendChild(_loadTip);
+      _barEl.dataset.aiDone = '1';
+      const _cacheKey = `bz_dy_score_${p.id}`;
+      let _cached = null;
+      try { const _raw = localStorage.getItem(_cacheKey); if (_raw) _cached = JSON.parse(_raw); } catch(e) {}
 
-      bzAIScoreDaYun(p, daYun, _isStrong).then(aiScores => {
-        if (!aiScores || !aiScores.length) return;
-        // 用 AI 分数替换 bzDyEval，重新渲染
+      if (_cached && _cached.length) {
+        // 命中缓存，直接渲染
         const aiMap = {};
-        aiScores.forEach(s => { aiMap[s.gz] = s; });
+        _cached.forEach(s => { aiMap[s.gz] = s; });
         bzRenderDyBarWithScores(p, daYun, activeIdx, aiMap);
-        const tip = document.getElementById('bzDyBarLoading');
-        if (tip) tip.remove();
-        if (_barEl) _barEl.dataset.aiDone = '1';
-      }).catch(() => {
-        const tip = document.getElementById('bzDyBarLoading');
-        if (tip) tip.remove();
-      });
+      } else {
+        // 无缓存，调 AI
+        const _loadTip = document.createElement('div');
+        _loadTip.id = 'bzDyBarLoading';
+        _loadTip.style.cssText = 'font-size:11px;color:#c0a060;text-align:center;padding:4px 0 0;';
+        _loadTip.textContent = 'AI 分析中…';
+        _barEl.appendChild(_loadTip);
+        bzAIScoreDaYun(p, daYun, _isStrong).then(aiScores => {
+          if (!aiScores || !aiScores.length) return;
+          try { localStorage.setItem(_cacheKey, JSON.stringify(aiScores)); } catch(e) {}
+          const aiMap = {};
+          aiScores.forEach(s => { aiMap[s.gz] = s; });
+          bzRenderDyBarWithScores(p, daYun, activeIdx, aiMap);
+          const tip = document.getElementById('bzDyBarLoading');
+          if (tip) tip.remove();
+        }).catch(() => {
+          const tip = document.getElementById('bzDyBarLoading');
+          if (tip) tip.remove();
+        });
+      }
     }
 
     // 起运日期
