@@ -5303,6 +5303,53 @@ function bzDyEval(gz, dayGan, isStrong) {
   return { score, cy };
 }
 
+function bzRenderDyBarWithScores(p, daYun, activeIdx, aiMap) {
+  const barEl = document.getElementById('bzDyBar');
+  if (!barEl) return;
+  const now = new Date().getFullYear();
+  const BAR_MAX = 120, BAR_MIN = 26;
+  const cols = daYun.map((dy, i) => {
+    const gz = dy.getGanZhi();
+    if (!gz) return '';
+    const sa = dy.getStartAge();
+    const ea = dy.getEndYear ? dy.getEndYear() : sa + 9;
+    const ageLabel = `${sa}-${sa+9}岁`;
+    const ai = aiMap[gz];
+    const score = ai ? ai.score : 60;
+    const cy = ai ? ai.cy : ['运势平稳', '韬光养晦'];
+    const barH = Math.round(BAR_MIN + (score - 32) / 67 * (BAR_MAX - BAR_MIN));
+    const isNow = dy.getStartYear() <= now && ea >= now;
+    const isCur = i === activeIdx;
+    const barBg = isNow
+      ? 'linear-gradient(180deg,#e8956a 0%,#f5c49a 100%)'
+      : isCur
+        ? 'linear-gradient(180deg,#d4a070 0%,#edcf9a 100%)'
+        : 'linear-gradient(180deg,#e8ccaa 0%,#f5e2cc 100%)';
+    const textC = isNow ? '#7a3010' : '#9a6820';
+    return `<div style="min-width:72px;width:72px;display:flex;flex-direction:column;align-items:center;padding:0 2px;cursor:pointer;" onclick="bzRenderDaYun('${p.id}',${i})">
+      <div style="font-size:10px;color:${textC};text-align:center;line-height:1.75;margin-bottom:8px;font-family:'Microsoft YaHei';white-space:nowrap;">${cy[0]}<br>${cy[1]}</div>
+      <div style="display:flex;align-items:flex-end;width:100%;justify-content:center;">
+        <div style="width:44px;height:${barH}px;background:${barBg};border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:15px;font-weight:700;color:${textC};line-height:1;">${score}</span>
+        </div>
+      </div>
+      <div style="font-size:10px;color:#aaa;text-align:center;margin-top:7px;line-height:1.6;">${ageLabel}<br><span style="color:#888;font-size:11px;">${gz[0]}${gz[1]}</span></div>
+      ${isNow ? `<div style="width:5px;height:5px;border-radius:50%;background:#e8956a;margin:4px auto 0;"></div>` : '<div style="height:9px;"></div>'}
+    </div>`;
+  }).join('');
+  const scroll = barEl.querySelector('.bz-hscroll');
+  const prevLeft = scroll ? scroll.scrollLeft : 0;
+  barEl.innerHTML = `
+    <div class="bz-hscroll" style="padding-bottom:4px;">
+      <div style="display:inline-flex;align-items:flex-end;padding:0 14px;min-height:${BAR_MAX+100}px;">
+        ${cols}
+      </div>
+    </div>
+    <div style="border-top:1px solid #ede8e0;margin:12px 14px 0;"></div>`;
+  const newScroll = barEl.querySelector('.bz-hscroll');
+  if (newScroll && prevLeft) newScroll.scrollLeft = prevLeft;
+}
+
 function bzRenderDyBar(p, daYun, activeIdx, isStrong) {
   const barEl = document.getElementById('bzDyBar');
   if (!barEl) return;
@@ -5345,6 +5392,65 @@ function bzRenderDyBar(p, daYun, activeIdx, isStrong) {
     <div style="border-top:1px solid #ede8e0;margin:12px 14px 0;"></div>`;
 }
 
+async function bzAIScoreDaYun(p, daYun, isStrong) {
+  const pillars = `${p.yearGan}${p.yearZhi} ${p.monthGan}${p.monthZhi} ${p.dayGan}${p.dayZhi} ${p.hourGan}${p.hourZhi}`;
+  const strength = isStrong ? '身强' : '身弱';
+  const dyList = daYun.filter(dy=>dy.getGanZhi()).map((dy,i)=>{
+    const gz=dy.getGanZhi(), sa=dy.getStartAge();
+    return `${i+1}. ${sa}-${sa+9}岁 ${gz}`;
+  }).join('\n');
+
+  const prompt = `你是精通传统八字命理的大师。请根据以下命主信息，为每段大运评分并给成语总结。
+
+【命主】四柱：${pillars} | 日主：${p.dayGan}（${BZ_GAN_ELEM[p.dayGan]||''}）${strength} | 性别：${p.gender==='male'?'男':'女'}
+
+【大运列表】
+${dyList}
+
+评分要求（1-100分）：
+- 综合考虑大运干支对日主的喜忌（喜用神高分，忌神低分）
+- 考虑大运干支与原局四柱的刑冲合害
+- 考虑天干地支力量配合与透出情况
+- 分数要有明显区分度，避免集中在同一区间
+
+每段给两个四字成语概括该段运势特点。
+
+只返回JSON，格式：[{"gz":"甲子","score":85,"cy":["成语一","成语二"]},...]`;
+
+  let full = '';
+  const sid = 'dy-' + p.id;
+  await new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => reject(new Error('timeout')), 20000);
+    fetch(`${AI_BASE}/api/v1/workspace/${AI_WORKSPACE}/stream-chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${AI_KEY}` },
+      body: JSON.stringify({ message: prompt, mode: 'chat', sessionId: sid })
+    }).then(res => {
+      if (!res.ok) { clearTimeout(timeout); return reject(new Error('api err')); }
+      const reader = res.body.getReader();
+      const dec = new TextDecoder();
+      let buf = '';
+      function pump() {
+        reader.read().then(({ done, value }) => {
+          if (done) { clearTimeout(timeout); resolve(); return; }
+          buf += dec.decode(value, { stream: true });
+          const lines = buf.split('\n'); buf = lines.pop() || '';
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue;
+            try { const d = JSON.parse(line.slice(6)); if (d.textResponse) full += d.textResponse; if (d.close) { clearTimeout(timeout); resolve(); } } catch(e) {}
+          }
+          pump();
+        }).catch(e => { clearTimeout(timeout); reject(e); });
+      }
+      pump();
+    }).catch(e => { clearTimeout(timeout); reject(e); });
+  });
+
+  const match = full.match(/\[[\s\S]*?\]/);
+  if (!match) throw new Error('no json');
+  return JSON.parse(match[0]);
+}
+
 function bzRenderDaYun(pOrId, activeIdx) {
   const p = (typeof pOrId === 'string') ? bzProfiles.find(x=>x.id===pOrId) : pOrId;
   if (!p) return;
@@ -5371,6 +5477,31 @@ function bzRenderDaYun(pOrId, activeIdx) {
     const _dmE=BZ_GAN_ELEM[p.dayGan]||'';
     const _isStrong=(_feC[_dmE]||0)>=(_feTotal*0.3);
     bzRenderDyBar(p, daYun, activeIdx, _isStrong);
+
+    // AI 精准评分（异步，完成后刷新柱状图）
+    const _barEl = document.getElementById('bzDyBar');
+    if (_barEl && !_barEl.dataset.aiDone) {
+      _barEl.dataset.aiDone = '0';
+      const _loadTip = document.createElement('div');
+      _loadTip.id = 'bzDyBarLoading';
+      _loadTip.style.cssText = 'font-size:11px;color:#c0a060;text-align:center;padding:4px 0 0;';
+      _loadTip.textContent = 'AI 分析中…';
+      _barEl.appendChild(_loadTip);
+
+      bzAIScoreDaYun(p, daYun, _isStrong).then(aiScores => {
+        if (!aiScores || !aiScores.length) return;
+        // 用 AI 分数替换 bzDyEval，重新渲染
+        const aiMap = {};
+        aiScores.forEach(s => { aiMap[s.gz] = s; });
+        bzRenderDyBarWithScores(p, daYun, activeIdx, aiMap);
+        const tip = document.getElementById('bzDyBarLoading');
+        if (tip) tip.remove();
+        if (_barEl) _barEl.dataset.aiDone = '1';
+      }).catch(() => {
+        const tip = document.getElementById('bzDyBarLoading');
+        if (tip) tip.remove();
+      });
+    }
 
     // 起运日期
     const startEl = document.getElementById('bzDyStart');
