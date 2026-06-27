@@ -5307,36 +5307,42 @@ function bzRenderDyBar(p, daYun, activeIdx, isStrong) {
   const barEl = document.getElementById('bzDyBar');
   if (!barEl) return;
   const now = new Date().getFullYear();
-  const BAR_MAX = 110, BAR_MIN = 28;
+  const BAR_MAX = 120, BAR_MIN = 26;
   const cols = daYun.map((dy, i) => {
     const gz = dy.getGanZhi();
     if (!gz) return '';
-    const sa = dy.getStartAge(), ea = dy.getEndYear ? dy.getEndYear() : sa + 9;
+    const sa = dy.getStartAge();
+    const ea = dy.getEndYear ? dy.getEndYear() : sa + 9;
     const ageLabel = `${sa}-${sa+9}岁`;
     const { score, cy } = bzDyEval(gz, p.dayGan, isStrong);
     const barH = Math.round(BAR_MIN + (score - 32) / 67 * (BAR_MAX - BAR_MIN));
     const isNow = dy.getStartYear() <= now && ea >= now;
     const isCur = i === activeIdx;
     const barBg = isNow
-      ? 'linear-gradient(180deg,#e8956a,#f5c49a)'
+      ? 'linear-gradient(180deg,#e8956a 0%,#f5c49a 100%)'
       : isCur
-        ? 'linear-gradient(180deg,#d4a574,#edd9b8)'
-        : 'linear-gradient(180deg,#eac99a,#f5e0c0)';
-    const textC = isNow ? '#8b3a10' : '#a07030';
-    const nowDot = isNow ? `<div style="width:6px;height:6px;border-radius:50%;background:#e8956a;margin:0 auto 4px;"></div>` : '';
-    return `<div style="min-width:80px;width:80px;display:flex;flex-direction:column;align-items:center;padding:0 4px;cursor:pointer;" onclick="bzRenderDaYun('${p.id}',${i})">
-      <div style="font-size:10.5px;color:${textC};text-align:center;line-height:1.7;margin-bottom:6px;font-family:'Microsoft YaHei';">${cy[0]}<br>${cy[1]}</div>
-      <div style="flex:1;display:flex;align-items:flex-end;width:100%;">
-        <div style="width:100%;height:${barH}px;background:${barBg};border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:center;">
-          <span style="font-size:17px;font-weight:700;color:${textC};">${score}</span>
+        ? 'linear-gradient(180deg,#d4a070 0%,#edcf9a 100%)'
+        : 'linear-gradient(180deg,#e8ccaa 0%,#f5e2cc 100%)';
+    const textC = isNow ? '#7a3010' : '#9a6820';
+    return `<div style="min-width:72px;width:72px;display:flex;flex-direction:column;align-items:center;padding:0 2px;cursor:pointer;" onclick="bzRenderDaYun('${p.id}',${i})">
+      <div style="font-size:10px;color:${textC};text-align:center;line-height:1.75;margin-bottom:8px;font-family:'Microsoft YaHei';white-space:nowrap;">${cy[0]}<br>${cy[1]}</div>
+      <div style="display:flex;align-items:flex-end;width:100%;justify-content:center;">
+        <div style="width:44px;height:${barH}px;background:${barBg};border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:15px;font-weight:700;color:${textC};line-height:1;">${score}</span>
         </div>
       </div>
-      <div style="font-size:10px;color:#999;text-align:center;margin-top:6px;">${ageLabel}</div>
-      <div style="font-size:11px;color:#888;text-align:center;">${gz[0]}${gz[1]}</div>
-      ${nowDot}
+      <div style="font-size:10px;color:#aaa;text-align:center;margin-top:7px;line-height:1.6;">${ageLabel}<br><span style="color:#888;font-size:11px;">${gz[0]}${gz[1]}</span></div>
+      ${isNow ? `<div style="width:5px;height:5px;border-radius:50%;background:#e8956a;margin:4px auto 0;"></div>` : '<div style="height:9px;"></div>'}
     </div>`;
   }).join('');
-  barEl.innerHTML = `<div class="bz-hscroll"><div style="display:flex;align-items:flex-end;padding:0 12px 0;min-height:${BAR_MAX+80}px;align-items:stretch;">${cols}</div></div>`;
+
+  barEl.innerHTML = `
+    <div class="bz-hscroll" style="padding-bottom:4px;">
+      <div style="display:inline-flex;align-items:flex-end;padding:0 14px;min-height:${BAR_MAX+100}px;">
+        ${cols}
+      </div>
+    </div>
+    <div style="border-top:1px solid #ede8e0;margin:12px 14px 0;"></div>`;
 }
 
 function bzRenderDaYun(pOrId, activeIdx) {
