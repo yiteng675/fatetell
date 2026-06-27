@@ -5129,7 +5129,7 @@ function bzMakeDayMasterWheel(dayGan) {
   };
   const src = ganImg[dayGan] || '';
   if (!src) return '';
-  return `<img src="${src}" alt="${dayGan}" style="width:100%;max-width:336px;display:block;margin:0 auto;border-radius:12px;"/>`;
+  return `<img src="${src}" alt="${dayGan}" style="width:100%;max-width:420px;display:block;margin:0 auto;border-radius:12px;"/>`;
 }
 
 function bzMakeRelSVG(fePct, dmElem) {
@@ -5208,7 +5208,7 @@ function bzMakeRelSVG(fePct, dmElem) {
   return `<div style="margin:12px 14px 0;padding:16px 8px 8px;">
   <div style="font-size:13px;font-weight:600;color:#333;margin-bottom:0;text-align:center;font-family:'Microsoft YaHei';">五行分布</div>
   <div style="display:flex;justify-content:center;">
-  <svg width="100%" viewBox="0 0 ${W} ${H}" style="max-width:${W}px;">
+  <svg width="100%" viewBox="0 0 ${W} ${H}" style="max-width:240px;">
     <defs>
       <marker id="bzSheng" markerWidth="8" markerHeight="8" refX="6.5" refY="4" orient="auto">
         <path d="M0,0.8 L7,4 L0,7.2 Z" fill="#c0a878"/>
