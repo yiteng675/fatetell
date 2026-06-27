@@ -5090,6 +5090,7 @@ function bzRenderDetail(p) {
       <span style="font-size:15px;font-weight:600;color:#1a1a1a;font-family:'Microsoft YaHei';">大运</span>
       <span id="bzDyStart" style="font-size:11px;color:#999;"></span>
     </div>
+    <div id="bzDyBar"></div>
     <div id="bzDyRow"></div>
     <div style="padding:0 16px;margin:16px 0 10px;">
       <span style="font-size:15px;font-weight:600;color:#1a1a1a;font-family:'Microsoft YaHei';">流年</span>
@@ -5271,6 +5272,73 @@ function bzMakeXiJi(dmElem, isStrong) {
 }
 
 // ── DaYun / LiuNian render ────────────────────────────────────────
+function bzDyEval(gz, dayGan, isStrong) {
+  if (!gz) return { score: 58, cy: ['起步阶段', '厚积薄发'] };
+  const gan = gz[0], zhi = gz[1];
+  const ganSS = bzGetSS(gan, dayGan);
+  const mainHide = (BZ_HIDE[zhi] || [])[0];
+  const zhiSS = mainHide ? bzGetSS(mainHide, dayGan) : ganSS;
+  const favW = {'正印':92,'偏印':85,'比肩':80,'劫财':70,'食神':52,'伤官':42,'偏财':58,'正财':63,'七杀':38,'正官':55};
+  const favS = {'食神':90,'伤官':80,'偏财':88,'正财':92,'七杀':75,'正官':85,'比肩':48,'劫财':40,'正印':43,'偏印':35};
+  const map = isStrong ? favS : favW;
+  const gs = map[ganSS] ?? 60, zs = map[zhiSS] ?? 60;
+  let score = Math.round(gs * 0.6 + zs * 0.4);
+  const v = (gz.charCodeAt(0) * 3 + gz.charCodeAt(1) * 7) % 11 - 5;
+  score = Math.min(99, Math.max(32, score + v));
+  const domSS = gs >= zs ? ganSS : zhiSS;
+  const ok = score >= 65;
+  const cyMap = {
+    '正印': ok ? ['贵人相助','厚积薄发'] : ['依赖成性','固步自封'],
+    '偏印': ok ? ['别出心裁','独辟蹊径'] : ['多思寡断','心猿意马'],
+    '比肩': ok ? ['志同道合','携手共进'] : ['相争相夺','同室操戈'],
+    '劫财': ok ? ['开拓进取','奋发图强'] : ['财散人离','居安思危'],
+    '食神': ok ? ['安居乐业','悠然自得'] : ['耗散无度','坐吃山空'],
+    '伤官': ok ? ['才华横溢','锋芒毕露'] : ['言多必失','锋芒太露'],
+    '偏财': ok ? ['财源广进','左右逢源'] : ['财来财去','开源节流'],
+    '正财': ok ? ['稳中求胜','积少成多'] : ['财运受阻','勤俭为要'],
+    '七杀': ok ? ['披荆斩棘','功业定成'] : ['压力渐增','逆水行舟'],
+    '正官': ok ? ['德隆望重','光明正大'] : ['规矩缚身','束缚重重'],
+  };
+  const cy = cyMap[domSS] || (ok ? ['吉星高照','顺风顺水'] : ['平稳度日','韬光养晦']);
+  return { score, cy };
+}
+
+function bzRenderDyBar(p, daYun, activeIdx, isStrong) {
+  const barEl = document.getElementById('bzDyBar');
+  if (!barEl) return;
+  const now = new Date().getFullYear();
+  const BAR_MAX = 110, BAR_MIN = 28;
+  const cols = daYun.map((dy, i) => {
+    const gz = dy.getGanZhi();
+    if (!gz) return '';
+    const sa = dy.getStartAge(), ea = dy.getEndYear ? dy.getEndYear() : sa + 9;
+    const ageLabel = `${sa}-${sa+9}岁`;
+    const { score, cy } = bzDyEval(gz, p.dayGan, isStrong);
+    const barH = Math.round(BAR_MIN + (score - 32) / 67 * (BAR_MAX - BAR_MIN));
+    const isNow = dy.getStartYear() <= now && ea >= now;
+    const isCur = i === activeIdx;
+    const barBg = isNow
+      ? 'linear-gradient(180deg,#e8956a,#f5c49a)'
+      : isCur
+        ? 'linear-gradient(180deg,#d4a574,#edd9b8)'
+        : 'linear-gradient(180deg,#eac99a,#f5e0c0)';
+    const textC = isNow ? '#8b3a10' : '#a07030';
+    const nowDot = isNow ? `<div style="width:6px;height:6px;border-radius:50%;background:#e8956a;margin:0 auto 4px;"></div>` : '';
+    return `<div style="min-width:80px;width:80px;display:flex;flex-direction:column;align-items:center;padding:0 4px;cursor:pointer;" onclick="bzRenderDaYun('${p.id}',${i})">
+      <div style="font-size:10.5px;color:${textC};text-align:center;line-height:1.7;margin-bottom:6px;font-family:'Microsoft YaHei';">${cy[0]}<br>${cy[1]}</div>
+      <div style="flex:1;display:flex;align-items:flex-end;width:100%;">
+        <div style="width:100%;height:${barH}px;background:${barBg};border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:17px;font-weight:700;color:${textC};">${score}</span>
+        </div>
+      </div>
+      <div style="font-size:10px;color:#999;text-align:center;margin-top:6px;">${ageLabel}</div>
+      <div style="font-size:11px;color:#888;text-align:center;">${gz[0]}${gz[1]}</div>
+      ${nowDot}
+    </div>`;
+  }).join('');
+  barEl.innerHTML = `<div class="bz-hscroll"><div style="display:flex;align-items:flex-end;padding:0 12px 0;min-height:${BAR_MAX+80}px;align-items:stretch;">${cols}</div></div>`;
+}
+
 function bzRenderDaYun(pOrId, activeIdx) {
   const p = (typeof pOrId === 'string') ? bzProfiles.find(x=>x.id===pOrId) : pOrId;
   if (!p) return;
@@ -5285,6 +5353,18 @@ function bzRenderDaYun(pOrId, activeIdx) {
     let autoActive = 0;
     daYun.forEach((dy,i) => { if (dy.getStartYear()<=now && dy.getEndYear()>=now) autoActive=i; });
     if (activeIdx === undefined) activeIdx = autoActive;
+
+    // 身强/弱 for scoring
+    const _feC = {木:0,火:0,土:0,金:0,水:0};
+    [p.yearGan,p.monthGan,p.dayGan,p.hourGan].forEach(g=>{const e=BZ_GAN_ELEM[g];if(e)_feC[e]+=1.5;});
+    [p.yearZhi,p.monthZhi,p.dayZhi,p.hourZhi].forEach(z=>{
+      const e=BZ_ZHI_ELEM[z];if(e)_feC[e]+=1;
+      (BZ_HIDE[z]||[]).forEach(hg=>{const he=BZ_GAN_ELEM[hg];if(he)_feC[he]+=0.5;});
+    });
+    const _feTotal=Object.values(_feC).reduce((a,b)=>a+b,0)||1;
+    const _dmE=BZ_GAN_ELEM[p.dayGan]||'';
+    const _isStrong=(_feC[_dmE]||0)>=(_feTotal*0.3);
+    bzRenderDyBar(p, daYun, activeIdx, _isStrong);
 
     // 起运日期
     const startEl = document.getElementById('bzDyStart');
