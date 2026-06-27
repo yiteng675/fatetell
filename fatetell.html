@@ -4324,7 +4324,7 @@ function bzRenderRelPicker() {
       </div>
     </div>`).join('');
 }
-let bzCurrentPid = null;
+let bzCurrentPid = localStorage.getItem('bz_last_pid') || null;
 // picker state
 let bzPickerMode = 'solar';
 let bzPickY=1990, bzPickM=1, bzPickD=1, bzPickH=12, bzPickMin=0;
@@ -4889,6 +4889,7 @@ function bzShowDetail(id) {
   const p = bzProfiles.find(x=>x.id===id);
   if (!p) return;
   bzCurrentPid = id;
+  try { localStorage.setItem('bz_last_pid', id); } catch(e) {}
   homeUpdateProfile();
   const sc = document.getElementById('bzDetailSc');
   sc.innerHTML = bzRenderDetail(p);
