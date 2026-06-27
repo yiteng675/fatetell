@@ -38,6 +38,9 @@ html,body{overscroll-behavior:none}
 #bzai-body::-webkit-scrollbar{width:2px}
 #bzai-body::-webkit-scrollbar-track{background:transparent}
 #bzai-body::-webkit-scrollbar-thumb{background:#ddd;border-radius:2px}
+#ac-body::-webkit-scrollbar{width:2px}
+#ac-body::-webkit-scrollbar-track{background:transparent}
+#ac-body::-webkit-scrollbar-thumb{background:#ddd;border-radius:2px}
 
 /* NAV */
 .nav{height:80px;flex-shrink:0;background:#fff;border-top:1px solid rgba(0,0,0,.06);display:flex;align-items:flex-start;padding-top:8px;padding-bottom:0}
@@ -1002,30 +1005,43 @@ html,body{overscroll-behavior:none}
 </div>
 
 <!-- ═══ SCREEN 7: AI 对话 ═══ -->
-<div class="screen" id="aiChatScreen" style="background:#fff;">
+<div class="screen" id="aiChatScreen" style="background:linear-gradient(180deg,#d8eef8 0%,#eef6fb 20%,#fff 50%);position:relative;">
 
   <!-- Header -->
-  <div style="height:50px;padding:0 14px;display:flex;align-items:center;gap:10px;flex-shrink:0;background:#fff;border-bottom:1px solid #f0ede8;">
-    <div onclick="go(0)" style="cursor:pointer;width:32px;height:32px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+  <div style="height:56px;padding:0 14px;display:flex;align-items:center;gap:10px;flex-shrink:0;background:transparent;">
+    <div onclick="go(0)" style="cursor:pointer;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.06);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
     </div>
-    <div class="ac-count-badge">解读次数：<span id="ac-used">0</span>/2</div>
-    <div style="flex:1;"></div>
-    <div onclick="acToggleHistory()" style="width:36px;height:36px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;cursor:pointer;" title="对话历史">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><line x1="9" y1="9" x2="15" y2="9" stroke-width="1.5"/><line x1="9" y1="13" x2="13" y2="13" stroke-width="1.5"/></svg>
+    <img src="xingxiang.png" style="width:42px;height:42px;object-fit:contain;flex-shrink:0;">
+    <img src="logo.svg" style="height:16px;width:auto;flex:1;min-width:0;object-fit:contain;object-position:left;">
+    <div onclick="acToggleHistory()" style="width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.06);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;" title="对话记录">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><line x1="9" y1="9" x2="15" y2="9" stroke-width="1.5"/><line x1="9" y1="13" x2="13" y2="13" stroke-width="1.5"/></svg>
     </div>
   </div>
 
   <!-- Chat messages -->
-  <div class="scroll" style="flex:1;padding:16px 16px 8px;" id="ac-body"></div>
+  <div style="flex:1;overflow-y:auto;padding:8px 16px;" id="ac-body"></div>
+
+  <!-- 反馈浮层 -->
+  <div id="ac-fb-overlay" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,.32);z-index:20;align-items:flex-end;">
+    <div id="ac-fb-panel" style="width:100%;background:#fff;border-radius:18px 18px 0 0;padding:20px 18px 30px;transform:translateY(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <span style="font-size:16px;font-weight:600;color:#1a1a1a;font-family:'Microsoft YaHei';">内容反馈</span>
+        <div onclick="acFeedbackClose()" style="width:28px;height:28px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:#999;line-height:1;">×</div>
+      </div>
+      <div id="ac-fb-tags" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;"></div>
+      <textarea id="ac-fb-text" placeholder="留下你的反馈..." style="display:none;width:100%;border:1px solid #eee;border-radius:12px;padding:12px;font-size:14px;color:#333;resize:none;height:90px;outline:none;font-family:'Microsoft YaHei';margin-bottom:16px;box-sizing:border-box;"></textarea>
+      <div onclick="acFeedbackSubmit()" style="width:100%;padding:13px;background:linear-gradient(135deg,#5bbcf0,#2e9de0);color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;text-align:center;font-family:'Microsoft YaHei';">提交反馈</div>
+    </div>
+  </div>
 
   <!-- Bottom input -->
   <div style="flex-shrink:0;background:#fff;border-top:1px solid #f0ede8;padding:10px 14px 14px;display:flex;align-items:center;gap:10px;">
-    <div style="flex:1;background:#f2f2f2;border-radius:24px;padding:12px 18px;display:flex;align-items:center;gap:8px;">
-      <input type="text" id="ac-input" placeholder="请进一步描述背景信息或详细情况" style="flex:1;border:none;background:transparent;font-size:14px;color:#333;outline:none;font-family:'Microsoft YaHei';" onkeydown="if(event.key==='Enter')acSend()"/>
+    <div style="flex:1;background:#f2f2f2;border-radius:24px;padding:10px 14px;display:flex;align-items:center;gap:8px;">
+      <input type="text" id="ac-input" placeholder="让我来解答你的问题吧" style="flex:1;border:none;background:transparent;font-size:13.5px;color:#333;outline:none;font-family:'Microsoft YaHei';" onkeydown="if(event.key==='Enter')acSend()"/>
     </div>
-    <div onclick="acSend()" style="width:40px;height:40px;border-radius:50%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/></svg>
+    <div onclick="acSend()" style="width:36px;height:36px;border-radius:50%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/></svg>
     </div>
   </div>
 
@@ -1421,7 +1437,7 @@ html,body{overscroll-behavior:none}
   <div id="bzAiPanel" style="position:relative;width:100%;height:82%;background:linear-gradient(180deg,#d8eef8 0%,#eef6fb 22%,#fff 55%);border-radius:20px 20px 0 0;display:flex;flex-direction:column;overflow:hidden;transform:translateY(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);">
     <!-- header -->
     <div style="display:flex;align-items:center;gap:10px;padding:14px 14px 10px;flex-shrink:0;">
-      <img src="xingxiang.png" style="width:50px;height:50px;border-radius:50%;object-fit:cover;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.12);">
+      <img src="xingxiang.png" style="width:50px;height:50px;object-fit:contain;flex-shrink:0;">
       <div style="display:flex;align-items:center;gap:5px;flex:1;min-width:0;">
         <img src="logo.svg" style="height:18px;width:auto;flex-shrink:0;">
       </div>
@@ -1798,22 +1814,25 @@ function acRender() {
   let html = '';
   acMessages.forEach((msg, idx) => {
     if (msg.role === 'user') {
-      html += `<div class="ac-user"><div class="ac-user-bubble">${msg.text}</div></div>`;
+      html += `<div style="display:flex;justify-content:flex-end;margin:8px 0;">
+        <div style="max-width:76%;background:linear-gradient(135deg,#5bbcf0,#2e9de0);color:#fff;border-radius:18px 18px 4px 18px;padding:10px 14px;font-size:13.5px;line-height:1.65;font-family:'Microsoft YaHei';">${msg.text}</div>
+      </div>`;
     } else {
-      html += `<div class="ac-ai-block">`;
-      if (msg.showAvatar !== false) {
-        html += `<div class="ac-ai-hd"><div class="ac-ai-avatar">Y</div><span class="ac-ai-nm">${AC_NAME}</span></div>`;
-      }
-      if (msg.streaming) {
-        html += `<div class="ac-ai-cont" id="ac-streaming-content">`;
-        html += msg.text
-          ? acFmt(msg.text)
-          : `<span class="ac-loading-pulse">屏气凝神，结果已定。</span>`;
-        html += `</div>`;
-      } else {
-        html += `<div class="ac-ai-cont">${acFmt(msg.text)}</div>`;
-      }
-      html += `</div>`;
+      const content = msg.streaming
+        ? `<span id="ac-streaming-content">${acFmt(msg.text || '')}</span>`
+        : acFmt(msg.text || '');
+      const loading = msg.streaming && !msg.text
+        ? `<span class="ac-loading-pulse">屏气凝神，结果已定。</span>` : '';
+      const actions = (!msg.streaming && msg.text) ? `
+        <div style="display:flex;gap:18px;margin-top:10px;padding-top:8px;border-top:1px solid #f0f0f0;align-items:center;">
+          <svg id="ac-copy-${idx}" onclick="acCopy(${idx})" style="cursor:pointer;" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.8"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          <svg id="ac-like-${idx}" onclick="acFeedbackOpen(${idx},'like')" style="cursor:pointer;" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.8"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>
+          <svg id="ac-dislike-${idx}" onclick="acFeedbackOpen(${idx},'dislike')" style="cursor:pointer;" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.8"><path d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0122 4v7a2.31 2.31 0 01-2.33 2H17"/></svg>
+          <svg onclick="acShare(${idx})" style="cursor:pointer;" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.8"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+        </div>` : '';
+      html += `<div style="margin:8px 0;">
+        <div style="background:#fff;border-radius:4px 18px 18px 18px;padding:12px 14px;font-size:13.5px;line-height:1.75;color:#333;font-family:'Microsoft YaHei';box-shadow:0 1px 5px rgba(0,0,0,.07);">${loading}${content}${actions}</div>
+      </div>`;
     }
   });
   body.innerHTML = html;
@@ -6054,6 +6073,97 @@ function bzAiSaveSession() {
       updatedAt: Date.now()
     }));
   } catch(e) {}
+}
+
+// ── 主AI 操作按钮 ─────────────────────────────────────────────────
+function acCopy(idx) {
+  const msg = acMessages[idx];
+  if (!msg) return;
+  const text = (msg.text || '').replace(/<[^>]+>/g, '');
+  if (navigator.clipboard) navigator.clipboard.writeText(text);
+  const el = document.getElementById(`ac-copy-${idx}`);
+  if (el) { el.setAttribute('stroke', '#52c41a'); setTimeout(() => el.setAttribute('stroke', '#ccc'), 1500); }
+}
+
+function acShare(idx) {
+  const msg = acMessages[idx];
+  if (!msg) return;
+  const text = (msg.text || '').replace(/<[^>]+>/g, '').slice(0, 200);
+  if (navigator.share) {
+    navigator.share({ title: 'Yior AI 解读', text });
+  } else {
+    if (navigator.clipboard) navigator.clipboard.writeText(text);
+  }
+}
+
+let _acFbIdx = -1;
+let _acFbType = '';
+let _acFbSelected = new Set();
+
+function acFeedbackOpen(idx, type) {
+  _acFbIdx = idx;
+  _acFbType = type;
+  _acFbSelected = new Set();
+
+  const tags = type === 'like' ? _BZ_FB_LIKE_TAGS : _BZ_FB_DISLIKE_TAGS;
+  const tagsEl = document.getElementById('ac-fb-tags');
+  if (tagsEl) {
+    tagsEl.innerHTML = tags.map(t =>
+      `<div onclick="acFbToggleTag(this,'${t.replace(/'/g,"\\'")}')"`+
+      ` data-tag="${t}" style="padding:8px 16px;background:#f5f3f0;border:1px solid #e8e0d8;border-radius:20px;font-size:13px;color:#555;cursor:pointer;font-family:'Microsoft YaHei';">${t}</div>`
+    ).join('');
+  }
+  const txtEl = document.getElementById('ac-fb-text');
+  if (txtEl) {
+    txtEl.value = '';
+    txtEl.style.display = type === 'dislike' ? 'block' : 'none';
+  }
+  const likeEl = document.getElementById(`ac-like-${idx}`);
+  const dislikeEl = document.getElementById(`ac-dislike-${idx}`);
+  if (likeEl) likeEl.setAttribute('stroke', type === 'like' ? '#2e9de0' : '#ccc');
+  if (dislikeEl) dislikeEl.setAttribute('stroke', type === 'dislike' ? '#e05a2e' : '#ccc');
+
+  const ov = document.getElementById('ac-fb-overlay');
+  if (ov) { ov.style.display = 'flex'; setTimeout(() => { const p = document.getElementById('ac-fb-panel'); if(p) p.style.transform='translateY(0)'; }, 16); }
+}
+
+function acFbToggleTag(el, tag) {
+  if (_acFbSelected.has(tag)) {
+    _acFbSelected.delete(tag);
+    el.style.background = '#f5f3f0'; el.style.borderColor = '#e8e0d8'; el.style.color = '#555';
+  } else {
+    _acFbSelected.add(tag);
+    el.style.background = '#e8f4fb'; el.style.borderColor = '#5bbcf0'; el.style.color = '#2e9de0';
+  }
+}
+
+function acFeedbackClose() {
+  const p = document.getElementById('ac-fb-panel');
+  if (p) p.style.transform = 'translateY(100%)';
+  setTimeout(() => { const ov = document.getElementById('ac-fb-overlay'); if(ov) ov.style.display = 'none'; }, 300);
+}
+
+async function acFeedbackSubmit() {
+  const txtEl = document.getElementById('ac-fb-text');
+  const comment = txtEl ? txtEl.value.trim() : '';
+  const msg = acMessages[_acFbIdx] || {};
+  const prevUser = [...acMessages].slice(0, _acFbIdx).reverse().find(m => m.role === 'user');
+  const payload = {
+    type: _acFbType, tags: [..._acFbSelected], comment,
+    aiMsg: (msg.text || '').slice(0, 300),
+    userMsg: prevUser ? prevUser.text.slice(0, 200) : '',
+    pid: 'main', ts: Date.now()
+  };
+  try {
+    await fetch(`${YIOR_API}/api/feedback`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+  } catch(e) {
+    try {
+      const local = JSON.parse(localStorage.getItem('yior_fb_local') || '[]');
+      local.unshift(payload);
+      localStorage.setItem('yior_fb_local', JSON.stringify(local.slice(0, 50)));
+    } catch(e2) {}
+  }
+  acFeedbackClose();
 }
 
 // ── 操作按钮 ────────────────────────────────────────────────────
