@@ -4993,7 +4993,7 @@ function bzRenderDetail(p) {
     : '';
 
   return `
-<div style="background:#f5f3ef;padding-bottom:30px;">
+<div style="background:#f8f6f2;padding-bottom:30px;">
 
   <!-- Profile title -->
   <div style="padding:16px 16px 14px;display:flex;gap:14px;align-items:flex-start;">
@@ -5066,7 +5066,7 @@ function bzRenderDetail(p) {
   </div>
 
   <!-- Day master summary -->
-  <div style="margin:16px 14px 0;background:#fff;border-radius:16px;padding:16px;box-shadow:0 1px 8px rgba(0,0,0,.06);">
+  <div style="margin:16px 14px 0;padding:16px 14px;">
     <div style="text-align:center;margin-bottom:10px;">
       <span style="font-size:16px;font-weight:600;font-family:'Microsoft YaHei';color:${dmColor};">${p.dayGan}${dmElem}日主</span>
       <span style="font-size:14px;color:#888;font-family:'Microsoft YaHei';"> · 【${strength}】</span>
@@ -5085,7 +5085,7 @@ function bzRenderDetail(p) {
   ${bzMakeXiJi(dmElem, isStrong)}
 
   <!-- 大运流年 section -->
-  <div style="margin:12px 14px 0;background:#fff;border-radius:16px;padding:16px 0 16px;box-shadow:0 1px 8px rgba(0,0,0,.06);">
+  <div style="margin:12px 0 0;padding:16px 0 16px;">
     <div style="display:flex;justify-content:space-between;align-items:center;padding:0 16px;margin-bottom:10px;">
       <span style="font-size:15px;font-weight:600;color:#1a1a1a;font-family:'Microsoft YaHei';">大运</span>
       <span id="bzDyStart" style="font-size:11px;color:#999;"></span>
@@ -5205,7 +5205,7 @@ function bzMakeRelSVG(fePct, dmElem) {
       ${ss ? `<text x="${lax.toFixed(1)}" y="${(lay+4).toFixed(1)}" text-anchor="${anchor}" font-size="11" fill="${eText[e]}" font-family="'Microsoft YaHei',sans-serif">${ss}</text>` : ''}`;
   });
 
-  return `<div style="margin:12px 14px 0;background:#faf8f5;border-radius:16px;padding:16px 8px 8px;box-shadow:0 1px 8px rgba(0,0,0,.06);">
+  return `<div style="margin:12px 14px 0;padding:16px 8px 8px;">
   <div style="font-size:13px;font-weight:600;color:#333;margin-bottom:0;text-align:center;font-family:'Microsoft YaHei';">五行分布</div>
   <div style="display:flex;justify-content:center;">
   <svg width="100%" viewBox="0 0 ${W} ${H}" style="max-width:${W}px;">
@@ -5246,7 +5246,7 @@ function bzMakeXiJi(dmElem, isStrong) {
 
   const spans = arr => arr.map(e=>`<span style="font-size:18px;font-family:'Microsoft YaHei',serif;color:${eco[e]};margin:0 3px;">${e}</span>`).join('');
 
-  return `<div style="margin:12px 14px 0;background:#fff;border-radius:16px;padding:20px 16px 24px;box-shadow:0 1px 8px rgba(0,0,0,.06);">
+  return `<div style="margin:12px 14px 0;padding:20px 14px 24px;">
   <div style="text-align:center;margin-bottom:20px;line-height:2;">
     <div style="font-size:13px;color:#444;font-family:'Microsoft YaHei',serif;">喜用成就顺境，忌用招致逆境。</div>
     <div style="font-size:13px;color:#444;font-family:'Microsoft YaHei',serif;">你如何自处人生的起伏，便该如何看待五行的喜忌。</div>
