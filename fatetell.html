@@ -5090,8 +5090,7 @@ function bzRenderDetail(p) {
       <span style="font-size:15px;font-weight:600;color:#1a1a1a;font-family:'Microsoft YaHei';">大运</span>
       <span id="bzDyStart" style="font-size:11px;color:#999;"></span>
     </div>
-    <div id="bzDyBar"></div>
-    <div id="bzDyRow"></div>
+    <div id="bzDyCols"></div>
     <div style="padding:0 16px;margin:16px 0 10px;">
       <span style="font-size:15px;font-weight:600;color:#1a1a1a;font-family:'Microsoft YaHei';">流年</span>
     </div>
@@ -5473,43 +5472,6 @@ function bzRenderDaYun(pOrId, activeIdx) {
     const _feTotal=Object.values(_feC).reduce((a,b)=>a+b,0)||1;
     const _dmE=BZ_GAN_ELEM[p.dayGan]||'';
     const _isStrong=(_feC[_dmE]||0)>=(_feTotal*0.3);
-    bzRenderDyBar(p, daYun, activeIdx, _isStrong);
-
-    // AI 精准评分（优先读缓存，首次才调 AI）
-    const _barEl = document.getElementById('bzDyBar');
-    if (_barEl && !_barEl.dataset.aiDone) {
-      _barEl.dataset.aiDone = '1';
-      const _cacheKey = `bz_dy_score_${p.id}`;
-      let _cached = null;
-      try { const _raw = localStorage.getItem(_cacheKey); if (_raw) _cached = JSON.parse(_raw); } catch(e) {}
-
-      if (_cached && _cached.length) {
-        // 命中缓存，直接渲染
-        const aiMap = {};
-        _cached.forEach(s => { aiMap[s.gz] = s; });
-        bzRenderDyBarWithScores(p, daYun, activeIdx, aiMap);
-      } else {
-        // 无缓存，调 AI
-        const _loadTip = document.createElement('div');
-        _loadTip.id = 'bzDyBarLoading';
-        _loadTip.style.cssText = 'font-size:11px;color:#c0a060;text-align:center;padding:4px 0 0;';
-        _loadTip.textContent = 'AI 分析中…';
-        _barEl.appendChild(_loadTip);
-        bzAIScoreDaYun(p, daYun, _isStrong).then(aiScores => {
-          if (!aiScores || !aiScores.length) return;
-          try { localStorage.setItem(_cacheKey, JSON.stringify(aiScores)); } catch(e) {}
-          const aiMap = {};
-          aiScores.forEach(s => { aiMap[s.gz] = s; });
-          bzRenderDyBarWithScores(p, daYun, activeIdx, aiMap);
-          const tip = document.getElementById('bzDyBarLoading');
-          if (tip) tip.remove();
-        }).catch(() => {
-          const tip = document.getElementById('bzDyBarLoading');
-          if (tip) tip.remove();
-        });
-      }
-    }
-
     // 起运日期
     const startEl = document.getElementById('bzDyStart');
     if (startEl) {
@@ -5523,15 +5485,38 @@ function bzRenderDaYun(pOrId, activeIdx) {
       } catch(e){}
     }
 
-    // 十神 abbreviation
+    // 十神缩写
     const SS_MAP = {'比肩':'比','劫财':'劫','食神':'食','伤官':'伤','偏财':'才','正财':'财','七杀':'杀','正官':'官','偏印':'枭','正印':'印'};
     const sh = s => SS_MAP[s] || s;
 
-    // Build one column <td>
-    function col(gz, ageLabel, yr, isCur, isNow, onclickStr) {
-      const bg = isCur ? '#fef6e8' : '';
-      const dot = isNow ? `<div style="width:5px;height:5px;border-radius:50%;background:#c47a2a;margin:0 auto 2px;"></div>` : '';
-      let body = '';
+    // ── 统一列渲染（柱+表格合一）────────────────────────────────────
+    const firstRealSa2 = (daYun.find(dy=>dy.getGanZhi())||{getStartAge:()=>6}).getStartAge();
+    function makeDyCol(gz, sy, isCur, isNow, isXiaoYun, score, cy, onclick) {
+      const BAR_MAX=110, BAR_MIN=22;
+      const barH = Math.round(BAR_MIN + Math.max(0,score-32)/67*(BAR_MAX-BAR_MIN));
+      const barBg = isXiaoYun
+        ? 'linear-gradient(180deg,#d0cdc8,#e8e6e2)'
+        : isCur
+          ? 'linear-gradient(180deg,#c87830,#e8a050)'
+          : 'linear-gradient(180deg,#e0c898,#f0ddb8)';
+      const textC = isXiaoYun ? '#bbb' : isCur ? '#5a2e08' : '#8a6020';
+      const cyHtml = `<div style="font-size:9.5px;color:${textC};text-align:center;line-height:1.7;margin-bottom:5px;font-family:'Microsoft YaHei';">${cy[0]}<br>${cy[1]}</div>`;
+      const nowDot = isNow ? `<div style="width:5px;height:5px;border-radius:50%;background:#c87830;margin:3px auto 0;"></div>` : `<div style="height:8px;"></div>`;
+      const sa = gz ? (sy - p.year + 1) : 1;
+      const ageLabel = isXiaoYun ? `1-${firstRealSa2-1}岁` : `${daYun.find(d=>d.getStartYear()===sy)?.getStartAge()||''}岁`;
+
+      // 柱状图部分
+      const barPart = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:185px;padding:0 2px;">
+        ${cyHtml}
+        <div style="width:36px;height:${barH}px;background:${barBg};border-radius:7px 7px 0 0;display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:13px;font-weight:700;color:${textC};line-height:1;">${score}</span>
+        </div>
+        <div style="font-size:9px;color:#bbb;text-align:center;margin-top:5px;line-height:1.5;">${ageLabel}<br><span style="font-size:10px;color:${isXiaoYun?'#ccc':'#999'}">${gz||'小运'}</span></div>
+        ${nowDot}
+      </div>`;
+
+      // 表格内容部分
+      let tableBody = '';
       if (gz) {
         const gan=gz[0], zhi=gz[1];
         const gC=BZ_ELEM_BG[BZ_GAN_ELEM[gan]||'']||'#888';
@@ -5543,7 +5528,8 @@ function bzRenderDaYun(pOrId, activeIdx) {
           const c=BZ_ELEM_BG[BZ_GAN_ELEM[g]||'']||'#aaa';
           return `<div style="font-size:10px;color:${c};line-height:1.6;">${sh(bzGetSS(g,p.dayGan))}</div>`;
         }).join('');
-        body = `<div style="display:flex;align-items:baseline;justify-content:center;gap:1px;padding:2px 0 1px;">
+        tableBody = `<div style="font-size:10px;color:#bbb;line-height:1.4;">${sy}</div>
+          <div style="display:flex;align-items:baseline;justify-content:center;gap:1px;padding:2px 0 1px;">
             <span style="font-size:20px;color:${gC};font-family:'Microsoft YaHei',serif;line-height:1.1;">${gan}</span>
             <span style="font-size:10px;color:${gC};">${gSS}</span>
           </div>
@@ -5553,29 +5539,69 @@ function bzRenderDaYun(pOrId, activeIdx) {
           </div>
           <div style="text-align:center;padding:2px 0 3px;">${restRows}</div>`;
       } else {
-        body = `<div style="font-size:11px;color:#ccc;padding:6px 0 2px;">小运</div>`;
+        tableBody = `<div style="font-size:11px;color:#ccc;padding:10px 0;">小运</div>`;
       }
-      return `<td style="padding:0;background:${bg};min-width:66px;width:66px;border-right:1px solid #f0ece4;vertical-align:top;${onclickStr?'cursor:pointer;':''}" ${onclickStr?`onclick="${onclickStr}"`:''}>
-        <div style="padding:6px 3px 2px;text-align:center;">${dot}
-          <div style="font-size:10px;color:#bbb;line-height:1.4;">${ageLabel}</div>
-          <div style="font-size:10px;color:#bbb;margin-bottom:2px;">${yr}</div>
-          ${body}
-        </div>
-      </td>`;
+      const tablePart = `<div style="padding:6px 3px 6px;text-align:center;background:${isCur?'#fef6e8':''};border-top:1px solid #ede8e0;">${tableBody}</div>`;
+
+      return `<div style="min-width:66px;width:66px;display:flex;flex-direction:column;border-right:1px solid #f0ece4;${onclick?'cursor:pointer;':''}" ${onclick?`onclick="${onclick}"`:''}>
+        ${barPart}${tablePart}
+      </div>`;
     }
 
-    // ── 大运 table ──────────────────────────────────────────────────
-    const dyRow = document.getElementById('bzDyRow');
-    if (dyRow) {
-      const prevScroll = dyRow.querySelector('.bz-hscroll')?.scrollLeft || 0;
-      const tds = daYun.map((dy,i) => {
-        const gz=dy.getGanZhi(), sa=dy.getStartAge(), sy=dy.getStartYear();
+    // 渲染大运（先用算法分数）
+    const _colsEl = document.getElementById('bzDyCols');
+    if (_colsEl) {
+      const prevScroll = _colsEl.querySelector('.bz-hscroll')?.scrollLeft || 0;
+      const cols = daYun.map((dy,i) => {
+        const gz=dy.getGanZhi(), sy=dy.getStartYear();
         const isNow=sy<=now&&dy.getEndYear()>=now;
-        const ageLabel=gz?sa+'岁':'&lt;6';
-        return col(gz||null, ageLabel, sy, i===activeIdx, isNow, `bzRenderDaYun('${p.id}',${i})`);
+        const isXY=!gz;
+        const { score, cy } = isXY ? {score:32,cy:['尚未起运','蓄势待发']} : bzDyEval(gz,p.dayGan,_isStrong);
+        return makeDyCol(gz||null, sy, i===activeIdx, isNow, isXY, score, cy, isXY?null:`bzRenderDaYun('${p.id}',${i})`);
       }).join('');
-      dyRow.innerHTML=`<div class="bz-hscroll"><table style="border-collapse:collapse;white-space:nowrap;"><tr>${tds}</tr></table></div>`;
-      if (prevScroll) dyRow.querySelector('.bz-hscroll').scrollLeft = prevScroll;
+      _colsEl.innerHTML = `<div class="bz-hscroll"><div style="display:inline-flex;white-space:nowrap;">${cols}</div></div>`;
+      if (prevScroll) _colsEl.querySelector('.bz-hscroll').scrollLeft = prevScroll;
+    }
+
+    // AI 精准评分（优先读缓存，首次才调 AI）
+    const _colsElAI = document.getElementById('bzDyCols');
+    if (_colsElAI && !_colsElAI.dataset.aiDone) {
+      _colsElAI.dataset.aiDone = '1';
+      const _cacheKey = `bz_dy_score_${p.id}`;
+      let _cached = null;
+      try { const _raw = localStorage.getItem(_cacheKey); if (_raw) _cached = JSON.parse(_raw); } catch(e) {}
+      const applyAI = (aiScores) => {
+        const aiMap = {};
+        aiScores.forEach(s => { aiMap[s.gz] = s; });
+        const prevSL = _colsElAI.querySelector('.bz-hscroll')?.scrollLeft || 0;
+        const cols = daYun.map((dy,i) => {
+          const gz=dy.getGanZhi(), sy=dy.getStartYear();
+          const isNow=sy<=now&&dy.getEndYear()>=now;
+          const isXY=!gz;
+          const ai = gz&&aiMap[gz];
+          const score = isXY?32 : ai?ai.score:60;
+          const cy = isXY?['尚未起运','蓄势待发'] : ai?ai.cy:['运势平稳','韬光养晦'];
+          return makeDyCol(gz||null, sy, i===activeIdx, isNow, isXY, score, cy, isXY?null:`bzRenderDaYun('${p.id}',${i})`);
+        }).join('');
+        _colsElAI.innerHTML = `<div class="bz-hscroll"><div style="display:inline-flex;white-space:nowrap;">${cols}</div></div>`;
+        const tip = document.getElementById('bzDyBarLoading');
+        if (tip) tip.remove();
+        if (prevSL) _colsElAI.querySelector('.bz-hscroll').scrollLeft = prevSL;
+      };
+      if (_cached && _cached.length) {
+        applyAI(_cached);
+      } else {
+        const _loadTip = document.createElement('div');
+        _loadTip.id = 'bzDyBarLoading';
+        _loadTip.style.cssText = 'font-size:11px;color:#c0a060;text-align:center;padding:4px 0 0;';
+        _loadTip.textContent = 'AI 分析中…';
+        _colsElAI.appendChild(_loadTip);
+        bzAIScoreDaYun(p, daYun, _isStrong).then(aiScores => {
+          if (!aiScores || !aiScores.length) return;
+          try { localStorage.setItem(_cacheKey, JSON.stringify(aiScores)); } catch(e) {}
+          applyAI(aiScores);
+        }).catch(() => { const t=document.getElementById('bzDyBarLoading'); if(t)t.remove(); });
+      }
     }
 
     // ── 流年 table ──────────────────────────────────────────────────
