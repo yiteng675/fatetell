@@ -2016,6 +2016,26 @@ function hdGetZongGua(n) {
   return LOOKUP[hdTriIdx(L,0)][hdTriIdx(L,3)];
 }
 
+function hdBannerCardHTML(n) {
+  const name = HD[n][0];
+  const [l, u] = HEX_LU[n];
+  const fullName = TRIGRAM_ELEM[u] + TRIGRAM_ELEM[l] + name;
+  const lines = HEXLINES[n];
+  let linesHtml = '';
+  for (let i = 5; i >= 0; i--) {
+    linesHtml += `<img src="heng${lines[i] ? '1' : '2'}.svg" class="gk-heng" alt="">`;
+  }
+  return `<div class="gk-wrap" style="width:160px;border-radius:10px;box-shadow:0 8px 28px rgba(0,0,0,.18);">
+    <div class="gk-inner-abs">
+      <img class="gk-bg" src="gua-bg.png" alt=""/>
+      <div class="gk-num">${n}</div>
+      <div class="gk-lines">${linesHtml}</div>
+      <div class="gk-fullname">${fullName}</div>
+      <div class="gk-name">${name}</div>
+    </div>
+  </div>`;
+}
+
 function hdMiniSVG(n, w, h) {
   const L = HEXLINES[n];
   const lh = Math.max(2, Math.round(h / 9));
@@ -2198,14 +2218,14 @@ function openHexDetail(n) {
   document.getElementById('hd-card-name').textContent = name;
   document.getElementById('hd-card-full').textContent = fullName;
 
-  // banner image — show local SVG fallback immediately, swap in cloud image when loaded
+  // banner image — show card-style fallback immediately, swap in cloud image when loaded
   window._hdBannerN = n;
   const _bi = document.getElementById('hd-banner-img');
   const _bf = document.getElementById('hd-banner-fallback');
   if (_bi) {
     _bi.style.display = 'none';
     _bi.onerror = null;
-    if (_bf) { _bf.innerHTML = hdMiniSVG(n, 120, 176); _bf.style.display = 'block'; }
+    if (_bf) { _bf.innerHTML = hdBannerCardHTML(n); _bf.style.cssText = 'display:flex;justify-content:center;padding:16px 0 10px;'; }
     const _cloudSrc = HEX_IMG_BASE + encodeURIComponent(n + HEX_IMG_NAMES[n-1]) + '.png';
     const _loadN = n;
     const _tmp = new Image();
