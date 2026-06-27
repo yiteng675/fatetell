@@ -755,14 +755,15 @@ html,body{overscroll-behavior:none}
 </div>
 
 <!-- ═══ SCREEN 3: 64卦 ═══ -->
-<div class="screen" id="hexScreen" style="background:linear-gradient(180deg,#d8eef8 0%,#eef6fb 20%,#fff 50%)">
+<div class="screen" id="hexScreen" style="background:linear-gradient(180deg,#d8eef8 0%,#eef6fb 20%,#fff 50%);position:relative;">
   <div style="height:46px;padding:0 16px;display:flex;align-items:center;">
     <img src="logo.svg" style="height:18px;width:auto;display:block;flex-shrink:0;" alt="logo"/>
     <div style="flex:1;text-align:center;font-size:17px;font-weight:500;color:#1a1a1a;font-family:'Microsoft YaHei';">64卦</div>
     <div style="width:18px;"></div>
   </div>
-  <div class="scroll" style="flex:1;background:transparent;">
+  <div class="scroll" style="flex:1;background:transparent;position:relative;">
     <div class="hex-grid" id="hexGrid"></div>
+    <img src="gua-bg.png" style="position:sticky;bottom:0;left:0;width:100%;display:block;pointer-events:none;opacity:.55;" alt="">
   </div>
   <div class="nav">
     <div class="nb" onclick="go(0)"><img src="bagua.svg" style="display:block;width:24px;height:24px;" alt="首页"/><span>首页</span></div>
