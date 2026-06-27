@@ -5308,34 +5308,19 @@ function bzRenderDyBarWithScores(p, daYun, activeIdx, aiMap) {
   if (!barEl) return;
   const now = new Date().getFullYear();
   const BAR_MAX = 120, BAR_MIN = 26;
+  const firstRealSa = (daYun.find(dy => dy.getGanZhi()) || {getStartAge:()=>6}).getStartAge();
   const cols = daYun.map((dy, i) => {
     const gz = dy.getGanZhi();
-    if (!gz) return '';
     const sa = dy.getStartAge();
     const ea = dy.getEndYear ? dy.getEndYear() : sa + 9;
-    const ageLabel = `${sa}-${sa+9}岁`;
+    const isNow = dy.getStartYear() <= now && ea >= now;
+    if (!gz) {
+      return _bzBarColHtml({ gz:null, ageLabel:`1-${firstRealSa-1}岁`, score:32, cy:['尚未起运','蓄势待发'], isNow:false, isCur:false, isXiaoYun:true, onclick:null });
+    }
     const ai = aiMap[gz];
     const score = ai ? ai.score : 60;
     const cy = ai ? ai.cy : ['运势平稳', '韬光养晦'];
-    const barH = Math.round(BAR_MIN + (score - 32) / 67 * (BAR_MAX - BAR_MIN));
-    const isNow = dy.getStartYear() <= now && ea >= now;
-    const isCur = i === activeIdx;
-    const barBg = isNow
-      ? 'linear-gradient(180deg,#e8956a 0%,#f5c49a 100%)'
-      : isCur
-        ? 'linear-gradient(180deg,#d4a070 0%,#edcf9a 100%)'
-        : 'linear-gradient(180deg,#e8ccaa 0%,#f5e2cc 100%)';
-    const textC = isNow ? '#7a3010' : '#9a6820';
-    return `<div style="min-width:72px;width:72px;display:flex;flex-direction:column;align-items:center;padding:0 2px;cursor:pointer;" onclick="bzRenderDaYun('${p.id}',${i})">
-      <div style="font-size:10px;color:${textC};text-align:center;line-height:1.75;margin-bottom:8px;font-family:'Microsoft YaHei';white-space:nowrap;">${cy[0]}<br>${cy[1]}</div>
-      <div style="display:flex;align-items:flex-end;width:100%;justify-content:center;">
-        <div style="width:44px;height:${barH}px;background:${barBg};border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:center;">
-          <span style="font-size:15px;font-weight:700;color:${textC};line-height:1;">${score}</span>
-        </div>
-      </div>
-      <div style="font-size:10px;color:#aaa;text-align:center;margin-top:7px;line-height:1.6;">${ageLabel}<br><span style="color:#888;font-size:11px;">${gz[0]}${gz[1]}</span></div>
-      ${isNow ? `<div style="width:5px;height:5px;border-radius:50%;background:#e8956a;margin:4px auto 0;"></div>` : '<div style="height:9px;"></div>'}
-    </div>`;
+    return _bzBarColHtml({ gz, ageLabel:`${sa}-${sa+9}岁`, score, cy, isNow, isCur:i===activeIdx, isXiaoYun:false, onclick:`bzRenderDaYun('${p.id}',${i})` });
   }).join('');
   const scroll = barEl.querySelector('.bz-hscroll');
   const prevLeft = scroll ? scroll.scrollLeft : 0;
@@ -5350,42 +5335,54 @@ function bzRenderDyBarWithScores(p, daYun, activeIdx, aiMap) {
   if (newScroll && prevLeft) newScroll.scrollLeft = prevLeft;
 }
 
-function bzRenderDyBar(p, daYun, activeIdx, isStrong) {
-  const barEl = document.getElementById('bzDyBar');
-  if (!barEl) return;
-  const now = new Date().getFullYear();
+function _bzBarColHtml(opts) {
+  // opts: { gz, ageLabel, score, cy, isNow, isCur, isXiaoYun, onclick }
   const BAR_MAX = 120, BAR_MIN = 26;
-  const cols = daYun.map((dy, i) => {
-    const gz = dy.getGanZhi();
-    if (!gz) return '';
-    const sa = dy.getStartAge();
-    const ea = dy.getEndYear ? dy.getEndYear() : sa + 9;
-    const ageLabel = `${sa}-${sa+9}岁`;
-    const { score, cy } = bzDyEval(gz, p.dayGan, isStrong);
-    const barH = Math.round(BAR_MIN + (score - 32) / 67 * (BAR_MAX - BAR_MIN));
-    const isNow = dy.getStartYear() <= now && ea >= now;
-    const isCur = i === activeIdx;
-    const barBg = isNow
+  const { gz, ageLabel, score, cy, isNow, isCur, isXiaoYun, onclick } = opts;
+  const barH = Math.round(BAR_MIN + Math.max(0, score - 32) / 67 * (BAR_MAX - BAR_MIN));
+  const barBg = isXiaoYun
+    ? 'linear-gradient(180deg,#d8d4cc 0%,#eceae6 100%)'
+    : isNow
       ? 'linear-gradient(180deg,#e8956a 0%,#f5c49a 100%)'
       : isCur
         ? 'linear-gradient(180deg,#d4a070 0%,#edcf9a 100%)'
         : 'linear-gradient(180deg,#e8ccaa 0%,#f5e2cc 100%)';
-    const textC = isNow ? '#7a3010' : '#9a6820';
-    return `<div style="min-width:72px;width:72px;display:flex;flex-direction:column;align-items:center;padding:0 2px;cursor:pointer;" onclick="bzRenderDaYun('${p.id}',${i})">
-      <div style="font-size:10px;color:${textC};text-align:center;line-height:1.75;margin-bottom:8px;font-family:'Microsoft YaHei';white-space:nowrap;">${cy[0]}<br>${cy[1]}</div>
-      <div style="display:flex;align-items:flex-end;width:100%;justify-content:center;">
-        <div style="width:44px;height:${barH}px;background:${barBg};border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:center;">
-          <span style="font-size:15px;font-weight:700;color:${textC};line-height:1;">${score}</span>
-        </div>
+  const textC = isXiaoYun ? '#aaa' : isNow ? '#7a3010' : '#9a6820';
+  const subLabel = gz ? `${gz[0]}${gz[1]}` : '小运';
+  const dotHtml = isNow
+    ? `<div style="width:5px;height:5px;border-radius:50%;background:#e8956a;margin:4px auto 0;"></div>`
+    : `<div style="height:9px;"></div>`;
+  return `<div style="min-width:72px;width:72px;display:flex;flex-direction:column;align-items:center;padding:0 2px;${onclick?'cursor:pointer;':''}" ${onclick?`onclick="${onclick}"`:''}>
+    <div style="font-size:10px;color:${textC};text-align:center;line-height:1.75;margin-bottom:8px;font-family:'Microsoft YaHei';white-space:nowrap;">${cy[0]}<br>${cy[1]}</div>
+    <div style="display:flex;align-items:flex-end;width:100%;justify-content:center;">
+      <div style="width:44px;height:${barH}px;background:${barBg};border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:center;">
+        <span style="font-size:15px;font-weight:700;color:${textC};line-height:1;">${score}</span>
       </div>
-      <div style="font-size:10px;color:#aaa;text-align:center;margin-top:7px;line-height:1.6;">${ageLabel}<br><span style="color:#888;font-size:11px;">${gz[0]}${gz[1]}</span></div>
-      ${isNow ? `<div style="width:5px;height:5px;border-radius:50%;background:#e8956a;margin:4px auto 0;"></div>` : '<div style="height:9px;"></div>'}
-    </div>`;
-  }).join('');
+    </div>
+    <div style="font-size:10px;color:#aaa;text-align:center;margin-top:7px;line-height:1.6;">${ageLabel}<br><span style="color:${isXiaoYun?'#bbb':'#888'};font-size:11px;">${subLabel}</span></div>
+    ${dotHtml}
+  </div>`;
+}
 
+function bzRenderDyBar(p, daYun, activeIdx, isStrong) {
+  const barEl = document.getElementById('bzDyBar');
+  if (!barEl) return;
+  const now = new Date().getFullYear();
+  const firstRealSa = (daYun.find(dy => dy.getGanZhi()) || {getStartAge:()=>6}).getStartAge();
+  const cols = daYun.map((dy, i) => {
+    const gz = dy.getGanZhi();
+    const sa = dy.getStartAge();
+    const ea = dy.getEndYear ? dy.getEndYear() : sa + 9;
+    const isNow = dy.getStartYear() <= now && ea >= now;
+    if (!gz) {
+      return _bzBarColHtml({ gz:null, ageLabel:`1-${firstRealSa-1}岁`, score:32, cy:['尚未起运','蓄势待发'], isNow:false, isCur:false, isXiaoYun:true, onclick:null });
+    }
+    const { score, cy } = bzDyEval(gz, p.dayGan, isStrong);
+    return _bzBarColHtml({ gz, ageLabel:`${sa}-${sa+9}岁`, score, cy, isNow, isCur:i===activeIdx, isXiaoYun:false, onclick:`bzRenderDaYun('${p.id}',${i})` });
+  }).join('');
   barEl.innerHTML = `
     <div class="bz-hscroll" style="padding-bottom:4px;">
-      <div style="display:inline-flex;align-items:flex-end;padding:0 14px;min-height:${BAR_MAX+100}px;">
+      <div style="display:inline-flex;align-items:flex-end;padding:0 14px;min-height:220px;">
         ${cols}
       </div>
     </div>
