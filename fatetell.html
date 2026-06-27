@@ -761,9 +761,8 @@ html,body{overscroll-behavior:none}
     <div style="flex:1;text-align:center;font-size:17px;font-weight:500;color:#1a1a1a;font-family:'Microsoft YaHei';">64卦</div>
     <div style="width:18px;"></div>
   </div>
-  <div class="scroll" style="flex:1;background:transparent;position:relative;">
+  <div class="scroll" style="flex:1;background:transparent;">
     <div class="hex-grid" id="hexGrid"></div>
-    <img src="gua-bg.png" style="position:sticky;bottom:0;left:0;width:100%;display:block;pointer-events:none;opacity:.55;" alt="">
   </div>
   <div class="nav">
     <div class="nb" onclick="go(0)"><img src="bagua.svg" style="display:block;width:24px;height:24px;" alt="首页"/><span>首页</span></div>
@@ -1638,7 +1637,7 @@ function renderHexGrid() {
     }
     html += `<div class="gk-wrap" onclick="openHexDetail(${n})" style="cursor:pointer;">
       <div class="gk-inner-abs">
-        <img class="gk-bg" src="64-bg.svg" alt=""/>
+        <img class="gk-bg" src="gua-bg.png" alt=""/>
         <div class="gk-num">${n}</div>
         <div class="gk-lines">${linesHtml}</div>
         <div class="gk-fullname">${fullName}</div>
