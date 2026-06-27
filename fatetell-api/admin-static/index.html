@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yior 管理后台</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Microsoft YaHei',system-ui,sans-serif;background:#f5f5f5;color:#333;min-height:100vh}
+.topbar{background:#1a1a1a;color:#fff;padding:14px 24px;display:flex;align-items:center;gap:16px}
+.topbar h1{font-size:18px;font-weight:600}
+.topbar span{font-size:13px;color:#aaa}
+#login-wrap{max-width:360px;margin:80px auto;background:#fff;border-radius:12px;padding:36px;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+#login-wrap h2{font-size:20px;margin-bottom:24px;text-align:center}
+#login-wrap input{width:100%;border:1px solid #ddd;border-radius:8px;padding:10px 14px;font-size:14px;outline:none;margin-bottom:12px}
+#login-wrap input:focus{border-color:#c87830}
+#login-wrap button{width:100%;background:#c87830;color:#fff;border:none;border-radius:8px;padding:11px;font-size:15px;cursor:pointer}
+#login-wrap button:hover{background:#b56c20}
+.layout{display:flex;height:calc(100vh - 50px)}
+.sidebar{width:200px;background:#fff;border-right:1px solid #eee;padding:16px 0;flex-shrink:0}
+.sidebar .nav-item{padding:11px 20px;font-size:14px;cursor:pointer;color:#555;transition:background .15s}
+.sidebar .nav-item:hover{background:#fdf6ef;color:#c87830}
+.sidebar .nav-item.active{background:#fdf6ef;color:#c87830;font-weight:600;border-left:3px solid #c87830}
+.content{flex:1;overflow-y:auto;padding:24px}
+.section{display:none}
+.section.active{display:block}
+.card{background:#fff;border-radius:10px;padding:20px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.card h3{font-size:15px;font-weight:600;margin-bottom:16px;color:#1a1a1a}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:20px}
+.stat-box{background:#fff;border-radius:10px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.06);text-align:center}
+.stat-box .num{font-size:28px;font-weight:700;color:#c87830}
+.stat-box .lbl{font-size:12px;color:#888;margin-top:4px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#fafafa;padding:10px 12px;text-align:left;color:#666;font-weight:500;border-bottom:1px solid #eee}
+td{padding:10px 12px;border-bottom:1px solid #f5f5f5;color:#333;vertical-align:top}
+tr:hover td{background:#fdf6ef}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.badge.like{background:#e8f4e8;color:#2e7d32}
+.badge.dislike{background:#fdecea;color:#c62828}
+.tag-chip{display:inline-block;padding:2px 8px;background:#f0f0f0;border-radius:10px;font-size:11px;margin:2px 2px 2px 0;color:#555}
+.filter-bar{display:flex;gap:10px;margin-bottom:16px;align-items:center}
+.filter-bar select,.filter-bar input{border:1px solid #ddd;border-radius:6px;padding:6px 10px;font-size:13px;outline:none}
+.filter-bar button{padding:6px 14px;background:#c87830;color:#fff;border:none;border-radius:6px;font-size:13px;cursor:pointer}
+.filter-bar button.secondary{background:#f0f0f0;color:#555}
+.pagination{display:flex;gap:8px;margin-top:16px;align-items:center;justify-content:flex-end}
+.pagination button{padding:5px 12px;border:1px solid #ddd;background:#fff;border-radius:6px;font-size:13px;cursor:pointer}
+.pagination button:disabled{opacity:.4;cursor:default}
+.pagination .page-info{font-size:13px;color:#888}
+.loading{text-align:center;color:#aaa;padding:40px;font-size:14px}
+.empty{text-align:center;color:#bbb;padding:40px;font-size:13px}
+.comment-text{max-width:200px;color:#666;font-size:12px;white-space:pre-wrap;word-break:break-all}
+.msg-preview{max-width:220px;color:#888;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+</style>
+</head>
+<body>
+
+<!-- 登录 -->
+<div id="login-wrap">
+  <h2>Yior 管理后台</h2>
+  <input type="password" id="admin-pwd" placeholder="管理员密码" onkeydown="if(event.key==='Enter')doLogin()">
+  <button onclick="doLogin()">登 录</button>
+  <p id="login-err" style="color:#e05;font-size:13px;margin-top:10px;text-align:center"></p>
+</div>
+
+<!-- 主界面 -->
+<div id="main-wrap" style="display:none">
+  <div class="topbar">
+    <h1>Yior 管理后台</h1>
+    <span id="admin-who"></span>
+    <span style="margin-left:auto;cursor:pointer;font-size:13px" onclick="doLogout()">退出</span>
+  </div>
+  <div class="layout">
+    <div class="sidebar">
+      <div class="nav-item active" data-sec="stats">数据概览</div>
+      <div class="nav-item" data-sec="users">用户列表</div>
+      <div class="nav-item" data-sec="profiles">命盘列表</div>
+      <div class="nav-item" data-sec="feedback">用户反馈</div>
+    </div>
+    <div class="content">
+
+      <!-- 数据概览 -->
+      <div id="sec-stats" class="section active">
+        <div id="stat-grid" class="stat-grid"><div class="loading">加载中…</div></div>
+        <div class="card">
+          <h3>最近注册用户</h3>
+          <table><thead><tr><th>ID</th><th>手机号</th><th>昵称</th><th>注册时间</th></tr></thead>
+          <tbody id="recent-users"></tbody></table>
+        </div>
+      </div>
+
+      <!-- 用户列表 -->
+      <div id="sec-users" class="section">
+        <div class="card">
+          <h3>用户列表</h3>
+          <table><thead><tr><th>ID</th><th>手机号</th><th>昵称</th><th>命盘数</th><th>注册时间</th></tr></thead>
+          <tbody id="users-tbody"></tbody></table>
+        </div>
+      </div>
+
+      <!-- 命盘列表 -->
+      <div id="sec-profiles" class="section">
+        <div class="card">
+          <h3>命盘列表</h3>
+          <table><thead><tr><th>ID</th><th>姓名</th><th>性别</th><th>出生年月日</th><th>所属用户</th><th>创建时间</th></tr></thead>
+          <tbody id="profiles-tbody"></tbody></table>
+        </div>
+      </div>
+
+      <!-- 用户反馈 -->
+      <div id="sec-feedback" class="section">
+        <div class="card">
+          <h3>用户反馈</h3>
+          <div class="filter-bar">
+            <select id="fb-filter-type">
+              <option value="">全部类型</option>
+              <option value="like">点赞 👍</option>
+              <option value="dislike">踩 👎</option>
+            </select>
+            <button onclick="loadFeedback(1)">筛选</button>
+            <span style="font-size:13px;color:#aaa" id="fb-total-label"></span>
+          </div>
+          <table>
+            <thead><tr>
+              <th style="width:70px">类型</th>
+              <th style="width:160px">标签</th>
+              <th>用户问题</th>
+              <th>AI 回复</th>
+              <th>补充说明</th>
+              <th style="width:140px">时间</th>
+            </tr></thead>
+            <tbody id="fb-tbody"><tr><td colspan="6" class="loading">加载中…</td></tr></tbody>
+          </table>
+          <div class="pagination">
+            <button id="fb-prev" onclick="loadFeedback(fbPage-1)">上一页</button>
+            <span class="page-info" id="fb-page-info"></span>
+            <button id="fb-next" onclick="loadFeedback(fbPage+1)">下一页</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '';  // 同域
+let adminToken = '';
+let fbPage = 1;
+const ADMIN_KEY = 'yior_admin_token';
+
+// ── 登录 ─────────────────────────────────────────────────────────────
+function doLogin() {
+  const pwd = document.getElementById('admin-pwd').value.trim();
+  if (!pwd) return;
+  adminToken = pwd;
+  localStorage.setItem(ADMIN_KEY, pwd);
+  initAdmin();
+}
+function doLogout() {
+  adminToken = '';
+  localStorage.removeItem(ADMIN_KEY);
+  document.getElementById('main-wrap').style.display = 'none';
+  document.getElementById('login-wrap').style.display = 'block';
+  document.getElementById('admin-pwd').value = '';
+}
+function adminHeaders() {
+  return { 'Authorization': `Bearer ${adminToken}`, 'x-admin': '1', 'Content-Type': 'application/json' };
+}
+async function adminFetch(url) {
+  const r = await fetch(url, { headers: adminHeaders() });
+  const j = await r.json();
+  if (j.code === 403) { doLogout(); throw new Error('无权访问'); }
+  return j;
+}
+
+// ── 初始化 ────────────────────────────────────────────────────────────
+async function initAdmin() {
+  try {
+    const r = await adminFetch('/api/admin/stats');
+    if (r.code !== 0) { document.getElementById('login-err').textContent = '密码错误'; return; }
+    document.getElementById('login-wrap').style.display = 'none';
+    document.getElementById('main-wrap').style.display  = 'block';
+    renderStats(r.data);
+  } catch(e) {
+    document.getElementById('login-err').textContent = '连接失败：' + e.message;
+  }
+}
+
+// ── 自动恢复登录 ──────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem(ADMIN_KEY);
+  if (saved) { adminToken = saved; initAdmin(); }
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.addEventListener('click', () => {
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      el.classList.add('active');
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      const sec = el.dataset.sec;
+      document.getElementById(`sec-${sec}`).classList.add('active');
+      if (sec === 'users')    loadUsers();
+      if (sec === 'profiles') loadProfiles();
+      if (sec === 'feedback') loadFeedback(1);
+    });
+  });
+});
+
+// ── 数据概览 ──────────────────────────────────────────────────────────
+function renderStats(d) {
+  document.getElementById('stat-grid').innerHTML = `
+    <div class="stat-box"><div class="num">${d.totalUsers}</div><div class="lbl">总用户数</div></div>
+    <div class="stat-box"><div class="num">${d.todayNewUsers}</div><div class="lbl">今日新增用户</div></div>
+    <div class="stat-box"><div class="num">${d.totalProfiles}</div><div class="lbl">总命盘数</div></div>
+    <div class="stat-box"><div class="num">${d.todayNewProfiles}</div><div class="lbl">今日新增命盘</div></div>
+  `;
+  document.getElementById('recent-users').innerHTML = (d.recentUsers || []).map(u => `
+    <tr>
+      <td style="font-size:11px;color:#aaa">${u.id}</td>
+      <td>${u.phone}</td>
+      <td>${u.nickname || '—'}</td>
+      <td>${fmtTime(u.createdAt)}</td>
+    </tr>
+  `).join('') || '<tr><td colspan="4" class="empty">暂无数据</td></tr>';
+}
+
+// ── 用户列表 ──────────────────────────────────────────────────────────
+async function loadUsers() {
+  const tbody = document.getElementById('users-tbody');
+  tbody.innerHTML = '<tr><td colspan="5" class="loading">加载中…</td></tr>';
+  try {
+    const r = await adminFetch('/api/admin/users');
+    tbody.innerHTML = (r.list || []).map(u => `
+      <tr>
+        <td style="font-size:11px;color:#aaa">${u.id}</td>
+        <td>${u.phone}</td>
+        <td>${u.nickname || '—'}</td>
+        <td>${u.profileCount}</td>
+        <td>${fmtTime(u.createdAt)}</td>
+      </tr>
+    `).join('') || '<tr><td colspan="5" class="empty">暂无用户</td></tr>';
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="5" class="empty">${e.message}</td></tr>`;
+  }
+}
+
+// ── 命盘列表 ──────────────────────────────────────────────────────────
+async function loadProfiles() {
+  const tbody = document.getElementById('profiles-tbody');
+  tbody.innerHTML = '<tr><td colspan="6" class="loading">加载中…</td></tr>';
+  try {
+    const r = await adminFetch('/api/admin/profiles');
+    tbody.innerHTML = (r.list || []).map(p => `
+      <tr>
+        <td style="font-size:11px;color:#aaa">${p.id}</td>
+        <td>${p.name || '—'}</td>
+        <td>${p.gender === 'M' ? '男' : p.gender === 'F' ? '女' : '—'}</td>
+        <td>${p.year || ''}/${String(p.month||'').padStart(2,'0')}/${String(p.day||'').padStart(2,'0')} ${String(p.hour||'').padStart(2,'0')}:00</td>
+        <td style="font-size:11px;color:#aaa">${p.userId || '—'}</td>
+        <td>${fmtTime(p.createdAt)}</td>
+      </tr>
+    `).join('') || '<tr><td colspan="6" class="empty">暂无命盘</td></tr>';
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty">${e.message}</td></tr>`;
+  }
+}
+
+// ── 用户反馈 ──────────────────────────────────────────────────────────
+async function loadFeedback(page) {
+  fbPage = page || 1;
+  const type = document.getElementById('fb-filter-type').value;
+  const tbody = document.getElementById('fb-tbody');
+  tbody.innerHTML = '<tr><td colspan="6" class="loading">加载中…</td></tr>';
+  try {
+    let url = `/api/admin/feedback?page=${fbPage}&limit=20`;
+    if (type) url += `&type=${type}`;
+    const r = await adminFetch(url);
+    const total = r.total || 0;
+    const pages = Math.ceil(total / 20) || 1;
+    document.getElementById('fb-total-label').textContent = `共 ${total} 条`;
+    document.getElementById('fb-page-info').textContent = `第 ${fbPage} / ${pages} 页`;
+    document.getElementById('fb-prev').disabled = fbPage <= 1;
+    document.getElementById('fb-next').disabled = fbPage >= pages;
+
+    tbody.innerHTML = (r.list || []).map(f => `
+      <tr>
+        <td><span class="badge ${f.type}">${f.type === 'like' ? '👍 点赞' : '👎 踩'}</span></td>
+        <td>${(f.tags || []).map(t => `<span class="tag-chip">${t}</span>`).join('')}</td>
+        <td class="msg-preview" title="${esc(f.userMsg)}">${esc(f.userMsg || '—')}</td>
+        <td class="msg-preview" title="${esc(f.aiMsg)}">${esc(f.aiMsg || '—')}</td>
+        <td class="comment-text">${esc(f.comment || '—')}</td>
+        <td style="font-size:12px;color:#888">${fmtTime(f.createdAt)}</td>
+      </tr>
+    `).join('') || '<tr><td colspan="6" class="empty">暂无反馈记录</td></tr>';
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty">${e.message}</td></tr>`;
+  }
+}
+
+// ── 工具函数 ──────────────────────────────────────────────────────────
+function fmtTime(s) {
+  if (!s) return '—';
+  try { return new Date(s).toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-'); } catch { return s; }
+}
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>

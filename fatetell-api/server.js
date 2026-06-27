@@ -221,6 +221,40 @@ app.get('/api/admin/profiles', requireAdmin, (req, res) => {
   res.json({ code: 0, list: profiles });
 });
 
+// ── 用户反馈 ──────────────────────────────────────────────────────────
+// POST /api/feedback  (无需登录，保存到 data/feedback.json)
+app.post('/api/feedback', (req, res) => {
+  const { type, tags, comment, aiMsg, userMsg, pid, ts } = req.body || {};
+  if (!type) return res.json({ code: 1, msg: '参数缺失' });
+  const list = readDb('feedback');
+  list.unshift({
+    id: `fb_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+    type, tags: tags || [], comment: comment || '',
+    aiMsg: (aiMsg || '').slice(0, 300),
+    userMsg: (userMsg || '').slice(0, 200),
+    pid: pid || '',
+    ts: ts || Date.now(),
+    createdAt: new Date().toISOString(),
+  });
+  writeDb('feedback', list.slice(0, 2000));
+  res.json({ code: 0, msg: 'ok' });
+});
+
+// GET /api/admin/feedback  (管理员)
+app.get('/api/admin/feedback', requireAdmin, (req, res) => {
+  const page  = Math.max(1, parseInt(req.query.page  || '1', 10));
+  const limit = Math.min(100, parseInt(req.query.limit || '20', 10));
+  const type  = req.query.type || '';
+  let list = readDb('feedback');
+  if (type) list = list.filter(f => f.type === type);
+  const total = list.length;
+  const data  = list.slice((page - 1) * limit, page * limit);
+  res.json({ code: 0, total, page, limit, list: data });
+});
+
+// ── Static admin ──────────────────────────────────────────────────────
+app.use('/admin', express.static(path.join(__dirname, 'admin-static')));
+
 // ── Health check ──────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => res.json({ code: 0, msg: 'ok' }));
 

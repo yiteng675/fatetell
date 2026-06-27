@@ -35,6 +35,9 @@ html,body{overscroll-behavior:none}
 .ac-loading-pulse{animation:ac-pulse 1.6s ease-in-out infinite;color:#999;font-style:italic;letter-spacing:.08em;}
 .scroll{overflow-y:auto;-webkit-overflow-scrolling:touch}
 .scroll::-webkit-scrollbar{display:none}
+#bzai-body::-webkit-scrollbar{width:2px}
+#bzai-body::-webkit-scrollbar-track{background:transparent}
+#bzai-body::-webkit-scrollbar-thumb{background:#ddd;border-radius:2px}
 
 /* NAV */
 .nav{height:80px;flex-shrink:0;background:#fff;border-top:1px solid rgba(0,0,0,.06);display:flex;align-items:flex-start;padding-top:8px;padding-bottom:0}
@@ -264,32 +267,8 @@ html,body{overscroll-behavior:none}
           </div>
         </div>
       </div>
-      <!-- Bottom: 乾/QIANGUA + daily quote (white strip) -->
-      <div style="padding:12px 16px 14px;background:#fff;display:flex;align-items:center;gap:12px;position:relative;">
-        <div style="flex-shrink:0;">
-          <div style="display:flex;align-items:center;gap:5px;">
-            <span style="font-size:30px;color:#e2782c;font-family:'Zen Dots',sans-serif;line-height:1;">乾</span>
-            <!-- 乾卦 六爻: 6×阳爻, 高度与汉字一致 -->
-            <svg viewBox="0 0 17 33" width="13" height="30" style="display:block;">
-              <defs>
-                <filter id="yao-orange" color-interpolation-filters="sRGB" x="0" y="0" width="1" height="1">
-                  <feFlood flood-color="#e2782c" result="clr"/>
-                  <feComposite in="clr" in2="SourceAlpha" operator="in"/>
-                </filter>
-              </defs>
-              <!-- 上爻→初爻 (视觉从上往下排) -->
-              <image href="baguatu2/yao-da-yang.svg" x="0" y="0"  width="17" height="3" filter="url(#yao-orange)"/>
-              <image href="baguatu2/yao-da-yang.svg" x="0" y="6"  width="17" height="3" filter="url(#yao-orange)"/>
-              <image href="baguatu2/yao-da-yang.svg" x="0" y="12" width="17" height="3" filter="url(#yao-orange)"/>
-              <image href="baguatu2/yao-da-yang.svg" x="0" y="18" width="17" height="3" filter="url(#yao-orange)"/>
-              <image href="baguatu2/yao-da-yang.svg" x="0" y="24" width="17" height="3" filter="url(#yao-orange)"/>
-              <image href="baguatu2/yao-da-yang.svg" x="0" y="30" width="17" height="3" filter="url(#yao-orange)"/>
-            </svg>
-          </div>
-          <div style="font-size:8.5px;color:#e2782c;font-family:'Signika SC','Signika',sans-serif;letter-spacing:.1em;margin-top:2px;">QIANGUA</div>
-        </div>
-        <div style="flex:1;font-size:18px;color:#626262;font-family:'Salsa',cursive;line-height:1.5;">天行健<br/>君子以自强不息</div>
-      </div>
+      <!-- Bottom: daily quote — populated by initDailyQuote() -->
+      <div id="dailyQuoteSection" style="padding:12px 16px 14px;background:#fff;display:flex;align-items:center;gap:12px;position:relative;min-height:60px;"></div>
     </div>
 
     <!-- ===== 八卦图: 分层SVG (可动画/可转小程序) ===== -->
@@ -1436,6 +1415,67 @@ html,body{overscroll-behavior:none}
   </div>
 </div>
 
+<!-- ═══ 八字 AI 解读 弹窗 ═══ -->
+<div id="bzAiModal" style="display:none;position:absolute;inset:0;z-index:9900;align-items:flex-end;">
+  <div style="position:absolute;inset:0;background:rgba(0,0,0,.38);" onclick="bzAiClose()"></div>
+  <div id="bzAiPanel" style="position:relative;width:100%;height:82%;background:linear-gradient(180deg,#d8eef8 0%,#eef6fb 22%,#fff 55%);border-radius:20px 20px 0 0;display:flex;flex-direction:column;overflow:hidden;transform:translateY(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);">
+    <!-- header -->
+    <div style="display:flex;align-items:center;gap:10px;padding:14px 14px 10px;flex-shrink:0;">
+      <img src="xingxiang.png" style="width:50px;height:50px;border-radius:50%;object-fit:cover;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.12);">
+      <div style="display:flex;align-items:center;gap:5px;flex:1;min-width:0;">
+        <img src="logo.svg" style="height:18px;width:auto;flex-shrink:0;">
+        <span style="font-size:18px;font-weight:700;color:#1a1a1a;font-family:'Microsoft YaHei';">Yior</span>
+      </div>
+      <div id="bzAiExpandBtn" onclick="bzAiToggleSize()" style="width:34px;height:34px;border-radius:50%;background:#f2f2f2;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+      </div>
+      <div onclick="bzAiClose()" style="width:34px;height:34px;border-radius:50%;background:#f2f2f2;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2.2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </div>
+    </div>
+    <!-- messages -->
+    <div id="bzai-body" style="flex:1;overflow-y:auto;padding:0 14px 6px;"></div>
+    <!-- suggested questions -->
+    <div id="bzai-suggestions" style="padding:4px 14px 6px;flex-shrink:0;"></div>
+    <!-- toolbar -->
+    <div style="display:flex;gap:6px;padding:6px 14px;border-top:1px solid #f0ede8;flex-shrink:0;overflow-x:auto;-webkit-overflow-scrolling:touch;">
+      <div onclick="bzAiShowTools()" style="display:flex;align-items:center;gap:4px;padding:6px 12px;background:#f5f5f5;border-radius:20px;font-size:12px;color:#444;cursor:pointer;white-space:nowrap;font-family:'Microsoft YaHei';">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><rect x="2" y="3" width="6" height="6" rx="1"/><rect x="16" y="3" width="6" height="6" rx="1"/><rect x="2" y="15" width="6" height="6" rx="1"/><rect x="16" y="15" width="6" height="6" rx="1"/></svg>工具
+      </div>
+      <div onclick="bzAiDeepRead()" style="display:flex;align-items:center;gap:4px;padding:6px 12px;background:#f5f5f5;border-radius:20px;font-size:12px;color:#444;cursor:pointer;white-space:nowrap;font-family:'Microsoft YaHei';">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>深度解读
+      </div>
+      <div onclick="bzAiSoulMate()" style="display:flex;align-items:center;gap:4px;padding:6px 12px;background:#f5f5f5;border-radius:20px;font-size:12px;color:#444;cursor:pointer;white-space:nowrap;font-family:'Microsoft YaHei';">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c87830" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg><span style="color:#c87830;">灵魂伴侣</span>
+      </div>
+      <div onclick="openAiChat()" style="display:flex;align-items:center;gap:4px;padding:6px 12px;background:#f5f5f5;border-radius:20px;font-size:12px;color:#444;cursor:pointer;white-space:nowrap;font-family:'Microsoft YaHei';">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>聊天
+      </div>
+    </div>
+    <!-- input -->
+    <div style="padding:8px 14px 20px;flex-shrink:0;">
+      <div style="background:#f2f2f2;border-radius:24px;padding:10px 14px;display:flex;align-items:center;gap:8px;">
+        <input id="bzai-input" type="text" placeholder="让我来解答你的问题吧" onkeydown="if(event.key==='Enter')bzAiSend()" style="flex:1;border:none;background:transparent;font-size:13.5px;color:#333;outline:none;font-family:'Microsoft YaHei';">
+        <div onclick="bzAiSend()" style="width:36px;height:36px;border-radius:50%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/></svg>
+        </div>
+      </div>
+    </div>
+    <!-- 反馈浮层 -->
+    <div id="bzai-fb-overlay" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,.32);z-index:20;align-items:flex-end;">
+      <div id="bzai-fb-panel" style="width:100%;background:#fff;border-radius:18px 18px 0 0;padding:20px 18px 30px;transform:translateY(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);">
+        <div style="display:flex;align-items:center;margin-bottom:18px;">
+          <span style="flex:1;font-size:17px;font-weight:600;color:#1a1a1a;font-family:'Microsoft YaHei';">内容反馈</span>
+          <div onclick="bzAiFeedbackClose()" style="width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#aaa;font-size:20px;">×</div>
+        </div>
+        <div id="bzai-fb-tags" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px;"></div>
+        <textarea id="bzai-fb-text" placeholder="留下你的反馈，我们将不断优化回复效果" style="display:none;width:100%;height:88px;border:1px solid #e8e0d8;border-radius:10px;padding:10px 12px;font-size:13px;color:#555;font-family:'Microsoft YaHei';resize:none;outline:none;box-sizing:border-box;margin-bottom:14px;"></textarea>
+        <div onclick="bzAiFeedbackSubmit()" style="width:100%;height:46px;background:linear-gradient(135deg,#5bbcf0,#2e9de0);border-radius:23px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:15px;font-weight:500;font-family:'Microsoft YaHei';">提交反馈</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 </div><!-- /phone -->
 
 <script src="hex_detail.js"></script>
@@ -2476,6 +2516,295 @@ window.addEventListener('load',()=>{
     document.getElementById('greetText').textContent = `${hName}`;
   }
   const dateEl = document.getElementById('dateText'); if (dateEl) dateEl.textContent = ds;
+})();
+
+// ── 每日一句 ──────────────────────────────────────────────────────────
+const YIOR_QUOTES=[
+{g:'乾',q:'君子终日乾乾，夕惕若，厉无咎'},
+{g:'乾',q:'天行健，君子以自强不息'},
+{g:'乾',q:'同声相应，同气相求'},
+{g:'乾',q:'学以聚之，问以辩之，宽以居之，仁以行之'},
+{g:'乾',q:'居上位而不骄，在下位而不忧'},
+{g:'乾',q:'大人者，与天地合其德'},
+{g:'乾',q:'先天而天弗违，后天而奉天时'},
+{g:'坤',q:'地势坤，君子以厚德载物'},
+{g:'坤',q:'积善之家，必有余庆；积不善之家，必有余殃'},
+{g:'坤',q:'敬以直内，义以方外'},
+{g:'坤',q:'坤道其顺乎，承天而时行'},
+{g:'坤',q:'地道无成，而代有终也'},
+{g:'屯',q:'即鹿无虞，惟入于林中；君子几，不如舍，往吝'},
+{g:'屯',q:'云雷屯，君子以经纶'},
+{g:'蒙',q:'匪我求童蒙，童蒙求我'},
+{g:'蒙',q:'初筮告，再三渎，渎则不告'},
+{g:'蒙',q:'山下出泉，蒙；君子以果行育德'},
+{g:'需',q:'有孚，光亨，贞吉，利涉大川'},
+{g:'需',q:'云上于天，需；君子以饮食宴乐'},
+{g:'讼',q:'有孚窒，惕中吉，终凶；利见大人，不利涉大川'},
+{g:'讼',q:'天与水违行，讼；君子以作事谋始'},
+{g:'师',q:'师出以律，否臧凶'},
+{g:'师',q:'地中有水，师；君子以容民畜众'},
+{g:'比',q:'原筮，元永贞，无咎；不宁方来，后夫凶'},
+{g:'比',q:'地上有水，比；先王以建万国，亲诸侯'},
+{g:'小畜',q:'密云不雨，自我西郊'},
+{g:'小畜',q:'风行天上，小畜；君子以懿文德'},
+{g:'履',q:'履虎尾，不咥人，亨'},
+{g:'履',q:'履道坦坦，幽人贞吉'},
+{g:'履',q:'上天下泽，履；君子以辨上下，定民志'},
+{g:'泰',q:'小往大来，吉亨'},
+{g:'泰',q:'无平不陂，无往不复；艰贞无咎，勿恤其孚，于食有福'},
+{g:'泰',q:'天地交，泰；后以财成天地之道，辅相天地之宜'},
+{g:'泰',q:'上下交而其志同也'},
+{g:'否',q:'否之匪人，不利君子贞，大往小来'},
+{g:'否',q:'其亡其亡，系于苞桑'},
+{g:'否',q:'天地不交，否；君子以俭德辟难，不可荣以禄'},
+{g:'否',q:'上下不交而天下无邦也'},
+{g:'同人',q:'同人于野，亨；利涉大川，利君子贞'},
+{g:'同人',q:'伏戎于莽，升其高陵，三岁不兴'},
+{g:'同人',q:'天与火，同人；君子以类族辨物'},
+{g:'同人',q:'唯君子为能通天下之志'},
+{g:'大有',q:'自天佑之，吉无不利'},
+{g:'大有',q:'火在天上，大有；君子以遏恶扬善，顺天休命'},
+{g:'谦',q:'谦谦君子，用涉大川，吉'},
+{g:'谦',q:'劳谦，君子有终，吉'},
+{g:'谦',q:'地中有山，谦；君子以裒多益寡，称物平施'},
+{g:'谦',q:'天道亏盈而益谦，地道变盈而流谦'},
+{g:'谦',q:'鬼神害盈而福谦，人道恶盈而好谦'},
+{g:'谦',q:'谦尊而光，卑而不可逾'},
+{g:'豫',q:'介于石，不终日，贞吉'},
+{g:'豫',q:'雷出地奋，豫；先王以作乐崇德，殷荐之上帝'},
+{g:'豫',q:'顺以动，故天地如之'},
+{g:'随',q:'元亨利贞，无咎'},
+{g:'随',q:'泽中有雷，随；君子以向晦入宴息'},
+{g:'蛊',q:'元亨，利涉大川；先甲三日，后甲三日'},
+{g:'蛊',q:'干父之蛊，有子，考无咎，厉终吉'},
+{g:'蛊',q:'不事王侯，高尚其事'},
+{g:'蛊',q:'山下有风，蛊；君子以振民育德'},
+{g:'临',q:'元亨利贞，至于八月有凶'},
+{g:'临',q:'泽上有地，临；君子以教思无穷，容保民无疆'},
+{g:'观',q:'盥而不荐，有孚颙若'},
+{g:'观',q:'观国之光，利用宾于王'},
+{g:'观',q:'风行地上，观；先王以省方，观民设教'},
+{g:'噬嗑',q:'亨，利用狱'},
+{g:'噬嗑',q:'雷电，噬嗑；先王以明罚敕法'},
+{g:'贲',q:'亨，小利有攸往'},
+{g:'贲',q:'白贲，无咎'},
+{g:'贲',q:'山下有火，贲；君子以明庶政，无敢折狱'},
+{g:'剥',q:'不利有攸往'},
+{g:'剥',q:'硕果不食，君子得舆，小人剥庐'},
+{g:'剥',q:'山附于地，剥；上以厚下安宅'},
+{g:'复',q:'出入无疾，朋来无咎；反复其道，七日来复，利有攸往'},
+{g:'复',q:'不远复，无祗悔，元吉'},
+{g:'复',q:'雷在地中，复；先王以至日闭关，商旅不行'},
+{g:'复',q:'复其见天地之心乎'},
+{g:'无妄',q:'元亨利贞；其匪正有眚，不利有攸往'},
+{g:'无妄',q:'无妄之灾，或系之牛，行人之得，邑人之灾'},
+{g:'无妄',q:'无妄之疾，勿药有喜'},
+{g:'无妄',q:'天下雷行，物与无妄；先王以茂对时，育万物'},
+{g:'大畜',q:'利贞；不家食吉，利涉大川'},
+{g:'大畜',q:'天在山中，大畜；君子以多识前言往行，以畜其德'},
+{g:'颐',q:'贞吉；观颐，自求口实'},
+{g:'颐',q:'舍尔灵龟，观我朵颐，凶'},
+{g:'颐',q:'山下有雷，颐；君子以慎言语，节饮食'},
+{g:'大过',q:'栋桡，利有攸往，亨'},
+{g:'大过',q:'枯杨生稊，老夫得其女妻，无不利'},
+{g:'大过',q:'枯杨生华，老妇得其士夫，无咎无誉'},
+{g:'大过',q:'泽灭木，大过；君子以独立不惧，遯世无闷'},
+{g:'坎',q:'习坎，有孚，维心亨，行有尚'},
+{g:'坎',q:'水洊至，习坎；君子以常德行，习教事'},
+{g:'坎',q:'天险不可升，地险山川丘陵'},
+{g:'离',q:'利贞，亨；畜牝牛，吉'},
+{g:'离',q:'黄离，元吉'},
+{g:'离',q:'明两作，离；大人以继明照于四方'},
+{g:'离',q:'离丽乎正，乃化成天下'},
+{g:'咸',q:'咸，亨，利贞，取女吉'},
+{g:'咸',q:'山上有泽，咸；君子以虚受人'},
+{g:'恒',q:'恒，亨，无咎，利贞，利有攸往'},
+{g:'恒',q:'不恒其德，或承之羞，贞吝'},
+{g:'恒',q:'雷风，恒；君子以立不易方'},
+{g:'遁',q:'遁，亨，小利贞'},
+{g:'遁',q:'天下有山，遁；君子以远小人，不恶而严'},
+{g:'大壮',q:'大壮，利贞'},
+{g:'大壮',q:'小人用壮，君子用罔'},
+{g:'大壮',q:'雷在天上，大壮；君子以非礼弗履'},
+{g:'晋',q:'晋，康侯用锡马蕃庶，昼日三接'},
+{g:'晋',q:'明出地上，晋；君子以自昭明德'},
+{g:'明夷',q:'明夷，利艰贞'},
+{g:'明夷',q:'箕子之明夷，利贞'},
+{g:'明夷',q:'明入地中，明夷；君子以莅众，用晦而明'},
+{g:'家人',q:'家人，利女贞'},
+{g:'家人',q:'风自火出，家人；君子以言有物，而行有恒'},
+{g:'睽',q:'睽，小事吉'},
+{g:'睽',q:'上火下泽，睽；君子以同而异'},
+{g:'蹇',q:'蹇，利西南，不利东北；利见大人，贞吉'},
+{g:'蹇',q:'王臣蹇蹇，匪躬之故'},
+{g:'蹇',q:'山上有水，蹇；君子以反身修德'},
+{g:'解',q:'解，利西南；无所往，其来复吉；有攸往，夙吉'},
+{g:'解',q:'雷雨作，解；君子以赦过宥罪'},
+{g:'损',q:'损，有孚，元吉，无咎，可贞，利有攸往'},
+{g:'损',q:'三人行，则损一人；一人行，则得其友'},
+{g:'损',q:'山下有泽，损；君子以惩忿窒欲'},
+{g:'益',q:'益，利有攸往，利涉大川'},
+{g:'益',q:'风雷，益；君子以见善则迁，有过则改'},
+{g:'夬',q:'夬，扬于王庭，孚号有厉；告自邑，不利即戎，利有攸往'},
+{g:'夬',q:'泽上于天，夬；君子以施禄及下，居德则忌'},
+{g:'姤',q:'姤，女壮，勿用取女'},
+{g:'姤',q:'天下有风，姤；后以施命诰四方'},
+{g:'萃',q:'萃，亨；王假有庙，利见大人，亨，利贞'},
+{g:'萃',q:'泽上于地，萃；君子以除戎器，戒不虞'},
+{g:'升',q:'升，元亨，用见大人，勿恤；南征吉'},
+{g:'升',q:'地中生木，升；君子以顺德，积小以高大'},
+{g:'困',q:'困，亨，贞，大人吉，无咎；有言不信'},
+{g:'困',q:'困于石，据于蒺藜，入于其宫，不见其妻，凶'},
+{g:'困',q:'泽无水，困；君子以致命遂志'},
+{g:'井',q:'井，改邑不改井，无丧无得，往来井井'},
+{g:'井',q:'井渫不食，为我心恻；可用汲，王明，并受其福'},
+{g:'井',q:'木上有水，井；君子以劳民劝相'},
+{g:'革',q:'革，己日乃孚，元亨，利贞，悔亡'},
+{g:'革',q:'大人虎变，未占有孚'},
+{g:'革',q:'君子豹变，小人革面'},
+{g:'革',q:'泽中有火，革；君子以治历明时'},
+{g:'鼎',q:'鼎，元吉，亨'},
+{g:'鼎',q:'鼎折足，覆公餗，其形渥，凶'},
+{g:'鼎',q:'木上有火，鼎；君子以正位凝命'},
+{g:'震',q:'震，亨；震来虩虩，笑言哑哑；震惊百里，不丧匕鬯'},
+{g:'震',q:'洊雷，震；君子以恐惧修省'},
+{g:'艮',q:'艮，艮其背，不获其身；行其庭，不见其人，无咎'},
+{g:'艮',q:'兼山，艮；君子以思不出其位'},
+{g:'渐',q:'渐，女归吉，利贞'},
+{g:'渐',q:'山上有木，渐；君子以居贤德善俗'},
+{g:'归妹',q:'归妹，征凶，无攸利'},
+{g:'归妹',q:'泽上有雷，归妹；君子以永终知敝'},
+{g:'丰',q:'丰，亨，王假之，勿忧，宜日中'},
+{g:'丰',q:'雷电皆至，丰；君子以折狱致刑'},
+{g:'旅',q:'旅，小亨，旅贞吉'},
+{g:'旅',q:'山上有火，旅；君子以明慎用刑，而不留狱'},
+{g:'巽',q:'巽，小亨，利有攸往，利见大人'},
+{g:'巽',q:'随风，巽；君子以申命行事'},
+{g:'兑',q:'兑，亨，利贞'},
+{g:'兑',q:'丽泽，兑；君子以朋友讲习'},
+{g:'涣',q:'涣，亨；王假有庙，利涉大川，利贞'},
+{g:'涣',q:'风行水上，涣；先王以享于帝，立庙'},
+{g:'节',q:'节，亨；苦节不可贞'},
+{g:'节',q:'泽上有水，节；君子以制数度，议德行'},
+{g:'中孚',q:'中孚，豚鱼吉，利涉大川，利贞'},
+{g:'中孚',q:'泽上有风，中孚；君子以议狱缓死'},
+{g:'小过',q:'小过，亨，利贞；可小事，不可大事'},
+{g:'小过',q:'山上有雷，小过；君子以行过乎恭，丧过乎哀，用过乎俭'},
+{g:'既济',q:'既济，亨，小利贞；初吉终乱'},
+{g:'既济',q:'水在火上，既济；君子以思患而豫防之'},
+{g:'未济',q:'未济，亨；小狐汔济，濡其尾，无攸利'},
+{g:'未济',q:'火在水上，未济；君子以慎辨物居方'},
+];
+
+// 64卦爻象 [初爻,二爻,三爻,四爻,五爻,上爻] 1=阳 0=阴
+const YIOR_GUA={
+'乾':{py:'QIAN',y:[1,1,1,1,1,1]},
+'坤':{py:'KUN',y:[0,0,0,0,0,0]},
+'屯':{py:'ZHUN',y:[1,0,0,0,1,0]},
+'蒙':{py:'MENG',y:[0,1,0,0,0,1]},
+'需':{py:'XU',y:[1,1,1,0,1,0]},
+'讼':{py:'SONG',y:[0,1,0,1,1,1]},
+'师':{py:'SHI',y:[0,1,0,0,0,0]},
+'比':{py:'BI',y:[0,0,0,0,1,0]},
+'小畜':{py:'XIAOXU',y:[1,1,1,0,1,1]},
+'履':{py:'LV',y:[1,1,0,1,1,1]},
+'泰':{py:'TAI',y:[1,1,1,0,0,0]},
+'否':{py:'PI',y:[0,0,0,1,1,1]},
+'同人':{py:'TONGREN',y:[1,0,1,1,1,1]},
+'大有':{py:'DAYOU',y:[1,1,1,1,0,1]},
+'谦':{py:'QIAN',y:[0,0,1,0,0,0]},
+'豫':{py:'YU',y:[0,0,0,1,0,0]},
+'随':{py:'SUI',y:[1,0,0,1,1,0]},
+'蛊':{py:'GU',y:[0,1,1,0,0,1]},
+'临':{py:'LIN',y:[1,1,0,0,0,0]},
+'观':{py:'GUAN',y:[0,0,0,0,1,1]},
+'噬嗑':{py:'SHIKE',y:[1,0,0,1,0,1]},
+'贲':{py:'BI',y:[1,0,1,0,0,1]},
+'剥':{py:'BO',y:[0,0,0,0,0,1]},
+'复':{py:'FU',y:[1,0,0,0,0,0]},
+'无妄':{py:'WUWANG',y:[1,0,0,1,1,1]},
+'大畜':{py:'DAXU',y:[1,1,1,0,0,1]},
+'颐':{py:'YI',y:[1,0,0,0,0,1]},
+'大过':{py:'DAGUO',y:[0,1,1,1,1,0]},
+'坎':{py:'KAN',y:[0,1,0,0,1,0]},
+'离':{py:'LI',y:[1,0,1,1,0,1]},
+'咸':{py:'XIAN',y:[0,0,1,1,1,0]},
+'恒':{py:'HENG',y:[0,1,1,1,0,0]},
+'遁':{py:'DUN',y:[0,0,1,1,1,1]},
+'大壮':{py:'DAZHUANG',y:[1,1,1,1,0,0]},
+'晋':{py:'JIN',y:[0,0,0,1,0,1]},
+'明夷':{py:'MINGYI',y:[1,0,1,0,0,0]},
+'家人':{py:'JIAREN',y:[1,0,1,0,1,1]},
+'睽':{py:'KUI',y:[1,1,0,1,0,1]},
+'蹇':{py:'JIAN',y:[0,0,1,0,1,0]},
+'解':{py:'XIE',y:[0,1,0,1,0,0]},
+'损':{py:'SUN',y:[1,1,0,0,0,1]},
+'益':{py:'YI',y:[1,0,0,0,1,1]},
+'夬':{py:'GUAI',y:[1,1,1,1,1,0]},
+'姤':{py:'GOU',y:[0,1,1,1,1,1]},
+'萃':{py:'CUI',y:[0,0,0,1,1,0]},
+'升':{py:'SHENG',y:[0,1,1,0,0,0]},
+'困':{py:'KUN',y:[0,1,0,1,1,0]},
+'井':{py:'JING',y:[0,1,1,0,1,0]},
+'革':{py:'GE',y:[1,0,1,1,1,0]},
+'鼎':{py:'DING',y:[0,1,1,1,0,1]},
+'震':{py:'ZHEN',y:[1,0,0,1,0,0]},
+'艮':{py:'GEN',y:[0,0,1,0,0,1]},
+'渐':{py:'JIAN',y:[0,0,1,0,1,1]},
+'归妹':{py:'GUIMEI',y:[1,1,0,1,0,0]},
+'丰':{py:'FENG',y:[1,0,1,1,0,0]},
+'旅':{py:'LV',y:[0,0,1,1,0,1]},
+'巽':{py:'XUN',y:[0,1,1,0,1,1]},
+'兑':{py:'DUI',y:[1,1,0,1,1,0]},
+'涣':{py:'HUAN',y:[0,1,0,0,1,1]},
+'节':{py:'JIE',y:[1,1,0,0,1,0]},
+'中孚':{py:'ZHONGFU',y:[1,1,0,0,1,1]},
+'小过':{py:'XIAOGUO',y:[0,0,1,1,0,0]},
+'既济':{py:'JIJI',y:[1,0,1,0,1,0]},
+'未济':{py:'WEIJI',y:[0,1,0,1,0,1]},
+};
+
+(function initDailyQuote() {
+  const el = document.getElementById('dailyQuoteSection');
+  if (!el) return;
+  const today = new Date().toDateString();
+  let s = null;
+  try { s = JSON.parse(localStorage.getItem('yiorDQ')); } catch(e){}
+  let idx;
+  if (s && s.d === today) {
+    idx = s.i;
+  } else {
+    idx = s ? (s.i + 1) % YIOR_QUOTES.length : 0;
+    try { localStorage.setItem('yiorDQ', JSON.stringify({d:today,i:idx})); } catch(e){}
+  }
+  const q = YIOR_QUOTES[idx];
+  const gd = YIOR_GUA[q.g] || {py:'',y:[0,0,0,0,0,0]};
+  // 爻: 视觉从上往下 = 上爻→初爻，所以 reverse
+  const yaoImgs = [...gd.y].reverse().map((v,i) =>
+    `<image href="baguatu2/${v?'yao-da-yang':'yao-da-yin'}.svg" x="0" y="${i*6}" width="17" height="3" filter="url(#yao-orange-dq)"/>`
+  ).join('');
+  const gl = q.g.length;
+  const nameFz = gl >= 3 ? '17px' : gl === 2 ? '22px' : '30px';
+  const ql = q.q.length;
+  const qFz = ql > 28 ? '11.5px' : ql > 18 ? '13px' : ql > 10 ? '15px' : '18px';
+  el.innerHTML = `
+    <div style="flex-shrink:0;">
+      <div style="display:flex;align-items:center;gap:5px;">
+        <span style="font-size:${nameFz};color:#e2782c;font-family:'Microsoft YaHei',sans-serif;line-height:1.1;">${q.g}</span>
+        <svg viewBox="0 0 17 33" width="13" height="30" style="display:block;">
+          <defs>
+            <filter id="yao-orange-dq" color-interpolation-filters="sRGB" x="0" y="0" width="1" height="1">
+              <feFlood flood-color="#e2782c" result="clr"/>
+              <feComposite in="clr" in2="SourceAlpha" operator="in"/>
+            </filter>
+          </defs>
+          ${yaoImgs}
+        </svg>
+      </div>
+      <div style="font-size:8.5px;color:#e2782c;font-family:'Signika SC','Signika',sans-serif;letter-spacing:.1em;margin-top:2px;">${gd.py}GUA</div>
+    </div>
+    <div style="flex:1;font-size:${qFz};color:#626262;font-family:'Microsoft YaHei',sans-serif;line-height:1.6;">${q.q}</div>
+  `;
 })();
 
 
@@ -5016,6 +5345,10 @@ function bzRenderDetail(p) {
 
   <!-- 四柱 table card -->
   <div class="bz-mp-card">
+    <div style="padding:12px 16px 8px;display:flex;align-items:center;justify-content:space-between;">
+      <span style="font-size:15px;font-weight:600;color:#1a1a1a;font-family:'Microsoft YaHei';">八字命盘</span>
+      <span onclick="bzAiOpen('${p.id}')" style="font-size:13px;color:#c87830;cursor:pointer;font-family:'Microsoft YaHei';display:flex;align-items:center;gap:2px;">Ai 解读 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c87830" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></span>
+    </div>
     <table style="width:100%;border-collapse:collapse;">
       <tr style="background:#fafaf8;">
         <td style="width:14%;padding:8px 4px 6px;font-size:11px;color:#bbb;text-align:center;"></td>
@@ -5076,6 +5409,7 @@ function bzRenderDetail(p) {
     </div>
     ${yunStartInfo ? `<div style="text-align:center;font-size:12px;color:#bbb;margin-top:4px;">${yunStartInfo}</div>` : ''}
     <div style="margin-top:14px;">${bzMakeDayMasterWheel(p.dayGan)}</div>
+    <div style="margin:-6px 16px 0;font-size:12.5px;color:#7a5028;line-height:1.85;letter-spacing:.3px;text-align:center;">${bzDayMasterDesc(p.dayGan, isStrong)}</div>
   </div>
 
   <!-- Five element relation diagram -->
@@ -5090,7 +5424,6 @@ function bzRenderDetail(p) {
       <span style="font-size:15px;font-weight:600;color:#1a1a1a;font-family:'Microsoft YaHei';">大运</span>
       <span id="bzDyStart" style="font-size:11px;color:#999;"></span>
     </div>
-    <div id="bzDyBar"></div>
     <div id="bzDyRow"></div>
     <div style="padding:0 16px;margin:16px 0 10px;">
       <span style="font-size:15px;font-weight:600;color:#1a1a1a;font-family:'Microsoft YaHei';">流年</span>
@@ -5098,7 +5431,55 @@ function bzRenderDetail(p) {
     <div id="bzLnRow"></div>
   </div>
 
+  ${bzMakeShiShenChart(p)}
+
 </div>`;
+}
+
+// ── 十神占比图 ────────────────────────────────────────────────────
+function bzMakeShiShenChart(p) {
+  const SS_ORDER = ['比肩','劫财','食神','伤官','正财','偏财','正官','七杀','正印','偏印'];
+  const ssCount = {}; SS_ORDER.forEach(s => ssCount[s] = 0);
+  [p.yearGan, p.monthGan, p.hourGan].forEach(g => {
+    const ss = bzGetSS(g, p.dayGan); if (ss in ssCount) ssCount[ss] += 1.5;
+  });
+  [p.yearZhi, p.monthZhi, p.dayZhi, p.hourZhi].forEach(z => {
+    (BZ_HIDE[z]||[]).forEach((hg, hi) => {
+      const ss = bzGetSS(hg, p.dayGan); if (ss in ssCount) ssCount[ss] += hi===0 ? 1.0 : 0.5;
+    });
+  });
+  const total  = Object.values(ssCount).reduce((a,b)=>a+b,0) || 1;
+  const maxVal = Math.max(...Object.values(ssCount)) || 1;
+  const dmElem = BZ_GAN_ELEM[p.dayGan] || '土';
+  const gen = {木:'火',火:'土',土:'金',金:'水',水:'木'};
+  const ctl = {木:'土',土:'水',水:'火',火:'金',金:'木'};
+  const myGen  = gen[dmElem], myCtl = ctl[dmElem];
+  const ctrlMe = Object.keys(ctl).find(e => ctl[e]===dmElem);
+  const genMe  = Object.keys(gen).find(e => gen[e]===dmElem);
+  const ssElemMap = {'比肩':dmElem,'劫财':dmElem,'食神':myGen,'伤官':myGen,'正财':myCtl,'偏财':myCtl,'正官':ctrlMe,'七杀':ctrlMe,'正印':genMe,'偏印':genMe};
+  const SS_ICON = {
+    '比肩': '<circle cx="8.5" cy="12" r="4"/><circle cx="15.5" cy="12" r="4"/>',
+    '劫财': '<path d="M12 4l7 9H5z"/><line x1="12" y1="13" x2="12" y2="20"/><line x1="9" y1="20" x2="15" y2="20"/>',
+    '食神': '<circle cx="12" cy="7" r="2.5"/><path d="M6 12a6 6 0 0012 0"/><ellipse cx="12" cy="18" rx="5" ry="2.5"/>',
+    '伤官': '<rect x="11" y="3" width="2" height="13" rx="1"/><path d="M9 13l3 5 3-5"/>',
+    '正财': '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.5"/>',
+    '偏财': '<circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><circle cx="12" cy="17" r="3"/>',
+    '正官': '<path d="M12 20v-8"/><path d="M7 16l5-5 5 5"/><path d="M5 12l7-7 7 7"/>',
+    '七杀': '<path d="M12 3l1.5 9.5h-3z"/><line x1="12" y1="13" x2="12" y2="19"/><circle cx="12" cy="21" r="1.5" fill="currentColor"/>',
+    '正印': '<circle cx="12" cy="12" r="3.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8"/>',
+    '偏印': '<rect x="7" y="12" width="10" height="8" rx="2"/><path d="M9 12V9a3 3 0 016 0v3"/><line x1="10" y1="16" x2="14" y2="16"/>',
+  };
+  const CHART_H = 120;
+  const cols = SS_ORDER.map(ss => {
+    const val = ssCount[ss];
+    const pct = Math.round(val / total * 100);
+    const fillH = Math.round(val / maxVal * CHART_H);
+    const elem = ssElemMap[ss] || dmElem;
+    const color = BZ_ELEM_BG[elem] || '#999';
+    const lightC = BZ_ELEM_LIGHT[elem] || '#f0f0f0';
+    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;min-width:0;"><div style="width:24px;height:${CHART_H}px;background:${lightC};border-radius:5px 5px 0 0;position:relative;overflow:hidden;"><div style="position:absolute;bottom:0;left:0;right:0;height:${fillH}px;background:${color};border-radius:5px 5px 0 0;"></div></div><svg viewBox="0 0 24 24" width="20" height="20" stroke="${color}" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-top:6px;">${SS_ICON[ss]}</svg><div style="font-size:10px;color:#555;margin-top:3px;text-align:center;line-height:1.4;font-family:'Microsoft YaHei';">${ss[0]}<br>${ss[1]}</div><div style="font-size:11px;font-weight:600;color:${pct>0?color:'#ccc'};margin-top:2px;">${pct}%</div></div>`;
+  }).join('');
+  return `<div style="margin:8px 0 0;padding:14px 16px 24px;"><div style="font-size:15px;font-weight:600;color:#1a1a1a;margin-bottom:16px;font-family:'Microsoft YaHei';">十神占比</div><div style="display:flex;align-items:flex-end;">${cols}</div></div>`;
 }
 
 // ── 十神 helper ───────────────────────────────────────────────────
@@ -5209,7 +5590,7 @@ function bzMakeRelSVG(fePct, dmElem) {
   return `<div style="margin:12px 14px 0;padding:16px 8px 8px;">
   <div style="font-size:13px;font-weight:600;color:#333;margin-bottom:0;text-align:center;font-family:'Microsoft YaHei';">五行分布</div>
   <div style="display:flex;justify-content:center;">
-  <svg width="100%" viewBox="0 0 ${W} ${H}" style="max-width:240px;">
+  <svg width="100%" viewBox="0 0 ${W} ${H}" style="max-width:300px;">
     <defs>
       <marker id="bzSheng" markerWidth="8" markerHeight="8" refX="6.5" refY="4" orient="auto">
         <path d="M0,0.8 L7,4 L0,7.2 Z" fill="#c0a878"/>
@@ -5226,6 +5607,35 @@ function bzMakeRelSVG(fePct, dmElem) {
   </svg>
   </div>
 </div>`;
+}
+
+// ── 日主性格描述 ──────────────────────────────────────────────────
+function bzDayMasterDesc(dayGan, isStrong) {
+  const d = {
+    '甲': ['甲木日主身强，性格刚直进取，意志坚定，行事雷厉风行，有开创之才，宜适时收敛锋芒以聚势。',
+            '甲木日主身弱，温和柔韧，善于借力，喜水木扶持，宜稳健积累根基，切忌冒进争强。'],
+    '乙': ['乙木日主身强，聪慧灵活，亲和力佳，内秀不失坚韧，处事圆融，宜以柔克刚化解阻碍。',
+            '乙木日主身弱，细腻敏感，善解人意，需水木相扶，宜培根固本，循序渐进方能有成。'],
+    '丙': ['丙火日主身强，热情开朗，光明磊落，锋芒外显，积极主动，宜适度收敛以免过旺伤身。',
+            '丙火日主身弱，真诚友善，富感召力，需木火相生助力，宜积蓄热情，借势而起广发光热。'],
+    '丁': ['丁火日主身强，聪慧内敛，洞察敏锐，才情兼具，处世精明，宜善用灵思成就一番事业。',
+            '丁火日主身弱，温柔细腻，富艺术气质，需木火扶持，宜专注深耕，以才智取胜方长远。'],
+    '戊': ['戊土日主身强，稳重踏实，包容心强，意志坚定，处事沉稳，宜疏通泄秀充分展现才华。',
+            '戊土日主身弱，诚实厚道，善于承载，需火土相扶，宜踏实积累，务本勤耕终得厚实根基。'],
+    '己': ['己土日主身强，温柔细腻，善于协调，沉稳内敛，处事周全，宜疏泄发挥内在潜能与才华。',
+            '己土日主身弱，随和包容，重情重义，需火土相生，宜借助贵人之力，厚积薄发终显才情。'],
+    '庚': ['庚金日主身强，刚毅果决，执行力强，魄力十足，行事雷厉，宜以才智调和柔化过盛锋芒。',
+            '庚金日主身弱，坚韧不拔，重诺守信，需土金相扶，宜借力使力，稳步提升自身综合实力。'],
+    '辛': ['辛金日主身强，精明细腻，内秀外美，审美独到，精益求精，宜善用才智与品质开创事业。',
+            '辛金日主身弱，优雅温婉，感情细腻，需土金相生，宜精耕细作，以品质与口碑赢得认可。'],
+    '壬': ['壬水日主身强，才智过人，思维敏捷，处世灵活，善于谋划，宜聚焦方向以免才华流散虚耗。',
+            '壬水日主身弱，聪慧沉静，适应力强，需金水相生，宜积蓄智慧，择机而动方能成就大事。'],
+    '癸': ['癸水日主身强，沉稳多谋，感情细腻，智慧内敛，思维深邃，宜引导才智成就事业与人生。',
+            '癸水日主身弱，温和善良，直觉敏锐，需金水扶持，宜修身养性，以深邃智慧柔化外在阻碍。'],
+  };
+  const pair = d[dayGan];
+  if (!pair) return '';
+  return isStrong ? pair[0] : pair[1];
 }
 
 // ── 喜用 / 忌用 ───────────────────────────────────────────────────
@@ -5285,7 +5695,6 @@ function bzDyEval(gz, dayGan, isStrong) {
   let score = Math.round(gs * 0.6 + zs * 0.4);
   const v = (gz.charCodeAt(0) * 3 + gz.charCodeAt(1) * 7) % 11 - 5;
   score = Math.min(99, Math.max(32, score + v));
-  const domSS = gs >= zs ? ganSS : zhiSS;
   const ok = score >= 65;
   const cyMap = {
     '正印': ok ? ['贵人相助','厚积薄发'] : ['依赖成性','固步自封'],
@@ -5299,154 +5708,38 @@ function bzDyEval(gz, dayGan, isStrong) {
     '七杀': ok ? ['披荆斩棘','功业定成'] : ['压力渐增','逆水行舟'],
     '正官': ok ? ['德隆望重','光明正大'] : ['规矩缚身','束缚重重'],
   };
-  const cy = cyMap[domSS] || (ok ? ['吉星高照','顺风顺水'] : ['平稳度日','韬光养晦']);
+  // 成语跟天干十神（透出更显），地支兜底，再兜底默认
+  const cy = cyMap[ganSS] || cyMap[zhiSS] || (ok ? ['吉星高照','顺风顺水'] : ['平稳度日','韬光养晦']);
   return { score, cy };
 }
 
-function bzRenderDyBarWithScores(p, daYun, activeIdx, aiMap) {
-  const barEl = document.getElementById('bzDyBar');
-  if (!barEl) return;
-  const now = new Date().getFullYear();
-  const BAR_MAX = 120, BAR_MIN = 26;
-  const firstRealSa = (daYun.find(dy => dy.getGanZhi()) || {getStartAge:()=>6}).getStartAge();
-  const cols = daYun.map((dy, i) => {
-    const gz = dy.getGanZhi();
-    const sa = dy.getStartAge();
-    const ea = dy.getEndYear ? dy.getEndYear() : sa + 9;
-    const isNow = dy.getStartYear() <= now && ea >= now;
-    if (!gz) {
-      return _bzBarColHtml({ gz:null, ageLabel:`1-${firstRealSa-1}岁`, score:32, cy:['尚未起运','蓄势待发'], isNow:false, isCur:false, isXiaoYun:true, onclick:null });
-    }
-    const ai = aiMap[gz];
-    const score = ai ? ai.score : 60;
-    const cy = ai ? ai.cy : ['运势平稳', '韬光养晦'];
-    return _bzBarColHtml({ gz, ageLabel:`${sa}-${sa+9}岁`, score, cy, isNow, isCur:i===activeIdx, isXiaoYun:false, onclick:`bzRenderDaYun('${p.id}',${i})` });
-  }).join('');
-  const scroll = barEl.querySelector('.bz-hscroll');
-  const prevLeft = scroll ? scroll.scrollLeft : 0;
-  barEl.innerHTML = `
-    <div class="bz-hscroll" style="padding-bottom:4px;">
-      <div style="display:inline-flex;align-items:flex-end;padding:0 14px;min-height:${BAR_MAX+100}px;">
-        ${cols}
-      </div>
-    </div>
-    <div style="border-top:1px solid #ede8e0;margin:12px 14px 0;"></div>`;
-  const newScroll = barEl.querySelector('.bz-hscroll');
-  if (newScroll && prevLeft) newScroll.scrollLeft = prevLeft;
-}
-
 function _bzBarColHtml(opts) {
-  // opts: { gz, ageLabel, score, cy, isNow, isCur, isXiaoYun, onclick }
+  // opts: { ageLabel, score, cy, isCur, isXiaoYun, onclick }
   const BAR_MAX = 120, BAR_MIN = 26;
-  const { gz, ageLabel, score, cy, isNow, isCur, isXiaoYun, onclick } = opts;
+  const { ageLabel, score, cy, isCur, isXiaoYun, onclick } = opts;
   const barH = Math.round(BAR_MIN + Math.max(0, score - 32) / 67 * (BAR_MAX - BAR_MIN));
   const barBg = isXiaoYun
-    ? 'linear-gradient(180deg,#d8d4cc 0%,#eceae6 100%)'
-    : isNow
-      ? 'linear-gradient(180deg,#e8956a 0%,#f5c49a 100%)'
-      : isCur
-        ? 'linear-gradient(180deg,#d4a070 0%,#edcf9a 100%)'
-        : 'linear-gradient(180deg,#e8ccaa 0%,#f5e2cc 100%)';
-  const textC = isXiaoYun ? '#aaa' : isNow ? '#7a3010' : '#9a6820';
-  const subLabel = gz ? `${gz[0]}${gz[1]}` : '小运';
-  const dotHtml = isNow
-    ? `<div style="width:5px;height:5px;border-radius:50%;background:#e8956a;margin:4px auto 0;"></div>`
-    : `<div style="height:9px;"></div>`;
-  return `<div style="min-width:72px;width:72px;display:flex;flex-direction:column;align-items:center;padding:0 2px;${onclick?'cursor:pointer;':''}" ${onclick?`onclick="${onclick}"`:''}>
-    <div style="font-size:10px;color:${textC};text-align:center;line-height:1.75;margin-bottom:8px;font-family:'Microsoft YaHei';white-space:nowrap;">${cy[0]}<br>${cy[1]}</div>
-    <div style="display:flex;align-items:flex-end;width:100%;justify-content:center;">
-      <div style="width:44px;height:${barH}px;background:${barBg};border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:center;">
-        <span style="font-size:15px;font-weight:700;color:${textC};line-height:1;">${score}</span>
-      </div>
-    </div>
-    <div style="font-size:10px;color:#aaa;text-align:center;margin-top:7px;line-height:1.6;">${ageLabel}<br><span style="color:${isXiaoYun?'#bbb':'#888'};font-size:11px;">${subLabel}</span></div>
-    ${dotHtml}
-  </div>`;
+    ? 'linear-gradient(180deg,#d8d4cc,#eceae6)'
+    : isCur
+      ? 'linear-gradient(180deg,#c87830,#e8a050)'
+      : 'linear-gradient(180deg,#e8ccaa,#f5e2cc)';
+  const textC = isXiaoYun ? '#bbb' : isCur ? '#6a2a08' : '#9a6820';
+  return `<td style="padding:0;min-width:66px;width:66px;border-right:1px solid #f0ece4;${onclick?'cursor:pointer;':''}" ${onclick?`onclick="${onclick}"`:''}><div style="display:flex;flex-direction:column;align-items:center;height:190px;padding:0 4px;"><div style="flex:1;"></div><div style="font-size:9.5px;color:${textC};text-align:center;line-height:1.75;margin-bottom:5px;white-space:nowrap;">${cy[0]}<br>${cy[1]}</div><div style="width:38px;height:${barH}px;background:${barBg};border-radius:7px 7px 0 0;display:flex;align-items:center;justify-content:center;"><span style="font-size:13px;font-weight:700;color:${textC};line-height:1;">${score}</span></div><div style="font-size:9px;color:#aaa;text-align:center;margin-top:5px;line-height:1.5;">${ageLabel}</div></div></td>`;
 }
 
-function bzRenderDyBar(p, daYun, activeIdx, isStrong) {
-  const barEl = document.getElementById('bzDyBar');
-  if (!barEl) return;
-  const now = new Date().getFullYear();
+function _bzBarRowHtml(p, daYun, activeIdx, isStrong) {
   const firstRealSa = (daYun.find(dy => dy.getGanZhi()) || {getStartAge:()=>6}).getStartAge();
-  const cols = daYun.map((dy, i) => {
+  return daYun.map((dy, i) => {
     const gz = dy.getGanZhi();
     const sa = dy.getStartAge();
-    const ea = dy.getEndYear ? dy.getEndYear() : sa + 9;
-    const isNow = dy.getStartYear() <= now && ea >= now;
     if (!gz) {
-      return _bzBarColHtml({ gz:null, ageLabel:`1-${firstRealSa-1}岁`, score:32, cy:['尚未起运','蓄势待发'], isNow:false, isCur:false, isXiaoYun:true, onclick:null });
+      return _bzBarColHtml({ ageLabel:`1-${firstRealSa-1}岁`, score:32, cy:['尚未起运','蓄势待发'], isCur:false, isXiaoYun:true, onclick:null });
     }
     const { score, cy } = bzDyEval(gz, p.dayGan, isStrong);
-    return _bzBarColHtml({ gz, ageLabel:`${sa}-${sa+9}岁`, score, cy, isNow, isCur:i===activeIdx, isXiaoYun:false, onclick:`bzRenderDaYun('${p.id}',${i})` });
+    return _bzBarColHtml({ ageLabel:`${sa}-${sa+9}岁`, score, cy, isCur:i===activeIdx, isXiaoYun:false, onclick:`bzRenderDaYun('${p.id}',${i})` });
   }).join('');
-  barEl.innerHTML = `
-    <div class="bz-hscroll" style="padding-bottom:4px;">
-      <div style="display:inline-flex;align-items:flex-end;padding:0 14px;min-height:220px;">
-        ${cols}
-      </div>
-    </div>
-    <div style="border-top:1px solid #ede8e0;margin:12px 14px 0;"></div>`;
 }
 
-async function bzAIScoreDaYun(p, daYun, isStrong) {
-  const pillars = `${p.yearGan}${p.yearZhi} ${p.monthGan}${p.monthZhi} ${p.dayGan}${p.dayZhi} ${p.hourGan}${p.hourZhi}`;
-  const strength = isStrong ? '身强' : '身弱';
-  const dyList = daYun.filter(dy=>dy.getGanZhi()).map((dy,i)=>{
-    const gz=dy.getGanZhi(), sa=dy.getStartAge();
-    return `${i+1}. ${sa}-${sa+9}岁 ${gz}`;
-  }).join('\n');
-
-  const prompt = `你是精通传统八字命理的大师。请根据以下命主信息，为每段大运评分并给成语总结。
-
-【命主】四柱：${pillars} | 日主：${p.dayGan}（${BZ_GAN_ELEM[p.dayGan]||''}）${strength} | 性别：${p.gender==='male'?'男':'女'}
-
-【大运列表】
-${dyList}
-
-评分要求（1-100分）：
-- 综合考虑大运干支对日主的喜忌（喜用神高分，忌神低分）
-- 考虑大运干支与原局四柱的刑冲合害
-- 考虑天干地支力量配合与透出情况
-- 分数要有明显区分度，避免集中在同一区间
-
-每段给两个四字成语概括该段运势特点。
-
-只返回JSON，格式：[{"gz":"甲子","score":85,"cy":["成语一","成语二"]},...]`;
-
-  let full = '';
-  const sid = 'dy-' + p.id;
-  await new Promise((resolve, reject) => {
-    const timeout = setTimeout(() => reject(new Error('timeout')), 20000);
-    fetch(`${AI_BASE}/api/v1/workspace/${AI_WORKSPACE}/stream-chat`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${AI_KEY}` },
-      body: JSON.stringify({ message: prompt, mode: 'chat', sessionId: sid })
-    }).then(res => {
-      if (!res.ok) { clearTimeout(timeout); return reject(new Error('api err')); }
-      const reader = res.body.getReader();
-      const dec = new TextDecoder();
-      let buf = '';
-      function pump() {
-        reader.read().then(({ done, value }) => {
-          if (done) { clearTimeout(timeout); resolve(); return; }
-          buf += dec.decode(value, { stream: true });
-          const lines = buf.split('\n'); buf = lines.pop() || '';
-          for (const line of lines) {
-            if (!line.startsWith('data: ')) continue;
-            try { const d = JSON.parse(line.slice(6)); if (d.textResponse) full += d.textResponse; if (d.close) { clearTimeout(timeout); resolve(); } } catch(e) {}
-          }
-          pump();
-        }).catch(e => { clearTimeout(timeout); reject(e); });
-      }
-      pump();
-    }).catch(e => { clearTimeout(timeout); reject(e); });
-  });
-
-  const match = full.match(/\[[\s\S]*?\]/);
-  if (!match) throw new Error('no json');
-  return JSON.parse(match[0]);
-}
 
 function bzRenderDaYun(pOrId, activeIdx) {
   const p = (typeof pOrId === 'string') ? bzProfiles.find(x=>x.id===pOrId) : pOrId;
@@ -5473,43 +5766,6 @@ function bzRenderDaYun(pOrId, activeIdx) {
     const _feTotal=Object.values(_feC).reduce((a,b)=>a+b,0)||1;
     const _dmE=BZ_GAN_ELEM[p.dayGan]||'';
     const _isStrong=(_feC[_dmE]||0)>=(_feTotal*0.3);
-    bzRenderDyBar(p, daYun, activeIdx, _isStrong);
-
-    // AI 精准评分（优先读缓存，首次才调 AI）
-    const _barEl = document.getElementById('bzDyBar');
-    if (_barEl && !_barEl.dataset.aiDone) {
-      _barEl.dataset.aiDone = '1';
-      const _cacheKey = `bz_dy_score_${p.id}`;
-      let _cached = null;
-      try { const _raw = localStorage.getItem(_cacheKey); if (_raw) _cached = JSON.parse(_raw); } catch(e) {}
-
-      if (_cached && _cached.length) {
-        // 命中缓存，直接渲染
-        const aiMap = {};
-        _cached.forEach(s => { aiMap[s.gz] = s; });
-        bzRenderDyBarWithScores(p, daYun, activeIdx, aiMap);
-      } else {
-        // 无缓存，调 AI
-        const _loadTip = document.createElement('div');
-        _loadTip.id = 'bzDyBarLoading';
-        _loadTip.style.cssText = 'font-size:11px;color:#c0a060;text-align:center;padding:4px 0 0;';
-        _loadTip.textContent = 'AI 分析中…';
-        _barEl.appendChild(_loadTip);
-        bzAIScoreDaYun(p, daYun, _isStrong).then(aiScores => {
-          if (!aiScores || !aiScores.length) return;
-          try { localStorage.setItem(_cacheKey, JSON.stringify(aiScores)); } catch(e) {}
-          const aiMap = {};
-          aiScores.forEach(s => { aiMap[s.gz] = s; });
-          bzRenderDyBarWithScores(p, daYun, activeIdx, aiMap);
-          const tip = document.getElementById('bzDyBarLoading');
-          if (tip) tip.remove();
-        }).catch(() => {
-          const tip = document.getElementById('bzDyBarLoading');
-          if (tip) tip.remove();
-        });
-      }
-    }
-
     // 起运日期
     const startEl = document.getElementById('bzDyStart');
     if (startEl) {
@@ -5564,17 +5820,18 @@ function bzRenderDaYun(pOrId, activeIdx) {
       </td>`;
     }
 
-    // ── 大运 table ──────────────────────────────────────────────────
+    // ── 大运 table（柱状图行 + 干支行，共享同一 bz-hscroll） ──────
     const dyRow = document.getElementById('bzDyRow');
     if (dyRow) {
       const prevScroll = dyRow.querySelector('.bz-hscroll')?.scrollLeft || 0;
+      const barHtml = _bzBarRowHtml(p, daYun, activeIdx, _isStrong);
       const tds = daYun.map((dy,i) => {
         const gz=dy.getGanZhi(), sa=dy.getStartAge(), sy=dy.getStartYear();
         const isNow=sy<=now&&dy.getEndYear()>=now;
         const ageLabel=gz?sa+'岁':'&lt;6';
         return col(gz||null, ageLabel, sy, i===activeIdx, isNow, `bzRenderDaYun('${p.id}',${i})`);
       }).join('');
-      dyRow.innerHTML=`<div class="bz-hscroll"><table style="border-collapse:collapse;white-space:nowrap;"><tr>${tds}</tr></table></div>`;
+      dyRow.innerHTML=`<div class="bz-hscroll"><table style="border-collapse:collapse;white-space:nowrap;"><tr id="bzBarTr">${barHtml}</tr><tr>${tds}</tr></table></div>`;
       if (prevScroll) dyRow.querySelector('.bz-hscroll').scrollLeft = prevScroll;
     }
 
@@ -5592,6 +5849,341 @@ function bzRenderDaYun(pOrId, activeIdx) {
     }
 
   } catch(e){ console.warn('DaYun error:',e); }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// 八字 AI 解读 弹窗
+// ══════════════════════════════════════════════════════════════════
+let bzAiMessages = [];
+let bzAiPid = null;
+let bzAiSessionId = null;
+const _BZ_AI_KEY = 'yior_bz_ai';
+
+// ── 会员检查接口（预留，目前全部放行） ───────────────────────────
+function bzAiIsPremium() {
+  // TODO: return false if user has no membership, then show upgrade UI
+  return true;
+}
+
+function bzAiGetContext(p) {
+  const gender = p.gender === 'male' ? '男' : '女';
+  const ganzhi = `${p.yearGan||''}${p.yearZhi||''}年 ${p.monthGan||''}${p.monthZhi||''}月 ${p.dayGan||''}${p.dayZhi||''}日 ${p.hourGan||''}${p.hourZhi||''}时`;
+  return `[八字命盘背景信息]\n姓名：${p.name||'用户'} | 性别：${gender} | 年龄：${new Date().getFullYear()-p.year+1}岁\n出生：${p.year}年${p.month}月${p.day}日 ${p.hour}时\n四柱八字：${ganzhi}\n日主：${p.dayGan||''}（${p.yearGz||''}年柱 ${p.monthGz||''}月柱 ${p.dayGz||''}日柱 ${p.hourGz||''}时柱）\n请严格基于以上八字命盘进行解读，所有回答必须紧扣该用户命理，不要泛泛而谈。\n\n`;
+}
+
+function bzAiOpen(pid) {
+  if (!bzAiIsPremium()) {
+    // TODO: 替换为会员升级弹窗
+    alert('此功能需要开通会员，敬请期待！');
+    return;
+  }
+  const profiles = JSON.parse(localStorage.getItem('bz_profiles') || '[]');
+  const p = profiles.find(x => String(x.id) === String(pid));
+  if (!p) return;
+
+  bzAiPid = pid;
+
+  // 加载已有会话或初始化
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(`${_BZ_AI_KEY}_${pid}`)); } catch(e){}
+
+  if (saved && Array.isArray(saved.messages) && saved.messages.length) {
+    bzAiMessages = saved.messages;
+    bzAiSessionId = saved.sessionId || ('bzai-' + pid + '-' + Date.now());
+  } else {
+    bzAiSessionId = 'bzai-' + pid + '-' + Date.now();
+    bzAiMessages = [{
+      role: 'ai',
+      text: `你好！我已读取了**${p.name||'你'}**的八字命盘。\n\n你可以问我关于命格、感情、事业财运、性格特点，或今年整体运势等任何命理问题。`,
+      showAvatar: true
+    }];
+  }
+
+  const modal = document.getElementById('bzAiModal');
+  if (!modal) return;
+  modal.style.display = 'flex';
+  setTimeout(() => {
+    const panel = document.getElementById('bzAiPanel');
+    if (panel) panel.style.transform = 'translateY(0)';
+  }, 16);
+
+  bzAiRender();
+  bzAiRenderSuggestions(p);
+}
+
+function bzAiClose() {
+  const panel = document.getElementById('bzAiPanel');
+  if (panel) panel.style.transform = 'translateY(100%)';
+  setTimeout(() => {
+    const modal = document.getElementById('bzAiModal');
+    if (modal) modal.style.display = 'none';
+  }, 340);
+}
+
+function bzAiToggleSize() {
+  const panel = document.getElementById('bzAiPanel');
+  if (!panel) return;
+  const big = panel.style.height === '96%';
+  panel.style.height = big ? '82%' : '96%';
+  const btn = document.getElementById('bzAiExpandBtn');
+  if (btn) btn.querySelector('svg').style.transform = big ? '' : 'rotate(180deg)';
+}
+
+function bzAiRenderSuggestions(p) {
+  const el = document.getElementById('bzai-suggestions');
+  if (!el) return;
+  const yr = new Date().getFullYear();
+  const qs = [
+    `${yr}年我的整体运势怎样？`,
+    `我的命格有什么特点？`,
+    `${yr}年感情运势如何？`,
+    `我适合从事哪类事业？`,
+  ];
+  el.innerHTML = `<div style="display:flex;flex-wrap:wrap;gap:6px;">` +
+    qs.map(q =>
+      `<div onclick="bzAiQuick(this)" data-q="${q.replace(/"/g,'&quot;')}" style="padding:6px 13px;background:#fff;border:1px solid #e0d8cc;border-radius:20px;font-size:12.5px;color:#666;cursor:pointer;font-family:'Microsoft YaHei';">${q}</div>`
+    ).join('') + `</div>`;
+}
+
+function bzAiQuick(el) {
+  const q = el.dataset.q;
+  const inp = document.getElementById('bzai-input');
+  if (inp) inp.value = q;
+  bzAiSend();
+}
+
+function bzAiRender() {
+  const body = document.getElementById('bzai-body');
+  if (!body) return;
+  let html = '';
+  bzAiMessages.forEach(msg => {
+    if (msg.role === 'user') {
+      html += `<div style="display:flex;justify-content:flex-end;margin:8px 0;">
+        <div style="max-width:76%;background:linear-gradient(135deg,#5bbcf0,#2e9de0);color:#fff;border-radius:18px 18px 4px 18px;padding:10px 14px;font-size:13.5px;line-height:1.65;font-family:'Microsoft YaHei';">${msg.text}</div>
+      </div>`;
+    } else {
+      const content = msg.streaming
+        ? `<span id="bzai-sc">${acFmt(msg.text||'…')}</span>`
+        : acFmt(msg.text || '');
+      const actions = (!msg.streaming && msg.text) ? `
+        <div style="display:flex;gap:18px;margin-top:10px;padding-top:8px;border-top:1px solid #f0f0f0;align-items:center;">
+          <svg id="bzai-copy-${idx}" onclick="bzAiCopy(${idx})" style="cursor:pointer;" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.8"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          <svg id="bzai-like-${idx}" onclick="bzAiFeedbackOpen(${idx},'like')" style="cursor:pointer;" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.8"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>
+          <svg id="bzai-dislike-${idx}" onclick="bzAiFeedbackOpen(${idx},'dislike')" style="cursor:pointer;" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.8"><path d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0122 4v7a2.31 2.31 0 01-2.33 2H17"/></svg>
+          <svg onclick="bzAiShare(${idx})" style="cursor:pointer;" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.8"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+        </div>` : '';
+      html += `<div data-txt="${(msg.text||'').replace(/"/g,'&quot;')}" style="margin:8px 0;">
+        <div style="background:#fff;border-radius:4px 18px 18px 18px;padding:12px 14px;font-size:13.5px;line-height:1.75;color:#333;font-family:'Microsoft YaHei';box-shadow:0 1px 5px rgba(0,0,0,.07);">${content}${actions}</div>
+      </div>`;
+    }
+  });
+  body.innerHTML = html;
+  body.scrollTop = body.scrollHeight;
+}
+
+async function bzAiSend() {
+  if (!bzAiPid) return;
+  const inp = document.getElementById('bzai-input');
+  const text = (inp ? inp.value : '').trim();
+  if (!text) return;
+  if (inp) inp.value = '';
+
+  // 隐藏建议问题
+  const sug = document.getElementById('bzai-suggestions');
+  if (sug) sug.style.display = 'none';
+
+  bzAiMessages.push({ role: 'user', text });
+  const streamIdx = bzAiMessages.length;
+  bzAiMessages.push({ role: 'ai', text: '', showAvatar: true, streaming: true });
+  bzAiRender();
+
+  const profiles = JSON.parse(localStorage.getItem('bz_profiles') || '[]');
+  const p = profiles.find(x => String(x.id) === String(bzAiPid));
+  const ctx = p ? bzAiGetContext(p) : '';
+  const fullMsg = ctx + text;
+
+  let accumulated = '';
+  try {
+    const res = await fetch(`${AI_BASE}/api/v1/workspace/${AI_WORKSPACE}/stream-chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${AI_KEY}` },
+      body: JSON.stringify({ message: fullMsg, mode: 'chat', sessionId: bzAiSessionId })
+    });
+    if (!res.ok) throw new Error('API ' + res.status);
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buf = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += decoder.decode(value, { stream: true });
+      const lines = buf.split('\n');
+      buf = lines.pop() || '';
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        try {
+          const d = JSON.parse(line.slice(6));
+          if (d.textResponse) {
+            accumulated += d.textResponse;
+            const vis = acStripThink(accumulated);
+            bzAiMessages[streamIdx] = { role: 'ai', text: vis, showAvatar: true, streaming: true };
+            const sc = document.getElementById('bzai-sc');
+            if (sc) { sc.innerHTML = acFmt(vis); const b = document.getElementById('bzai-body'); if(b) b.scrollTop = b.scrollHeight; }
+          }
+          if (d.close) {
+            const final = acStripThink(accumulated) || '暂时无法解读，请稍后再试。';
+            bzAiMessages[streamIdx] = { role: 'ai', text: final, showAvatar: true };
+            bzAiSaveSession();
+            bzAiRender();
+          }
+        } catch(e) {}
+      }
+    }
+  } catch(e) {
+    bzAiMessages[streamIdx] = { role: 'ai', text: '连接失败，请检查网络后重试。', showAvatar: true };
+    bzAiRender();
+  }
+}
+
+function bzAiSaveSession() {
+  if (!bzAiPid) return;
+  try {
+    localStorage.setItem(`${_BZ_AI_KEY}_${bzAiPid}`, JSON.stringify({
+      sessionId: bzAiSessionId,
+      messages: bzAiMessages,
+      updatedAt: Date.now()
+    }));
+  } catch(e) {}
+}
+
+// ── 操作按钮 ────────────────────────────────────────────────────
+function bzAiCopy(idx) {
+  const msg = bzAiMessages[idx];
+  if (!msg) return;
+  const text = (msg.text || '').replace(/<[^>]+>/g, '');
+  if (navigator.clipboard) navigator.clipboard.writeText(text);
+  const el = document.getElementById(`bzai-copy-${idx}`);
+  if (el) { el.setAttribute('stroke', '#52c41a'); setTimeout(() => el.setAttribute('stroke', '#ccc'), 1500); }
+}
+
+function bzAiShare(idx) {
+  const msg = bzAiMessages[idx];
+  if (!msg) return;
+  const text = (msg.text || '').replace(/<[^>]+>/g, '').slice(0, 200);
+  if (navigator.share) {
+    navigator.share({ title: 'Yior 八字解读', text });
+  } else {
+    if (navigator.clipboard) navigator.clipboard.writeText(text);
+  }
+}
+
+// ── 内容反馈 ─────────────────────────────────────────────────────
+let _bzFbIdx = -1;
+let _bzFbType = '';
+let _bzFbSelected = new Set();
+
+const _BZ_FB_LIKE_TAGS    = ['逻辑清晰/易读懂', '专业性强，解读正确', '提供正向的情绪价值', '与事实接近'];
+const _BZ_FB_DISLIKE_TAGS = ['没有理解我的发言', '读不懂/逻辑性差/有病句', '专业性知识错误', '内容影响心情'];
+
+function bzAiFeedbackOpen(idx, type) {
+  _bzFbIdx = idx;
+  _bzFbType = type;
+  _bzFbSelected = new Set();
+
+  const tags = type === 'like' ? _BZ_FB_LIKE_TAGS : _BZ_FB_DISLIKE_TAGS;
+  const tagsEl = document.getElementById('bzai-fb-tags');
+  if (tagsEl) {
+    tagsEl.innerHTML = tags.map(t =>
+      `<div onclick="bzAiFbToggleTag(this,'${t.replace(/'/g,"\\'")}')"`+
+      ` data-tag="${t}" style="padding:8px 16px;background:#f5f3f0;border:1px solid #e8e0d8;border-radius:20px;font-size:13px;color:#555;cursor:pointer;font-family:'Microsoft YaHei';">${t}</div>`
+    ).join('');
+  }
+
+  const txtEl = document.getElementById('bzai-fb-text');
+  if (txtEl) {
+    txtEl.value = '';
+    txtEl.style.display = type === 'dislike' ? 'block' : 'none';
+  }
+
+  // 高亮对应按钮
+  const likeEl = document.getElementById(`bzai-like-${idx}`);
+  const dislikeEl = document.getElementById(`bzai-dislike-${idx}`);
+  if (likeEl) likeEl.setAttribute('stroke', type === 'like' ? '#2e9de0' : '#ccc');
+  if (dislikeEl) dislikeEl.setAttribute('stroke', type === 'dislike' ? '#e05a2e' : '#ccc');
+
+  const ov = document.getElementById('bzai-fb-overlay');
+  if (ov) { ov.style.display = 'flex'; setTimeout(() => { const p = document.getElementById('bzai-fb-panel'); if(p) p.style.transform = 'translateY(0)'; }, 16); }
+}
+
+function bzAiFbToggleTag(el, tag) {
+  if (_bzFbSelected.has(tag)) {
+    _bzFbSelected.delete(tag);
+    el.style.background = '#f5f3f0';
+    el.style.borderColor = '#e8e0d8';
+    el.style.color = '#555';
+  } else {
+    _bzFbSelected.add(tag);
+    el.style.background = '#e8f4fb';
+    el.style.borderColor = '#5bbcf0';
+    el.style.color = '#2e9de0';
+  }
+}
+
+function bzAiFeedbackClose() {
+  const p = document.getElementById('bzai-fb-panel');
+  if (p) p.style.transform = 'translateY(100%)';
+  setTimeout(() => { const ov = document.getElementById('bzai-fb-overlay'); if(ov) ov.style.display = 'none'; }, 300);
+}
+
+async function bzAiFeedbackSubmit() {
+  const txtEl = document.getElementById('bzai-fb-text');
+  const comment = txtEl ? txtEl.value.trim() : '';
+  const tags = [..._bzFbSelected];
+
+  const msg = bzAiMessages[_bzFbIdx] || {};
+  const prevUser = [...bzAiMessages].slice(0, _bzFbIdx).reverse().find(m => m.role === 'user');
+
+  const payload = {
+    type: _bzFbType,
+    tags,
+    comment,
+    aiMsg: (msg.text || '').slice(0, 300),
+    userMsg: prevUser ? prevUser.text.slice(0, 200) : '',
+    pid: bzAiPid,
+    ts: Date.now()
+  };
+
+  // 发送到服务器（如可达）
+  try {
+    await fetch(`${AI_BASE.replace(':6889', ':3000')}/api/feedback`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+  } catch(e) {
+    // 服务器不可达时存本地
+    try {
+      const local = JSON.parse(localStorage.getItem('yior_fb_local') || '[]');
+      local.unshift(payload);
+      localStorage.setItem('yior_fb_local', JSON.stringify(local.slice(0, 50)));
+    } catch(e2) {}
+  }
+
+  bzAiFeedbackClose();
+}
+
+// ── 工具栏按钮 ───────────────────────────────────────────────────
+function bzAiShowTools() {
+  // TODO: 展开工具选项（参考主AI工具栏）
+  alert('工具功能即将上线');
+}
+function bzAiDeepRead() {
+  // TODO: 深度解读 —— 会员专属
+  alert('深度解读为会员专属功能，即将上线！');
+}
+function bzAiSoulMate() {
+  // TODO: 灵魂伴侣 —— 会员专属
+  alert('灵魂伴侣功能即将上线，敬请期待！');
 }
 
 </script>
